@@ -1,7 +1,6 @@
 import { apiManager } from './client';
 import type { IBank, IUser, IUserAddress } from '@/types/auth';
 import type { SuccessResponse } from '@/types/api';
-import type { IStore } from '@/types/store';
 
 export interface IAddressPayload {
   street: string;
@@ -21,10 +20,6 @@ export const userApi = apiManager.injectEndpoints({
     updateMe: build.mutation<IUser, FormData>({
       query: (formData) => ({ url: 'users/me', method: 'PATCH', body: formData }),
       invalidatesTags: ['User'],
-    }),
-    getMyStores: build.query<IStore[], void>({
-      query: () => 'users/me/stores',
-      providesTags: ['Store'],
     }),
     getBanks: build.query<IBank[], void>({
       query: () => 'payments/paystack/banks',
@@ -60,7 +55,6 @@ export const userApi = apiManager.injectEndpoints({
 export const {
   useGetMeQuery,
   useUpdateMeMutation,
-  useGetMyStoresQuery,
   useGetBanksQuery,
   useRegisterBankMutation,
   useVerifyBankDetailsMutation,

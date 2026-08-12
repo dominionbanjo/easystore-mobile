@@ -112,10 +112,6 @@ export const adminApi = apiManager.injectEndpoints({
       }),
       invalidatesTags: ['Payout'],
     }),
-    getAdminInstallments: build.query<IPaginatedData<unknown>, { page?: number }>({
-      query: ({ page = 1 } = {}) => `admin/installments?page=${page}&limit=20`,
-      providesTags: ['Installments'],
-    }),
     getAdminSchoolZones: build.query<IPaginatedData<ISchoolZone>, { page?: number }>({
       query: ({ page = 1 } = {}) => `school-zones/admin/all?page=${page}&limit=20`,
       providesTags: ['SchoolZone'],
