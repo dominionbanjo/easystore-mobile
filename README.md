@@ -1,56 +1,78 @@
-# Welcome to your Expo app 👋
+# EasyStore Mobile
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+React Native (Expo) client for the EasyStore marketplace — buyer storefront, vendor dashboard, staff POS, and platform admin in one app.
 
-## Get started
+## Stack
 
-1. Install dependencies
+- Expo SDK 57 + Expo Router (file-based routing)
+- Redux Toolkit + RTK Query (mirrors the web app's API layer)
+- TypeScript strict — zero `any`
+- expo-secure-store (JWT), AsyncStorage + redux-persist (guest cart, sale cart)
+- socket.io-client (messaging), expo-camera (barcode), expo-web-browser (Paystack)
+- react-native-gifted-charts (analytics), react-hook-form + zod
 
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Getting started
 
 ```bash
-npm run reset-project
+npm install
+npx expo start        # scan the QR with Expo Go
+npx expo start --android
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### API base URL
 
-### Other setup steps
+Defaults to `http://localhost:3000`. Override per environment:
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+```bash
+# .env (project root of easystore-mobile)
+EXPO_PUBLIC_API_URL=https://api.eazystore.com.ng
+```
 
-## Learn more
+Note: Android emulators reach the host machine at `http://10.0.2.2:3000`.
 
-To learn more about developing your project with Expo, look at the following resources:
+## Architecture
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```
+src/app/             Expo Router routes (file-based)
+  (auth)/            login, signup, verify-otp, forgot/reset password
+  (storefront)/      buyer tabs: home, search, cart, account
+  (vendor)/          vendor dashboard: products, orders, customers, staff, POS,
+                     sales-history, payouts, school-zones, analytics, settings
+  (staff)/           permission-gated POS + sales history + settings
+  (admin)/           platform overview, users, vendors, orders, transactions,
+                     payouts, installments, zones, broadcasts, notifications,
+                     reports, logs, analytics, access control
+  product/ store/ zone/ category/ …   shared routes for all personas
+src/api/             RTK Query slices (auth, product, order, cart, store, staff,
+                     admin, installment, zone, messaging, upload, …)
+src/components/ui     theme-driven UI kit (Button, Input, Modal, Select, Card,
+                     Skeleton, EmptyState, StatsCard, Form* wrappers, Toast)
+src/components/shared ProductCard, PaginatedList, StatusBadge, ImageUpload, …
+src/features/        Redux slices (auth, ui, cart, saleCart)
+src/theme/           brand theme (#17c06e), light/dark
+src/types/           API entity types (mirrors web types/)
+src/utils/           money (kobo→NGN), error, validators, upload, permissions
+```
 
-## Join the community
+## Personas (role-based routing)
 
-Join our community of developers creating universal apps.
+| account_type | Landing | Notes |
+|---|---|---|
+| `user` | `/home` storefront | browse, cart, checkout, orders, installments, messaging |
+| `vendor` | `/vendor` | store management incl. POS sales terminal |
+| `staff` | `/staff` | POS only — nav gated by `GET /staff/permissions` |
+| `admin` | `/admin` | platform management |
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Verification
+
+```bash
+npx tsc --noEmit         # strict typecheck — must be clean
+npx expo lint            # eslint — must be clean
+npx expo export --platform android   # production bundle check
+```
+
+## Repo conventions
+
+- Commits are per-iteration (`Iter N: …`) — see `git log`.
+- Build outputs (`dist/`, `dist-export/`) are gitignored — never committed.
+- Full feature tracklist and iteration log: `../EASYSTORE-MOBILE-TRACKLIST.md`
