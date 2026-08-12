@@ -49,9 +49,7 @@ function ToastItem({
   type: 'success' | 'error' | 'info';
   onDone: () => void;
 }) {
-  // eslint-disable-next-line react-hooks/refs
   const opacity = useRef(new Animated.Value(0)).current;
-  // eslint-disable-next-line react-hooks/refs
   const translateY = useRef(new Animated.Value(-16)).current;
   const { colors, radius, spacing } = useAppTheme();
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -80,7 +78,6 @@ function ToastItem({
 
   return (
     <Animated.View
-      /* eslint-disable react-hooks/refs */
       style={[
         {
           backgroundColor: colors.surface,
@@ -97,7 +94,6 @@ function ToastItem({
           transform: [{ translateY }],
         },
       ]}
-      /* eslint-enable react-hooks/refs */
     >
       <AppText variant="label" weight="medium">
         {message}
