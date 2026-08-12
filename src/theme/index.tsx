@@ -23,34 +23,34 @@ export interface ThemeColors {
 }
 
 export const lightColors: ThemeColors = {
-  background: '#f8faf9',
+  background: '#ffffff',
   surface: '#ffffff',
-  surfaceAlt: '#f1f5f3',
-  border: '#e2e8e6',
+  surfaceAlt: '#f4f4f5',
+  border: '#e4e4e7',
   primary: '#17c06e',
-  primaryForeground: '#ffffff',
-  primaryMuted: '#e6f7ee',
-  text: '#0f172a',
-  textMuted: '#475569',
-  textSubtle: '#94a3b8',
-  success: '#16a34a',
+  primaryForeground: '#fafafa',
+  primaryMuted: '#e8f8f0',
+  text: '#18181b',
+  textMuted: '#71717a',
+  textSubtle: '#a1a1aa',
+  success: '#10b981',
   warning: '#f59e0b',
-  danger: '#dc2626',
+  danger: '#ef4444',
   info: '#2563eb',
-  overlay: 'rgba(15, 23, 42, 0.5)',
+  overlay: 'rgba(24, 24, 27, 0.55)',
 };
 
 export const darkColors: ThemeColors = {
-  background: '#0b0f0e',
-  surface: '#131a17',
-  surfaceAlt: '#1c2521',
-  border: '#26312c',
-  primary: '#17c06e',
-  primaryForeground: '#04150c',
-  primaryMuted: '#123523',
-  text: '#e6ede9',
-  textMuted: '#9fb0a7',
-  textSubtle: '#5d6f66',
+  background: '#18181b',
+  surface: '#27272a',
+  surfaceAlt: '#3f3f46',
+  border: 'rgba(255, 255, 255, 0.1)',
+  primary: '#10b981',
+  primaryForeground: '#ffffff',
+  primaryMuted: '#0f3d2c',
+  text: '#fafafa',
+  textMuted: '#a1a1aa',
+  textSubtle: '#71717a',
   success: '#34d399',
   warning: '#fbbf24',
   danger: '#f87171',
@@ -68,15 +68,15 @@ export const spacing = {
 } as const;
 
 export const radius = {
-  sm: 8,
-  md: 12,
-  lg: 16,
-  xl: 24,
+  sm: 4,
+  md: 6,
+  lg: 10,
+  xl: 14,
   full: 999,
 } as const;
 
 export const typography = {
-  xs: 11,
+  xs: 10,
   sm: 13,
   md: 15,
   lg: 17,
@@ -85,12 +85,23 @@ export const typography = {
   display: 32,
 } as const;
 
+export const fonts = {
+  regular: 'Outfit_400Regular',
+  medium: 'Outfit_500Medium',
+  semibold: 'Outfit_600SemiBold',
+  bold: 'Outfit_700Bold',
+  extrabold: 'Outfit_800ExtraBold',
+  black: 'Outfit_900Black',
+  light: 'Outfit_300Light',
+} as const;
+
 export interface Theme {
   mode: ThemeMode;
   colors: ThemeColors;
   spacing: typeof spacing;
   radius: typeof radius;
   typography: typeof typography;
+  fonts: typeof fonts;
   isDark: boolean;
 }
 
@@ -100,6 +111,7 @@ const ThemeContext = createContext<Theme>({
   spacing,
   radius,
   typography,
+  fonts,
   isDark: false,
 });
 
@@ -111,6 +123,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     spacing,
     radius,
     typography,
+    fonts,
     isDark: mode === 'dark',
   };
   return (

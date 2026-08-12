@@ -5,6 +5,16 @@ import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import * as SecureStore from 'expo-secure-store';
 import { StatusBar } from 'expo-status-bar';
+import {
+  Outfit_300Light,
+  Outfit_400Regular,
+  Outfit_500Medium,
+  Outfit_600SemiBold,
+  Outfit_700Bold,
+  Outfit_800ExtraBold,
+  Outfit_900Black,
+  useFonts,
+} from '@expo-google-fonts/outfit';
 
 import { store, persistor } from '@/store';
 import { setStoreRef } from '@/api/client';
@@ -25,6 +35,16 @@ function RootNavigator() {
   const mode = useThemeMode();
   const theme = useAppTheme();
 
+  const [fontsLoaded] = useFonts({
+    Outfit_300Light,
+    Outfit_400Regular,
+    Outfit_500Medium,
+    Outfit_600SemiBold,
+    Outfit_700Bold,
+    Outfit_800ExtraBold,
+    Outfit_900Black,
+  });
+
   useEffect(() => {
     (async () => {
       try {
@@ -42,12 +62,17 @@ function RootNavigator() {
         }
       } finally {
         setBooting(false);
-        SplashScreen.hideAsync();
       }
     })();
   }, [dispatch]);
 
-  if (booting) {
+  useEffect(() => {
+    if (!booting && fontsLoaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [booting, fontsLoaded]);
+
+  if (booting || !fontsLoaded) {
     return (
       <View style={{ flex: 1, backgroundColor: theme.colors.background }} />
     );

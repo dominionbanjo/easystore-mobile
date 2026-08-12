@@ -1,12 +1,12 @@
 import { ActivityIndicator, Pressable, View } from 'react-native';
 import type { ReactNode } from 'react';
-import { useAppTheme } from '@/theme';
+import { useAppTheme } from '../../theme';
 import { AppText } from './Text';
 
 interface ButtonProps {
   title: string;
   onPress?: () => void;
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'link';
   size?: 'sm' | 'md' | 'lg';
   loading?: boolean;
   disabled?: boolean;
@@ -26,28 +26,52 @@ export function Button({
   fullWidth = true,
   style,
 }: ButtonProps) {
-  const { colors, radius, spacing, typography } = useAppTheme();
+  const { radius, spacing } = useAppTheme();
+  const isDark = useAppTheme().isDark;
 
   const backgrounds: Record<string, string> = {
-    primary: colors.primary,
-    secondary: colors.primaryMuted,
+    primary: '#17c06e',
+    secondary: isDark ? 'rgba(255,255,255,0.06)' : '#f4f4f5',
     outline: 'transparent',
     ghost: 'transparent',
-    danger: colors.danger,
+    danger: '#f43f5e',
+    link: 'transparent',
   };
 
   const textColors: Record<string, string> = {
-    primary: colors.primaryForeground,
-    secondary: colors.primary,
-    outline: colors.primary,
-    ghost: colors.primary,
+    primary: '#ffffff',
+    secondary: isDark ? '#ffffff' : '#18181b',
+    outline: isDark ? '#ffffff' : '#18181b',
+    ghost: '#17c06e',
     danger: '#ffffff',
+    link: '#17c06e',
+  };
+
+  const borders: Record<string, string> = {
+    primary: 'transparent',
+    secondary: 'transparent',
+    outline: isDark ? 'rgba(255,255,255,0.1)' : '#e4e4e7',
+    ghost: 'transparent',
+    danger: 'transparent',
+    link: 'transparent',
   };
 
   const heights: Record<string, number> = {
     sm: 36,
     md: 44,
-    lg: 52,
+    lg: 48,
+  };
+
+  const paddings: Record<string, number> = {
+    sm: 12,
+    md: 24,
+    lg: 32,
+  };
+
+  const fontSizes: Record<string, number> = {
+    sm: 12,
+    md: 14,
+    lg: 16,
   };
 
   const isDisabled = disabled || loading;
@@ -59,17 +83,17 @@ export function Button({
       style={({ pressed }) => [
         {
           height: heights[size],
-          borderRadius: radius.md,
+          borderRadius: radius.sm,
           backgroundColor: backgrounds[variant],
           borderWidth: variant === 'outline' ? 1 : 0,
-          borderColor: colors.primary,
+          borderColor: borders[variant],
           alignItems: 'center',
           justifyContent: 'center',
           flexDirection: 'row',
           gap: spacing.sm,
-          paddingHorizontal: spacing.lg,
-          opacity: isDisabled ? 0.5 : pressed ? 0.85 : 1,
-          width: fullWidth ? '100%' : undefined,
+          paddingHorizontal: paddings[size],
+          opacity: isDisabled ? 0.5 : 1,
+          transform: [{ scale: pressed && !isDisabled ? 0.98 : 1 }],
         },
         style,
       ]}
@@ -80,8 +104,8 @@ export function Button({
         <>
           {icon}
           <AppText
-            style={{ fontSize: size === 'lg' ? typography.lg : typography.md }}
-            weight="semibold"
+            style={{ fontSize: fontSizes[size] }}
+            weight={variant === 'primary' ? 'bold' : 'semibold'}
             color={textColors[variant]}
           >
             {title}
@@ -115,7 +139,7 @@ export function IconButton({
         {
           width: 40,
           height: 40,
-          borderRadius: radius.md,
+          borderRadius: radius.sm,
           alignItems: 'center',
           justifyContent: 'center',
           backgroundColor: colors.surfaceAlt,
@@ -149,9 +173,9 @@ export function Chip({
           paddingHorizontal: spacing.md,
           paddingVertical: spacing.sm,
           borderRadius: radius.full,
-          backgroundColor: selected ? colors.primary : colors.surface,
+          backgroundColor: selected ? '#17c06e' : colors.surfaceAlt,
           borderWidth: 1,
-          borderColor: selected ? colors.primary : colors.border,
+          borderColor: selected ? '#17c06e' : colors.border,
           opacity: pressed ? 0.8 : 1,
         },
         style,
@@ -160,7 +184,7 @@ export function Chip({
       <AppText
         variant="label"
         weight="medium"
-        color={selected ? colors.primaryForeground : colors.textMuted}
+        color={selected ? '#ffffff' : colors.textMuted}
       >
         {label}
       </AppText>
@@ -186,7 +210,7 @@ export function SegmentedControl<T extends string>({
         {
           flexDirection: 'row',
           backgroundColor: colors.surfaceAlt,
-          borderRadius: radius.md,
+          borderRadius: radius.sm,
           padding: spacing.xs,
           gap: spacing.xs,
         },
@@ -210,7 +234,7 @@ export function SegmentedControl<T extends string>({
             <AppText
               variant="label"
               weight={selected ? 'semibold' : 'regular'}
-              color={selected ? colors.primary : colors.textMuted}
+              color={selected ? '#17c06e' : colors.textMuted}
             >
               {option.label}
             </AppText>

@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "EasyStore",
+    "name": "EazyStore",
     "slug": "easystore-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -11,7 +11,7 @@
       "icon": "./assets/expo.icon",
       "supportsTablet": true,
       "infoPlist": {
-        "NSCameraUsageDescription": "EasyStore uses the camera to scan product barcodes at the sales terminal."
+        "NSCameraUsageDescription": "EazyStore uses the camera to scan product barcodes at the sales terminal."
       }
     },
     "android": {
@@ -40,7 +40,7 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "Allow EasyStore to access your camera to scan product barcodes.",
+          "cameraPermission": "Allow EazyStore to access your camera to scan product barcodes.",
           "barcodeScannerEnabled": true,
           "recordAudioAndroid": false
         }
@@ -48,7 +48,7 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Allow EasyStore to access your photos so you can add product images."
+          "photosPermission": "Allow EazyStore to access your photos so you can add product images."
         }
       ]
     ],

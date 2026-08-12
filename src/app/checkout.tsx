@@ -92,7 +92,7 @@ export default function CheckoutScreen() {
       if (result.payment_url) {
         const openResult = await WebBrowser.openAuthSessionAsync(
           result.payment_url,
-          'easystore://verify-payment',
+          'EazyStore://verify-payment',
         );
         if (openResult.type === 'success' && openResult.url) {
           const reference = openResult.url.split('reference=')[1]?.split('&')[0];

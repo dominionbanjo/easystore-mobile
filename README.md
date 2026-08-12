@@ -1,6 +1,6 @@
-# EasyStore Mobile
+# EazyStore Mobile
 
-React Native (Expo) client for the EasyStore marketplace — buyer storefront, vendor dashboard, staff POS, and platform admin in one app.
+React Native (Expo) client for the EazyStore marketplace — buyer storefront, vendor dashboard, staff POS, and platform admin in one app.
 
 ## Stack
 
@@ -24,7 +24,7 @@ npx expo start --android
 Defaults to `http://localhost:3000`. Override per environment:
 
 ```bash
-# .env (project root of easystore-mobile)
+# .env (project root of EazyStore-mobile)
 EXPO_PUBLIC_API_URL=https://api.eazystore.com.ng
 ```
 
@@ -75,4 +75,4 @@ npx expo export --platform android   # production bundle check
 
 - Commits are per-iteration (`Iter N: …`) — see `git log`.
 - Build outputs (`dist/`, `dist-export/`) are gitignored — never committed.
-- Full feature tracklist and iteration log: `../EASYSTORE-MOBILE-TRACKLIST.md`
+- Full feature tracklist and iteration log: `../EazyStore-MOBILE-TRACKLIST.md`

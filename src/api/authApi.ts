@@ -52,6 +52,19 @@ export const authApi = apiManager.injectEndpoints({
       },
       invalidatesTags: ['Auth', 'User'],
     }),
+    googleLogin: build.mutation<IAuthData, { token: string }>({
+      query: (body) => ({ url: 'auth/google', method: 'POST', body }),
+      onQueryStarted: async (_arg, { dispatch, queryFulfilled }) => {
+        try {
+          const { data } = await queryFulfilled;
+          await SecureStore.setItemAsync(TOKEN_STORAGE_KEY, data.access);
+          dispatch(setCredentials(data));
+        } catch {
+          // handled by caller
+        }
+      },
+      invalidatesTags: ['Auth', 'User'],
+    }),
     resendOtp: build.mutation<{ success: boolean }, { email: string }>({
       query: (body) => ({ url: 'auth/resend-otp', method: 'POST', body }),
     }),
@@ -97,6 +110,7 @@ export const {
   useLoginMutation,
   useRegisterMutation,
   useVerifyOtpMutation,
+  useGoogleLoginMutation,
   useResendOtpMutation,
   useForgotPasswordMutation,
   useResetPasswordMutation,

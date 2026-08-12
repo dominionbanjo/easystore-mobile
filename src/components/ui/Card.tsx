@@ -1,9 +1,9 @@
 import { Pressable, View } from 'react-native';
 import type { ReactNode } from 'react';
-import { useAppTheme } from '@/theme';
+import { useAppTheme } from '../../theme';
 import { AppText } from './Text';
 
-export type BadgeVariant = 'default' | 'success' | 'warning' | 'danger' | 'info' | 'muted';
+export type BadgeVariant = 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' | 'info' | 'muted';
 
 export function Badge({
   label,
@@ -15,11 +15,14 @@ export function Badge({
   style?: object;
 }) {
   const { colors, radius, spacing } = useAppTheme();
-  const palettes: Record<BadgeVariant, { bg: string; fg: string }> = {
-    default: { bg: colors.primaryMuted, fg: colors.primary },
-    success: { bg: colors.primaryMuted, fg: colors.success },
+  const isDark = useAppTheme().isDark;
+  const palettes: Record<BadgeVariant, { bg: string; fg: string; border?: string }> = {
+    default: { bg: '#17c06e', fg: '#ffffff' },
+    secondary: { bg: isDark ? 'rgba(255,255,255,0.06)' : '#f4f4f5', fg: isDark ? '#ffffff' : '#18181b' },
+    destructive: { bg: '#f43f5e', fg: '#ffffff' },
+    outline: { bg: 'transparent', fg: colors.text, border: colors.border },
+    success: { bg: colors.primaryMuted, fg: '#10b981' },
     warning: { bg: '#fef3c7', fg: '#b45309' },
-    danger: { bg: '#fee2e2', fg: '#b91c1c' },
     info: { bg: '#dbeafe', fg: '#1d4ed8' },
     muted: { bg: colors.surfaceAlt, fg: colors.textMuted },
   };
@@ -29,9 +32,11 @@ export function Badge({
       style={[
         {
           paddingHorizontal: spacing.sm,
-          paddingVertical: 3,
-          borderRadius: radius.full,
+          paddingVertical: 2,
+          borderRadius: radius.sm,
           backgroundColor: palette.bg,
+          borderWidth: palette.border ? 1 : 0,
+          borderColor: palette.border,
           alignSelf: 'flex-start',
         },
         style,
@@ -56,14 +61,15 @@ export function Card({
   onPress?: () => void;
 }) {
   const { colors, radius } = useAppTheme();
+  const isDark = useAppTheme().isDark;
   const inner = (
     <View
       style={[
         {
           backgroundColor: colors.surface,
-          borderRadius: radius.lg,
+          borderRadius: radius.sm,
           borderWidth: 1,
-          borderColor: colors.border,
+          borderColor: isDark ? 'rgba(255,255,255,0.05)' : '#f4f4f5',
         },
         padded && { padding: 16 },
         style,

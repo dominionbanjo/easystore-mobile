@@ -15,5 +15,5 @@ export default function IndexRedirect() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, user]);
 
-  return <Redirect href={isAuthenticated && user ? (roleHome(user.account_type) as never) : '/login'} />;
+  return <Redirect href={isAuthenticated && user ? (roleHome(user.account_type) as never) : '/home'} />;
 }

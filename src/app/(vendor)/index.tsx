@@ -52,20 +52,12 @@ export default function VendorOverviewScreen() {
         <>
           <StatsGrid
             items={[
-              { label: 'Total Sales', value: formatNGN(summary.total_sales), accent: true },
-              { label: 'Orders', value: String(summary.orders) },
-              { label: 'Products', value: String(summary.total_products) },
-              { label: 'Customers', value: String(summary.customers) },
-              {
-                label: 'Pending Orders',
-                value: String(summary.pending_orders_count),
-                sublabel: summary.pending_orders_count > 0 ? 'Needs attention' : undefined,
-              },
-              {
-                label: 'Out of Stock',
-                value: String(summary.out_of_stock_count),
-                sublabel: summary.out_of_stock_count > 0 ? 'Restock soon' : undefined,
-              },
+              { label: 'Total Sales', value: formatNGN(summary.total_sales), iconColor: 'primary' },
+              { label: 'Orders', value: String(summary.orders), iconColor: 'blue' },
+              { label: 'Products', value: String(summary.total_products), iconColor: 'green' },
+              { label: 'Customers', value: String(summary.customers), iconColor: 'orange' },
+              { label: 'Pending Orders', value: String(summary.pending_orders_count) },
+              { label: 'Out of Stock', value: String(summary.out_of_stock_count) },
             ]}
           />
           {staffSummary ? (

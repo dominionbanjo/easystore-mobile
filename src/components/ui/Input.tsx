@@ -1,6 +1,6 @@
 import { TextInput, View } from 'react-native';
 import type { ReactNode } from 'react';
-import { useAppTheme } from '@/theme';
+import { useAppTheme } from '../../theme';
 import { AppText } from './Text';
 
 interface AppInputProps {
@@ -18,6 +18,7 @@ interface AppInputProps {
   editable?: boolean;
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
   maxLength?: number;
+  size?: 'sm' | 'md';
 }
 
 export function AppInput({
@@ -35,13 +36,16 @@ export function AppInput({
   editable = true,
   autoCapitalize = 'sentences',
   maxLength,
+  size = 'md',
 }: AppInputProps) {
   const { colors, radius, spacing, typography } = useAppTheme();
+
+  const height = size === 'md' ? 48 : 36;
 
   return (
     <View style={{ gap: spacing.xs }}>
       {label ? (
-        <AppText variant="label" weight="medium" color={colors.textMuted}>
+        <AppText variant="label" weight="medium" color={colors.textMuted} style={{ fontSize: 15 }}>
           {label}
         </AppText>
       ) : null}
@@ -51,11 +55,11 @@ export function AppInput({
           alignItems: multiline ? 'flex-start' : 'center',
           borderWidth: 1,
           borderColor: error ? colors.danger : colors.border,
-          borderRadius: radius.md,
-          backgroundColor: colors.surface,
-          paddingHorizontal: spacing.md,
+          borderRadius: radius.sm,
+          backgroundColor: colors.surfaceAlt,
+          paddingHorizontal: size === 'md' ? 12 : 10,
           gap: spacing.sm,
-          minHeight: 48,
+          minHeight: height,
         }}
       >
         {icon}
@@ -74,7 +78,8 @@ export function AppInput({
           style={{
             flex: 1,
             color: editable ? colors.text : colors.textSubtle,
-            fontSize: typography.md,
+            fontSize: size === 'md' ? typography.md : 13,
+            fontFamily: 'Outfit_400Regular',
             paddingVertical: multiline ? spacing.md : 0,
             textAlignVertical: multiline ? 'top' : 'center',
             minHeight: multiline ? numberOfLines * 20 : undefined,

@@ -32,10 +32,10 @@ export default function AdminOverviewScreen() {
       {stats ? (
         <StatsGrid
           items={[
-            { label: 'Total Revenue', value: formatNGN(stats.total_revenue ?? 0), accent: true },
-            { label: 'Users', value: String(stats.total_users ?? 0) },
-            { label: 'Vendors', value: String(stats.total_vendors ?? 0) },
-            { label: 'Orders', value: String(stats.total_orders ?? 0) },
+            { label: 'Total Revenue', value: formatNGN(stats.total_revenue ?? 0), iconColor: 'primary' },
+            { label: 'Users', value: String(stats.total_users ?? 0), iconColor: 'blue' },
+            { label: 'Vendors', value: String(stats.total_vendors ?? 0), iconColor: 'orange' },
+            { label: 'Orders', value: String(stats.total_orders ?? 0), iconColor: 'green' },
             { label: 'Pending Orders', value: String(stats.pending_orders ?? 0) },
             { label: 'Escrow Balance', value: formatNGNCompact(stats.escrow_balance ?? 0) },
           ]}

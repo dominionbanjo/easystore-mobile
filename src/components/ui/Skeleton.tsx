@@ -8,7 +8,7 @@ interface SkeletonProps {
   style?: object;
 }
 
-export function Skeleton({ width = '100%', height = 16, borderRadius = 8, style }: SkeletonProps) {
+export function Skeleton({ width = '100%', height = 16, borderRadius = 4, style }: SkeletonProps) {
   const { colors } = useAppTheme();
   return (
     <View

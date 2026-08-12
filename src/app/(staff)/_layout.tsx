@@ -48,6 +48,7 @@ export default function StaffLayout() {
   const menu: MenuItem[] = [
     { label: 'Sales Terminal', icon: 'cart-outline', href: '/staff', permission: 'order:manage' },
     { label: 'Sales History', icon: 'time-outline', href: '/staff/sales-history', permission: 'order:view' },
+    { label: 'Add Product', icon: 'add-circle-outline', href: '/staff/product-new', permission: 'product:create' },
     { label: 'Settings', icon: 'settings-outline', href: '/staff/settings' },
   ].filter((item) => has(item.permission)) as MenuItem[];
 
@@ -89,13 +90,14 @@ export default function StaffLayout() {
       >
         <Stack.Screen name="index" options={{ title: 'Sales Terminal', headerShown: false }} />
         <Stack.Screen name="sales-history" options={{ title: 'Sales History' }} />
+        <Stack.Screen name="product-new" options={{ title: 'Add Product' }} />
         <Stack.Screen name="settings" options={{ title: 'Settings' }} />
       </Stack>
 
       <AppModal
         visible={menuOpen}
         onClose={() => setMenuOpen(false)}
-        title={`EasyStore · ${user.first_name}`}
+        title={`EazyStore · ${user.first_name}`}
         scrollable
       >
         <View style={{ gap: spacing.xs }}>

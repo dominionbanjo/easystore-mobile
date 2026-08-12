@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { useAppTheme } from '@/theme';
 import { AppText, Row } from '@/components/ui/Text';
-import { Button, Chip, IconButton, SegmentedControl } from '@/components/ui/Button';
+import { Button, IconButton } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { AppImage } from '@/components/shared/AppImage';
 import { AppModal } from '@/components/ui/Modal';
@@ -28,7 +28,7 @@ import {
   clearSaleCart,
   selectSaleCart,
 } from '@/features/saleCartSlice';
-import type { ISalesTerminalProduct , IProductVariant } from '@/types/product';
+import type { ISalesTerminalProduct, IProductVariant } from '@/types/product';
 import type { SalePaymentMethod } from '@/features/saleCartSlice';
 
 export default function PosScreen() {
@@ -36,13 +36,13 @@ export default function PosScreen() {
   const toast = useToast();
   const dispatch = useAppDispatch();
 
-  const [page] = useState(1);
   const [categoryId, setCategoryId] = useState('');
-  const [search] = useState('');
+  const [search, setSearch] = useState('');
+  const [barcodeInput, setBarcodeInput] = useState('');
 
   const { data: productsData, isLoading } = useGetSalesTerminalProductsQuery({
-    page,
-    limit: 50,
+    page: 1,
+    limit: 100,
     search: search || undefined,
   });
   const { data: categories } = useGetSalesTerminalCategoriesQuery();
@@ -80,6 +80,7 @@ export default function PosScreen() {
         quantity: 1,
       }),
     );
+    toast.showSuccess(`${product.name} added`);
   };
 
   const barcodeHandledRef = useRef<string | null>(null);
@@ -105,6 +106,23 @@ export default function PosScreen() {
       : (productsData?.items ?? []).filter(
           (product) => product.category?.id === categoryId,
         );
+
+  const categoryCounts = new Map<string, number>();
+  (productsData?.items ?? []).forEach((product) => {
+    if (product.category?.id) {
+      categoryCounts.set(product.category.id, (categoryCounts.get(product.category.id) ?? 0) + 1);
+    }
+  });
+
+  const submitBarcode = () => {
+    const code = barcodeInput.trim();
+    if (!code) {
+      return;
+    }
+    barcodeHandledRef.current = null;
+    setBarcode(code);
+    setBarcodeInput('');
+  };
 
   const confirmVariant = () => {
     if (!variantProduct) {
@@ -143,7 +161,6 @@ export default function PosScreen() {
         })),
         customer_name: saleCart.customerName,
         customer_email: saleCart.customerEmail,
-        notes: saleCart.notes,
         payment_method: saleCart.paymentMethod,
       }).unwrap();
       setReceipt({ order_id: result.order_id ?? '', total: saleCart.total });
@@ -157,58 +174,75 @@ export default function PosScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
-      <Row
+      <View
         style={{
-          padding: spacing.md,
-          backgroundColor: colors.surface,
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: spacing.sm,
+          paddingHorizontal: spacing.lg,
+          paddingVertical: spacing.md,
           borderBottomWidth: 1,
           borderBottomColor: colors.border,
-          gap: spacing.sm,
+          backgroundColor: colors.surface,
         }}
       >
-        <View style={{ flex: 1 }}>
-          <SegmentedControl<SalePaymentMethod>
-            value={saleCart.paymentMethod}
-            onChange={(paymentMethod) => dispatch(setSalePaymentMethod(paymentMethod))}
-            options={[
-              { label: 'Cash', value: 'cash' },
-              { label: 'Transfer', value: 'transfer' },
-              { label: 'POS', value: 'pos' },
-            ]}
+        <View
+          style={{
+            flex: 1,
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: spacing.sm,
+            borderWidth: 1,
+            borderColor: colors.border,
+            borderRadius: 4,
+            paddingHorizontal: spacing.md,
+            backgroundColor: colors.surfaceAlt,
+          }}
+        >
+          <Ionicons name="search" size={18} color={colors.textSubtle} />
+          <TextInput
+            value={search}
+            onChangeText={setSearch}
+            placeholder="Search products..."
+            placeholderTextColor={colors.textSubtle}
+            style={{ flex: 1, paddingVertical: 10, fontSize: 14, color: colors.text, fontFamily: 'Outfit_400Regular' }}
           />
         </View>
-        <IconButton
-          accessibilityLabel="Scan barcode"
-          icon={<Ionicons name="barcode-outline" size={22} color={colors.primary} />}
-          onPress={() => setScannerOpen(true)}
-        />
-        <Pressable onPress={() => setCartOpen(true)}>
-          <View
-            style={{
-              backgroundColor: colors.primary,
-              borderRadius: 12,
-              paddingHorizontal: spacing.md,
-              paddingVertical: spacing.sm,
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: spacing.xs,
-            }}
-          >
-            <Ionicons name="cart" size={18} color={colors.primaryForeground} />
-            <AppText variant="label" weight="bold" color={colors.primaryForeground}>
-              {saleCart.count}
-            </AppText>
-          </View>
-        </Pressable>
-      </Row>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: spacing.xs,
+            borderWidth: 1,
+            borderColor: colors.border,
+            borderRadius: 4,
+            paddingHorizontal: spacing.md,
+            backgroundColor: colors.surfaceAlt,
+          }}
+        >
+          <TextInput
+            value={barcodeInput}
+            onChangeText={setBarcodeInput}
+            onSubmitEditing={submitBarcode}
+            placeholder="Scan barcode..."
+            placeholderTextColor={colors.textSubtle}
+            style={{ width: 110, paddingVertical: 10, fontSize: 13, color: colors.text, fontFamily: 'monospace' }}
+          />
+          <Ionicons name="barcode-outline" size={20} color="#17c06e" onPress={() => setScannerOpen(true)} />
+        </View>
+      </View>
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0 }}>
         <Row style={{ padding: spacing.md, gap: spacing.sm }}>
-          <Chip label="All" selected={categoryId === ''} onPress={() => setCategoryId('')} />
+          <ChipPill
+            label={`All (${productsData?.items.length ?? 0})`}
+            selected={categoryId === ''}
+            onPress={() => setCategoryId('')}
+          />
           {(categories ?? []).map((category) => (
-            <Chip
+            <ChipPill
               key={category.id}
-              label={category.name}
+              label={`${category.name} (${categoryCounts.get(category.id) ?? 0})`}
               selected={categoryId === category.id}
               onPress={() => setCategoryId(category.id)}
             />
@@ -225,65 +259,91 @@ export default function PosScreen() {
           </AppText>
         ) : (
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md }}>
-            {filteredProducts.map((product) => (
-              <Pressable
-                key={product.id}
-                onPress={() => handleProductPick(product)}
-                style={({ pressed }) => [{ width: '47%', opacity: pressed ? 0.85 : 1 }]}
-              >
-                <View
-                  style={{
-                    backgroundColor: colors.surface,
-                    borderRadius: 12,
-                    borderWidth: 1,
-                    borderColor: colors.border,
-                    overflow: 'hidden',
-                    marginBottom: spacing.md,
-                  }}
+            {filteredProducts.map((product) => {
+              const isLowStock = product.stock > 0 && product.stock <= 5;
+              return (
+                <Pressable
+                  key={product.id}
+                  onPress={() => handleProductPick(product)}
+                  style={({ pressed }) => [{ width: '47%', opacity: pressed ? 0.85 : 1 }]}
                 >
-                  <AppImage uri={product.image} style={{ width: '100%', height: 90 }} fallbackText={product.name} />
-                  <View style={{ padding: spacing.sm, gap: 2 }}>
-                    <AppText variant="small" weight="medium" numberOfLines={1}>
-                      {product.name}
-                    </AppText>
-                    <AppText variant="small" weight="bold" color={colors.primary}>
-                      {formatNGN(product.price)}
-                    </AppText>
-                    <AppText variant="small" color={product.stock > 0 ? colors.textSubtle : colors.danger}>
-                      {product.stock > 0 ? `Stock: ${product.stock}` : 'Out of stock'}
-                    </AppText>
+                  <View
+                    style={{
+                      backgroundColor: colors.surface,
+                      borderRadius: 4,
+                      borderWidth: 1,
+                      borderColor: colors.surfaceAlt,
+                      padding: 6,
+                      marginBottom: spacing.md,
+                    }}
+                  >
+                    <AppImage
+                      uri={product.image}
+                      style={{ width: '100%', aspectRatio: 1, borderRadius: 4 }}
+                      fallbackText={product.name}
+                    />
+                    <View style={{ padding: 4, gap: 2 }}>
+                      <AppText style={{ fontSize: 12, lineHeight: 15 }} weight="medium" numberOfLines={2}>
+                        {product.name}
+                      </AppText>
+                      <AppText style={{ fontSize: 13 }} weight="bold" color="#17c06e">
+                        {formatNGN(product.price)}
+                      </AppText>
+                      {isLowStock ? (
+                        <AppText style={{ fontSize: 11 }} color="#f59e0b" weight="semibold">
+                          {product.stock} left
+                        </AppText>
+                      ) : product.stock <= 0 ? (
+                        <AppText style={{ fontSize: 11 }} color={colors.danger} weight="semibold">
+                          Out of stock
+                        </AppText>
+                      ) : null}
+                    </View>
                   </View>
-                </View>
-              </Pressable>
-            ))}
+                </Pressable>
+              );
+            })}
           </View>
         )}
       </ScrollView>
 
       {saleCart.count > 0 ? (
-        <Pressable onPress={() => setCartOpen(true)}>
-          <View
-            style={{
-              padding: spacing.lg,
-              backgroundColor: colors.surface,
-              borderTopWidth: 1,
-              borderTopColor: colors.border,
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-            }}
-          >
-            <View>
-              <AppText variant="label" color={colors.textMuted}>
-                {saleCart.count} item(s)
-              </AppText>
-              <AppText variant="title" weight="bold" color={colors.primary}>
-                {formatNGN(saleCart.total)}
+        <Pressable
+          onPress={() => setCartOpen(true)}
+          style={{
+            position: 'absolute',
+            right: spacing.lg,
+            bottom: spacing.lg,
+            backgroundColor: '#17c06e',
+            borderRadius: 999,
+            padding: spacing.lg,
+            shadowColor: '#000',
+            shadowOpacity: 0.25,
+            shadowRadius: 8,
+            shadowOffset: { width: 0, height: 3 },
+            elevation: 6,
+          }}
+        >
+          <View style={{ position: 'relative' }}>
+            <Ionicons name="cart" size={22} color="#ffffff" />
+            <View
+              style={{
+                position: 'absolute',
+                top: -8,
+                right: -8,
+                minWidth: 18,
+                height: 18,
+                borderRadius: 4,
+                backgroundColor: '#18181b',
+                alignItems: 'center',
+                justifyContent: 'center',
+                paddingHorizontal: 4,
+              }}
+            >
+              <AppText style={{ fontSize: 10, fontWeight: '900' }} color="#ffffff">
+                {saleCart.count}
               </AppText>
             </View>
-            <AppText variant="label" weight="semibold" color={colors.primary}>
-              View Sale Cart ›
-            </AppText>
           </View>
         </Pressable>
       ) : null}
@@ -351,6 +411,7 @@ export default function PosScreen() {
           setBarcode('');
         }}
         onScan={(code) => {
+          barcodeHandledRef.current = null;
           setBarcode(code);
           setScannerOpen(false);
         }}
@@ -363,21 +424,21 @@ export default function PosScreen() {
               style={{
                 width: 64,
                 height: 64,
-                borderRadius: 32,
-                backgroundColor: colors.primaryMuted,
+                borderRadius: 999,
+                backgroundColor: 'rgba(16,185,129,0.1)',
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
             >
-              <Ionicons name="checkmark" size={32} color={colors.primary} />
+              <Ionicons name="checkmark" size={32} color="#10b981" />
             </View>
-            <AppText variant="title" weight="bold">
+            <AppText style={{ fontSize: 20 }} weight="black">
               Sale Complete
             </AppText>
             <AppText variant="label" color={colors.textMuted}>
               Order {receipt?.order_id.slice(0, 8)}
             </AppText>
-            <AppText variant="subtitle" weight="bold" color={colors.primary}>
+            <AppText style={{ fontSize: 20 }} weight="extrabold" color="#17c06e">
               {formatNGN(receipt?.total ?? 0)}
             </AppText>
             <Button title="Done" onPress={() => setReceipt(null)} />
@@ -385,6 +446,32 @@ export default function PosScreen() {
         </View>
       </RNModal>
     </View>
+  );
+}
+
+function ChipPill({
+  label,
+  selected,
+  onPress,
+}: {
+  label: string;
+  selected: boolean;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      style={{
+        paddingHorizontal: 14,
+        paddingVertical: 6,
+        borderRadius: 999,
+        backgroundColor: selected ? '#17c06e' : '#f4f4f5',
+      }}
+    >
+      <AppText style={{ fontSize: 13 }} weight="medium" color={selected ? '#ffffff' : '#71717a'}>
+        {label}
+      </AppText>
+    </Pressable>
   );
 }
 
@@ -399,19 +486,62 @@ function SaleCartModal({
   onCheckout: () => void;
   recording: boolean;
 }) {
-  const { colors, spacing } = useAppTheme();
+  const { colors, spacing, radius } = useAppTheme();
   const dispatch = useAppDispatch();
   const saleCart = useAppSelector(selectSaleCart);
   const [customerName, setCustomerName] = useState('');
+
+  const paymentMethods: { value: SalePaymentMethod; label: string }[] = [
+    { value: 'cash', label: 'Cash' },
+    { value: 'transfer', label: 'Transfer' },
+    { value: 'pos', label: 'POS' },
+  ];
 
   return (
     <AppModal
       visible={visible}
       onClose={onClose}
-      title="Sale Cart"
+      title={`Cart (${saleCart.count} items)`}
       footer={
-        <View style={{ gap: spacing.sm }}>
-          <Button title={`Complete Sale · ${formatNGN(saleCart.total)}`} onPress={onCheckout} loading={recording} />
+        <View style={{ gap: spacing.md }}>
+          <AppText style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 1 }} color={colors.textSubtle} weight="bold">
+            Payment Method
+          </AppText>
+          <View style={{ flexDirection: 'row', gap: spacing.sm }}>
+            {paymentMethods.map((method) => {
+              const selected = saleCart.paymentMethod === method.value;
+              return (
+                <Pressable
+                  key={method.value}
+                  onPress={() => dispatch(setSalePaymentMethod(method.value))}
+                  style={{
+                    flex: 1,
+                    paddingVertical: 10,
+                    borderRadius: 4,
+                    backgroundColor: selected ? '#17c06e' : colors.surfaceAlt,
+                    alignItems: 'center',
+                  }}
+                >
+                  <AppText
+                    style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: 1 }}
+                    weight="bold"
+                    color={selected ? '#ffffff' : colors.textMuted}
+                  >
+                    {method.label}
+                  </AppText>
+                </Pressable>
+              );
+            })}
+          </View>
+          <Row style={{ justifyContent: 'space-between', alignItems: 'baseline' }}>
+            <AppText variant="label" color={colors.textMuted}>
+              Total
+            </AppText>
+            <AppText style={{ fontSize: 20 }} weight="bold" color="#17c06e">
+              {formatNGN(saleCart.total)}
+            </AppText>
+          </Row>
+          <Button title="Complete Sale" onPress={onCheckout} loading={recording} size="lg" />
         </View>
       }
       scrollable
@@ -423,84 +553,84 @@ function SaleCartModal({
           </AppText>
         ) : (
           saleCart.items.map((item) => (
-            <Row key={item.key} style={{ gap: spacing.md }}>
-              <AppImage uri={item.image} style={{ width: 48, height: 48 }} fallbackText={item.name} />
+            <View
+              key={item.key}
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: spacing.md,
+                backgroundColor: colors.surfaceAlt,
+                borderRadius: radius.md,
+                padding: spacing.md,
+              }}
+            >
+              <AppImage uri={item.image} style={{ width: 48, height: 48, borderRadius: 4 }} fallbackText={item.name} />
               <View style={{ flex: 1 }}>
-                <AppText variant="small" weight="medium" numberOfLines={1}>
+                <AppText style={{ fontSize: 12 }} weight="semibold" numberOfLines={1}>
                   {item.name}
                 </AppText>
-                <AppText variant="small" color={colors.textMuted}>
-                  {formatNGN(item.price)} × {item.quantity} = {formatNGN(item.price * item.quantity)}
+                <AppText style={{ fontSize: 13 }} weight="bold" color="#17c06e">
+                  {formatNGN(item.price)}
                 </AppText>
               </View>
               <Row style={{ gap: spacing.xs }}>
-                <IconButton
-                  accessibilityLabel="Decrease"
-                  icon={<AppText style={{ fontSize: 14 }}>−</AppText>}
-                  onPress={() =>
-                    dispatch(updateSaleQuantity({ key: item.key, quantity: item.quantity - 1 }))
-                  }
-                />
-                <AppText variant="small" weight="bold">
+                <QtyButton label="−" onPress={() => dispatch(updateSaleQuantity({ key: item.key, quantity: item.quantity - 1 }))} />
+                <AppText style={{ fontSize: 12 }} weight="bold">
                   {item.quantity}
                 </AppText>
-                <IconButton
-                  accessibilityLabel="Increase"
-                  icon={<AppText style={{ fontSize: 14 }}>+</AppText>}
-                  onPress={() =>
-                    dispatch(updateSaleQuantity({ key: item.key, quantity: item.quantity + 1 }))
-                  }
-                />
-                <IconButton
-                  accessibilityLabel="Remove"
-                  icon={<Ionicons name="trash-outline" size={16} color={colors.danger} />}
-                  onPress={() => dispatch(removeSaleItem(item.key))}
-                />
+                <QtyButton label="+" onPress={() => dispatch(updateSaleQuantity({ key: item.key, quantity: item.quantity + 1 }))} />
+                <Pressable onPress={() => dispatch(removeSaleItem(item.key))} hitSlop={6} style={{ marginLeft: 4 }}>
+                  <Ionicons name="trash-outline" size={16} color={colors.textSubtle} />
+                </Pressable>
               </Row>
-            </Row>
+            </View>
           ))
         )}
-        <AppInputInline
-          value={customerName}
-          onChangeText={(name) => {
-            setCustomerName(name);
-            dispatch(setSaleCustomer({ name: name || undefined }));
+        <View
+          style={{
+            borderWidth: 1,
+            borderColor: colors.border,
+            borderRadius: 4,
+            backgroundColor: colors.surfaceAlt,
+            paddingHorizontal: spacing.md,
           }}
-          placeholder="Customer name (optional)"
-        />
+        >
+          <TextInput
+            value={customerName}
+            onChangeText={(name) => {
+              setCustomerName(name);
+              dispatch(setSaleCustomer({ name: name || undefined }));
+            }}
+            placeholder="Customer name (optional)"
+            placeholderTextColor={colors.textSubtle}
+            style={{ color: colors.text, paddingVertical: spacing.md, fontSize: 14, fontFamily: 'Outfit_400Regular' }}
+          />
+        </View>
       </View>
     </AppModal>
   );
 }
 
-function AppInputInline({
-  value,
-  onChangeText,
-  placeholder,
-}: {
-  value: string;
-  onChangeText: (text: string) => void;
-  placeholder?: string;
-}) {
-  const { colors, radius, spacing } = useAppTheme();
+function QtyButton({ label, onPress }: { label: string; onPress: () => void }) {
+  const { colors } = useAppTheme();
   return (
-    <View
+    <Pressable
+      onPress={onPress}
       style={{
+        width: 24,
+        height: 24,
+        borderRadius: 4,
+        backgroundColor: colors.surface,
+        alignItems: 'center',
+        justifyContent: 'center',
         borderWidth: 1,
         borderColor: colors.border,
-        borderRadius: radius.md,
-        backgroundColor: colors.surfaceAlt,
-        paddingHorizontal: spacing.md,
       }}
     >
-      <TextInput
-        value={value}
-        onChangeText={onChangeText}
-        placeholder={placeholder}
-        placeholderTextColor={colors.textSubtle}
-        style={{ color: colors.text, paddingVertical: spacing.md, fontSize: 14 }}
-      />
-    </View>
+      <AppText style={{ fontSize: 13 }} color={colors.text}>
+        {label}
+      </AppText>
+    </Pressable>
   );
 }
 

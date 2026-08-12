@@ -106,7 +106,7 @@ export default function AdminLayout() {
       <AppModal
         visible={menuOpen}
         onClose={() => setMenuOpen(false)}
-        title={`EasyStore Admin`}
+        title={`EazyStore Admin`}
         scrollable
       >
         <View style={{ gap: spacing.xs }}>

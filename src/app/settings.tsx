@@ -16,7 +16,7 @@ export default function SettingsScreen() {
             App
           </AppText>
           <AppText variant="small" color="gray">
-            EasyStore mobile — v1.0.0
+            EazyStore mobile — v1.0.0
           </AppText>
           <AppText variant="small" color="gray">
             Notification preferences will be available in a future update.

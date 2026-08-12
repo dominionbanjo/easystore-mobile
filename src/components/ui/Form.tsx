@@ -25,6 +25,9 @@ export function FormInput<T extends FieldValues>({
   numberOfLines?: number;
   maxLength?: number;
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
+  icon?: React.ReactNode;
+  rightElement?: React.ReactNode;
+  size?: 'sm' | 'md';
 }) {
   const formContext = useFormContext<T>();
   const activeControl = control ?? formContext.control;

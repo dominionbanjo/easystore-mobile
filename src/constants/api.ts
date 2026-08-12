@@ -14,4 +14,4 @@ export const API_BASE_URL: string = resolveBaseUrl();
 
 export const SOCKET_URL: string = `${API_BASE_URL}/messaging`;
 
-export const TOKEN_STORAGE_KEY = 'easystore.access_token';
+export const TOKEN_STORAGE_KEY = 'EazyStore.access_token';

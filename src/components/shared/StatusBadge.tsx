@@ -1,6 +1,7 @@
 import { Badge } from '../ui/Card';
+import type { BadgeVariant } from '../ui/Card';
 
-const STATUS_VARIANTS: Record<string, 'default' | 'success' | 'warning' | 'danger' | 'info' | 'muted'> = {
+const STATUS_VARIANTS: Record<string, BadgeVariant> = {
   active: 'success',
   completed: 'success',
   delivered: 'success',
@@ -15,22 +16,24 @@ const STATUS_VARIANTS: Record<string, 'default' | 'success' | 'warning' | 'dange
   funded: 'info',
   invited: 'info',
   restricted: 'warning',
-  failed: 'danger',
-  canceled: 'danger',
-  cancelled: 'danger',
-  suspended: 'danger',
-  banned: 'danger',
-  rejected: 'danger',
-  defaulted: 'danger',
+  failed: 'destructive',
+  canceled: 'destructive',
+  cancelled: 'destructive',
+  suspended: 'destructive',
+  banned: 'destructive',
+  rejected: 'destructive',
+  defaulted: 'destructive',
   refunded: 'muted',
   draft: 'muted',
   inactive: 'muted',
   disputed: 'warning',
   pending_manual: 'warning',
   paused: 'warning',
-  reversed: 'danger',
+  reversed: 'destructive',
   unpaid: 'warning',
   partial: 'info',
+  flagged: 'destructive',
+  on_sale: 'success',
 };
 
 export function StatusBadge({ status }: { status?: string }) {

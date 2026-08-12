@@ -1,16 +1,26 @@
 import type { ReactNode } from 'react';
 import { Text, View } from 'react-native';
-import { useAppTheme } from '@/theme';
+import { useAppTheme } from '../../theme';
 
 interface AppTextProps {
   children: ReactNode;
   variant?: 'title' | 'subtitle' | 'body' | 'label' | 'caption' | 'small' | 'display';
-  weight?: 'regular' | 'medium' | 'semibold' | 'bold';
+  weight?: 'regular' | 'medium' | 'semibold' | 'bold' | 'extrabold' | 'black' | 'light';
   color?: string;
   style?: object;
   numberOfLines?: number;
   center?: boolean;
 }
+
+const WEIGHT_FONT: Record<string, string> = {
+  regular: 'Outfit_400Regular',
+  medium: 'Outfit_500Medium',
+  semibold: 'Outfit_600SemiBold',
+  bold: 'Outfit_700Bold',
+  extrabold: 'Outfit_800ExtraBold',
+  black: 'Outfit_900Black',
+  light: 'Outfit_300Light',
+};
 
 export function AppText({
   children,
@@ -22,15 +32,15 @@ export function AppText({
   center,
 }: AppTextProps) {
   const { colors, typography } = useAppTheme();
-  const baseStyle: Record<string, number | string> = {
-    title: { fontSize: typography.xl, fontWeight: '700' as const },
-    subtitle: { fontSize: typography.lg, fontWeight: '600' as const },
-    body: { fontSize: typography.md, fontWeight: '400' as const },
-    label: { fontSize: typography.sm, fontWeight: '500' as const },
-    caption: { fontSize: typography.sm, fontWeight: '400' as const },
-    small: { fontSize: typography.xs, fontWeight: '400' as const },
-    display: { fontSize: typography.display, fontWeight: '700' as const },
-  }[variant];
+  const baseStyle = ({
+    title: { fontSize: typography.xl, fontFamily: 'Outfit_700Bold' },
+    subtitle: { fontSize: typography.lg, fontFamily: 'Outfit_600SemiBold' },
+    body: { fontSize: typography.md, fontFamily: 'Outfit_400Regular' },
+    label: { fontSize: typography.sm, fontFamily: 'Outfit_500Medium' },
+    caption: { fontSize: typography.sm, fontFamily: 'Outfit_400Regular' },
+    small: { fontSize: typography.xs, fontFamily: 'Outfit_400Regular' },
+    display: { fontSize: typography.display, fontFamily: 'Outfit_900Black' },
+  } as Record<string, { fontSize: number; fontFamily: string }>)[variant];
 
   return (
     <Text
@@ -38,9 +48,7 @@ export function AppText({
       style={[
         baseStyle,
         { color: color ?? colors.text },
-        weight === 'bold' && { fontWeight: '700' },
-        weight === 'semibold' && { fontWeight: '600' },
-        weight === 'medium' && { fontWeight: '500' },
+        weight !== 'regular' && { fontFamily: WEIGHT_FONT[weight] },
         center && { textAlign: 'center' },
         style,
       ]}
