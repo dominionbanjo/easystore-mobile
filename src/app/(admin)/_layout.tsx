@@ -5,7 +5,7 @@ import { Pressable, View } from 'react-native';
 
 import { useAppTheme } from '@/theme';
 import { useAppSelector, useAppDispatch } from '@/hooks';
-import { AppText } from '@/components/ui/Text';
+import { AppText, Row } from '@/components/ui/Text';
 import { AppModal } from '@/components/ui/Modal';
 import { useLogoutMutation } from '@/api/authApi';
 import { clearCredentials } from '@/features/authSlice';
@@ -65,24 +65,31 @@ export default function AdminLayout() {
       <Stack
         screenOptions={{
           headerShown: true,
-          headerTintColor: colors.primary,
-          headerTitleStyle: { color: colors.text },
-          headerStyle: { backgroundColor: colors.background },
+          headerTintColor: colors.text,
+          headerTitleStyle: { color: colors.text, fontFamily: 'Outfit_700Bold' },
+          headerStyle: { backgroundColor: colors.surface },
           headerRight: () => (
-            <Pressable
-              onPress={() => setMenuOpen(true)}
-              hitSlop={8}
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: 18,
-                backgroundColor: colors.primaryMuted,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Ionicons name="menu" size={20} color={colors.primary} />
-            </Pressable>
+            <Row style={{ gap: 12 }}>
+              <Pressable onPress={() => router.push('/messages')} hitSlop={8}>
+                <Ionicons name="chatbubble-ellipses-outline" size={22} color={colors.text} />
+              </Pressable>
+              <Pressable
+                onPress={() => setMenuOpen(true)}
+                hitSlop={8}
+                style={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: 4,
+                  borderWidth: 1,
+                  borderColor: colors.border,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: colors.surfaceAlt,
+                }}
+              >
+                <Ionicons name="menu" size={18} color={colors.text} />
+              </Pressable>
+            </Row>
           ),
         }}
       >

@@ -21,6 +21,9 @@ export default function SearchScreen() {
   const [sort, setSort] = useState<SortOption>('relevance');
   const [inStock, setInStock] = useState(false);
   const [onSale, setOnSale] = useState(false);
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+  const [rating, setRating] = useState(0);
   const [limit] = useState(30);
 
   const debouncedQuery = useDebounce(query, 400);
@@ -30,11 +33,17 @@ export default function SearchScreen() {
     sort,
     inStock: inStock ? true : undefined,
     onSale: onSale ? true : undefined,
+    minPrice: minPrice ? Number(minPrice) * 100 : undefined,
+    maxPrice: maxPrice ? Number(maxPrice) * 100 : undefined,
+    rating: rating > 0 ? rating : undefined,
     limit,
   };
 
+  const hasFilters =
+    Boolean(debouncedQuery) || sort !== 'relevance' || inStock || onSale || Boolean(minPrice) || Boolean(maxPrice) || rating > 0;
+
   const { data, isLoading, isFetching } = useSearchProductsQuery(params, {
-    skip: !debouncedQuery && !sort && !inStock && !onSale,
+    skip: !hasFilters,
   });
 
   const products = data?.items ?? [];
@@ -43,14 +52,14 @@ export default function SearchScreen() {
   return (
     <Screen>
       <Spacer height={8} />
-      <AppText variant="subtitle" weight="bold">
-        Search
+      <AppText style={{ fontSize: 26, letterSpacing: -0.4 }} weight="black">
+        Discover
       </AppText>
       <Spacer height={12} />
       <AppInput
         value={query}
         onChangeText={setQuery}
-        placeholder="Search products, stores, categories…"
+        placeholder="Search products..."
         icon={<Ionicons name="search" size={18} color={colors.textSubtle} />}
         autoCapitalize="none"
       />
@@ -58,6 +67,35 @@ export default function SearchScreen() {
       <View style={{ flexDirection: 'row', gap: spacing.sm, flexWrap: 'wrap' }}>
         <Chip label="In stock" selected={inStock} onPress={() => setInStock((v) => !v)} />
         <Chip label="On sale" selected={onSale} onPress={() => setOnSale((v) => !v)} />
+        {[4, 3, 2].map((star) => (
+          <Chip
+            key={star}
+            label={`${star}★ & up`}
+            selected={rating === star}
+            onPress={() => setRating((current) => (current === star ? 0 : star))}
+          />
+        ))}
+      </View>
+      <Spacer height={12} />
+      <View style={{ flexDirection: 'row', gap: spacing.md }}>
+        <View style={{ flex: 1 }}>
+          <AppInput
+            value={minPrice}
+            onChangeText={(text) => setMinPrice(text.replace(/[^0-9.]/g, ''))}
+            placeholder="Min ₦"
+            keyboardType="decimal-pad"
+            size="sm"
+          />
+        </View>
+        <View style={{ flex: 1 }}>
+          <AppInput
+            value={maxPrice}
+            onChangeText={(text) => setMaxPrice(text.replace(/[^0-9.]/g, ''))}
+            placeholder="Max ₦"
+            keyboardType="decimal-pad"
+            size="sm"
+          />
+        </View>
       </View>
       <Spacer height={12} />
       <SegmentedControl<SortOption>
