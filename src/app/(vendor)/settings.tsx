@@ -22,7 +22,6 @@ import {
   useCreateDeliveryRateMutation,
   useDeleteDeliveryRateMutation,
   useRegisterStoreBankMutation,
-  useGetVendorPayoutsQuery,
 } from '@/api/storeApi';
 import { useGetBanksQuery, useVerifyBankDetailsMutation } from '@/api/userApi';
 import { useSwitchStoreMutation, useLogoutMutation } from '@/api/authApi';
@@ -89,15 +88,15 @@ export default function VendorSettingsScreen() {
   const [switchModalOpen, setSwitchModalOpen] = useState(false);
   const [switchingStore, setSwitchingStore] = useState(false);
 
-  const [loaded, setLoaded] = useState(false);
-  if (store && !loaded) {
+  const [loadedStoreId, setLoadedStoreId] = useState<string | null>(null);
+  if (store && loadedStoreId !== store.id) {
+    setLoadedStoreId(store.id);
     setStoreName(store.store_name);
     setDescription(store.description ?? '');
     setSubdomain(store.subdomain ?? '');
     setEscrowEnabled(store.escrow_enabled ?? false);
     setInstallmentsEnabled(store.installments_enabled ?? false);
     setSelectedTemplate(store.theme?.template?.id);
-    setLoaded(true);
   }
 
   const handleSaveIdentity = async () => {

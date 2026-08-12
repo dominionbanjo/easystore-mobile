@@ -1,7 +1,6 @@
 import { ScrollView, KeyboardAvoidingView, Platform, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { ReactNode } from 'react';
-import type { RefreshControlProps } from 'react-native';
 import { useAppTheme } from '@/theme';
 
 interface ScreenProps {

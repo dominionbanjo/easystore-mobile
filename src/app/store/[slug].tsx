@@ -14,7 +14,7 @@ import { useGetStoreProductsQuery } from '@/api/productApi';
 export default function StoreScreen() {
   const { colors, spacing } = useAppTheme();
   const params = useLocalSearchParams<{ slug: string }>();
-  const [page, setPage] = useState(1);
+  const [page] = useState(1);
 
   const { data: store, isLoading: storeLoading } = useGetStoreByIdentifierQuery(params.slug);
   const { data: productsData, isLoading: productsLoading } = useGetStoreProductsQuery({

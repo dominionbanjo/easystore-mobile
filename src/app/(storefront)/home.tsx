@@ -12,7 +12,6 @@ import { useAppTheme } from '@/theme';
 import {
   useGetFeaturedProductsQuery,
   useGetProductsQuery,
-  useGetProductsByCategoryQuery,
 } from '@/api/productApi';
 import { useGetTrendingStoresQuery } from '@/api/storeApi';
 import { useGetZonesQuery } from '@/api/zoneApi';

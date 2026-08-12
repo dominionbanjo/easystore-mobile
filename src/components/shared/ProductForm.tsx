@@ -68,7 +68,7 @@ export function ProductForm({ initial, mode }: ProductFormProps) {
   );
   const [gallery, setGallery] = useState<IProductImage[]>(initial?.gallery ?? []);
   const [options, setOptions] = useState<IProductOption[]>(initial?.options ?? []);
-  const [variants, setVariants] = useState<IProductVariantInput[]>([]);
+  const [variants] = useState<IProductVariantInput[]>([]);
   const [newOptionName, setNewOptionName] = useState('');
   const [newOptionValues, setNewOptionValues] = useState('');
   const [highlightInput, setHighlightInput] = useState('');

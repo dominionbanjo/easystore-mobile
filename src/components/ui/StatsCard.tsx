@@ -16,7 +16,7 @@ export function StatsCard({
   icon?: React.ReactNode;
   accent?: boolean;
 }) {
-  const { colors, spacing, radius } = useAppTheme();
+  const { colors, spacing } = useAppTheme();
   return (
     <Card
       style={{

@@ -21,7 +21,7 @@ export default function SearchScreen() {
   const [sort, setSort] = useState<SortOption>('relevance');
   const [inStock, setInStock] = useState(false);
   const [onSale, setOnSale] = useState(false);
-  const [limit, setLimit] = useState(30);
+  const [limit] = useState(30);
 
   const debouncedQuery = useDebounce(query, 400);
 

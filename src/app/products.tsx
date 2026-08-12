@@ -1,6 +1,5 @@
-import { useState } from 'react';
 import { View } from 'react-native';
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { Stack, useLocalSearchParams , useRouter } from 'expo-router';
 
 import { useAppTheme } from '@/theme';
 import { AppText } from '@/components/ui/Text';
@@ -14,10 +13,8 @@ import {
 } from '@/api/productApi';
 import { useGetTrendingStoresQuery } from '@/api/storeApi';
 import { useGetZonesQuery } from '@/api/zoneApi';
-import { ProductRail } from '@/components/shared/SectionHeader';
 import { AppImage } from '@/components/shared/AppImage';
 import { Card } from '@/components/ui/Card';
-import { useRouter } from 'expo-router';
 
 export default function ProductsListScreen() {
   const { colors, spacing } = useAppTheme();

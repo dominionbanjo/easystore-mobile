@@ -6,8 +6,7 @@ import type {
   IInstallmentPlan,
   ICreateInstallmentPayload,
   IInstallmentPreset,
-} from '@/types/installment';
-import type { IAdminInstallment, IVendorInstallment } from '@/types/installment';
+ IAdminInstallment, IVendorInstallment } from '@/types/installment';
 
 export const installmentApi = apiManager.injectEndpoints({
   endpoints: (build) => ({

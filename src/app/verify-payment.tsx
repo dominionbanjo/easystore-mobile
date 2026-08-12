@@ -4,7 +4,7 @@ import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
 import { useAppTheme } from '@/theme';
-import { AppText, Spacer } from '@/components/ui/Text';
+import { AppText } from '@/components/ui/Text';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { useVerifyOrderPaymentMutation } from '@/api/orderApi';
@@ -17,25 +17,18 @@ export default function VerifyPaymentScreen() {
   const toast = useToast();
   const params = useLocalSearchParams<{ reference?: string; orderId?: string }>();
   const [verifyPayment, { isLoading }] = useVerifyOrderPaymentMutation();
-  const [status, setStatus] = useState<'checking' | 'success' | 'pending'>('checking');
+  const [status, setStatus] = useState<'checking' | 'success' | 'pending'>(
+    params.reference ? 'checking' : 'pending',
+  );
 
   useEffect(() => {
-    if (!params.reference && params.orderId) {
-      setStatus('pending');
-      return;
-    }
     if (params.reference) {
       verifyPayment(params.reference)
         .unwrap()
         .then(() => setStatus('success'))
         .catch((error) => {
-          const message = getErrorMessage(error, '');
-          if (message.toLowerCase().includes('pending')) {
-            setStatus('pending');
-          } else {
-            setStatus('pending');
-            toast.showError(getErrorMessage(error));
-          }
+          setStatus('pending');
+          toast.showError(getErrorMessage(error));
         });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

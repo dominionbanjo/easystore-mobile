@@ -10,10 +10,10 @@ import { store, persistor } from '@/store';
 import { setStoreRef } from '@/api/client';
 import { setCredentials, clearCredentials, setAccessToken } from '@/features/authSlice';
 import { TOKEN_STORAGE_KEY } from '@/constants/api';
-import { useAppTheme, useThemeMode, lightColors, darkColors } from '@/theme';
+import { useAppTheme, ThemeProvider, useThemeMode } from '@/theme';
 import { ToastHost } from '@/components/ui/Toast';
 import { userApi } from '@/api/userApi';
-import { useAppDispatch, useAppSelector } from '@/hooks';
+import { useAppDispatch } from '@/hooks';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -21,7 +21,6 @@ setStoreRef(store);
 
 function RootNavigator() {
   const dispatch = useAppDispatch();
-  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
   const [booting, setBooting] = useState(true);
   const mode = useThemeMode();
   const theme = useAppTheme();
@@ -93,11 +92,12 @@ function RootNavigator() {
 }
 
 export default function RootLayout() {
-  const mode = useThemeMode();
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
-        <RootNavigator />
+        <ThemeProvider>
+          <RootNavigator />
+        </ThemeProvider>
       </PersistGate>
     </Provider>
   );

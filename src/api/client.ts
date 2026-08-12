@@ -58,9 +58,6 @@ const baseQueryWithAuth: BaseQueryFn<
   unknown,
   FetchBaseQueryError
 > = async (args, api, extraOptions) => {
-  const state = api.getState() as RootState;
-  const hadToken = Boolean(state.auth.accessToken);
-
   const result = await rawBaseQuery(args, api, extraOptions);
 
   if (result.error) {

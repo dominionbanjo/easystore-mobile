@@ -1,4 +1,4 @@
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
 import { View } from 'react-native';
@@ -22,7 +22,6 @@ export default function SignupScreen() {
   const {
     control,
     handleSubmit,
-    watch,
     formState: { errors },
   } = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
@@ -39,7 +38,7 @@ export default function SignupScreen() {
     },
   });
 
-  const accountType = watch('account_type');
+  const accountType = useWatch({ control, name: 'account_type' });
 
   const onSubmit = async (values: SignupFormValues) => {
     try {

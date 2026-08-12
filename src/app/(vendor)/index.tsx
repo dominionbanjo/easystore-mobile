@@ -3,13 +3,12 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
 import { useAppTheme } from '@/theme';
-import { AppText, Row, Spacer } from '@/components/ui/Text';
+import { AppText, Row } from '@/components/ui/Text';
 import { Card } from '@/components/ui/Card';
 import { StatsGrid } from '@/components/ui/StatsCard';
 import { Skeleton, ListSkeleton } from '@/components/ui/Skeleton';
 import { formatNGN } from '@/utils/money';
-import { useGetStoreAnalyticsQuery } from '@/api/storeApi';
-import { useGetMyStoreQuery } from '@/api/storeApi';
+import { useGetStoreAnalyticsQuery , useGetMyStoreQuery } from '@/api/storeApi';
 import { useGetStaffSummaryQuery } from '@/api/staffApi';
 
 export default function VendorOverviewScreen() {

@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 
 import { useAppTheme } from '@/theme';
 import { AppText, Row, Spacer } from '@/components/ui/Text';

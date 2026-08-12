@@ -4,7 +4,7 @@ import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
 import { useAppTheme } from '@/theme';
-import { AppText, Row, Spacer } from '@/components/ui/Text';
+import { AppText, Row } from '@/components/ui/Text';
 import { Button, IconButton } from '@/components/ui/Button';
 import { AppImage } from '@/components/shared/AppImage';
 import { RatingStars } from '@/components/shared/RatingStars';
@@ -48,7 +48,7 @@ export default function ProductDetailScreen() {
   const [variantModalOpen, setVariantModalOpen] = useState(false);
   const [selected, setSelected] = useState<SelectedVariant>({ options: {} });
   const [quantity, setQuantity] = useState(1);
-  const [activeImage, setActiveImage] = useState(0);
+  const [activeImage] = useState(0);
 
   if (isLoading) {
     return (

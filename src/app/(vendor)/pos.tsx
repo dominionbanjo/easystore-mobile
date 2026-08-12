@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Modal as RNModal, Pressable, ScrollView, TextInput, View } from 'react-native';
 import { CameraView } from 'expo-camera';
 import { Ionicons } from '@expo/vector-icons';
 
 import { useAppTheme } from '@/theme';
-import { AppText, Row, Spacer } from '@/components/ui/Text';
+import { AppText, Row } from '@/components/ui/Text';
 import { Button, Chip, IconButton, SegmentedControl } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { AppImage } from '@/components/shared/AppImage';
@@ -25,12 +25,10 @@ import {
   removeSaleItem,
   setSalePaymentMethod,
   setSaleCustomer,
-  setSaleNotes,
   clearSaleCart,
   selectSaleCart,
 } from '@/features/saleCartSlice';
-import type { ISalesTerminalProduct } from '@/types/product';
-import type { IProductVariant } from '@/types/product';
+import type { ISalesTerminalProduct , IProductVariant } from '@/types/product';
 import type { SalePaymentMethod } from '@/features/saleCartSlice';
 
 export default function PosScreen() {
@@ -38,9 +36,9 @@ export default function PosScreen() {
   const toast = useToast();
   const dispatch = useAppDispatch();
 
-  const [page, setPage] = useState(1);
+  const [page] = useState(1);
   const [categoryId, setCategoryId] = useState('');
-  const [search, setSearch] = useState('');
+  const [search] = useState('');
 
   const { data: productsData, isLoading } = useGetSalesTerminalProductsQuery({
     page,
@@ -65,29 +63,6 @@ export default function PosScreen() {
     skip: !barcode,
   });
 
-  useEffect(() => {
-    if (barcodeResult) {
-      handleProductPick({
-        id: barcodeResult.id,
-        name: barcodeResult.name,
-        slug: barcodeResult.slug,
-        price: barcodeResult.discount_price ?? barcodeResult.price,
-        image: barcodeResult.image,
-        stock: barcodeResult.stock ?? 0,
-        variants: barcodeResult.variants,
-      });
-      setBarcode('');
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [barcodeResult]);
-
-  const filteredProducts =
-    categoryId === ''
-      ? productsData?.items ?? []
-      : (productsData?.items ?? []).filter(
-          (product) => product.category?.id === categoryId,
-        );
-
   const handleProductPick = (product: ISalesTerminalProduct) => {
     if (product.variants && product.variants.length > 0) {
       setVariantProduct(product);
@@ -106,6 +81,30 @@ export default function PosScreen() {
       }),
     );
   };
+
+  const barcodeHandledRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (barcodeResult && barcodeHandledRef.current !== barcodeResult.id) {
+      barcodeHandledRef.current = barcodeResult.id;
+      handleProductPick({
+        id: barcodeResult.id,
+        name: barcodeResult.name,
+        slug: barcodeResult.slug,
+        price: barcodeResult.discount_price ?? barcodeResult.price,
+        image: barcodeResult.image,
+        stock: barcodeResult.stock ?? 0,
+        variants: barcodeResult.variants,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [barcodeResult]);
+
+  const filteredProducts =
+    categoryId === ''
+      ? productsData?.items ?? []
+      : (productsData?.items ?? []).filter(
+          (product) => product.category?.id === categoryId,
+        );
 
   const confirmVariant = () => {
     if (!variantProduct) {
@@ -516,12 +515,12 @@ function BarcodeScannerModal({
   onClose: () => void;
   onScan: (code: string) => void;
 }) {
-  const { colors, spacing } = useAppTheme();
-  const [scanned, setScanned] = useState(false);
+  const { spacing } = useAppTheme();
+  const scannedRef = useRef(false);
 
   useEffect(() => {
     if (!visible) {
-      setScanned(false);
+      scannedRef.current = false;
     }
   }, [visible]);
 
@@ -531,14 +530,13 @@ function BarcodeScannerModal({
         <CameraView
           style={{ width: '100%', aspectRatio: 1 }}
           barcodeScannerSettings={{ barcodeTypes: ['ean13', 'ean8', 'upc_a', 'code128', 'code39', 'qr'] }}
-          onBarcodeScanned={
-            scanned
-              ? undefined
-              : ({ data }) => {
-                  setScanned(true);
-                  onScan(data);
-                }
-          }
+          onBarcodeScanned={({ data }) => {
+            if (scannedRef.current) {
+              return;
+            }
+            scannedRef.current = true;
+            onScan(data);
+          }}
         />
         <View style={{ padding: spacing.lg, alignItems: 'center', gap: spacing.md }}>
           <AppText color="#fff" center>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { View } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 
@@ -12,6 +12,7 @@ import { useGetMeQuery, useUpdateMeMutation } from '@/api/userApi';
 import { pickImage } from '@/utils/upload';
 import { useToast } from '@/hooks/useToast';
 import { getErrorMessage } from '@/utils/error';
+import type { IUser } from '@/types/auth';
 
 export default function ProfileScreen() {
   const { colors, spacing } = useAppTheme();
@@ -27,14 +28,14 @@ export default function ProfileScreen() {
   const [avatar, setAvatar] = useState<string | null>(null);
   const [avatarUploading, setAvatarUploading] = useState(false);
 
-  useEffect(() => {
-    if (profile) {
-      setFirstName(profile.first_name);
-      setLastName(profile.last_name);
-      setPhoneNumber(profile.phone_number ?? '');
-      setAvatar(profile.avatar ?? null);
-    }
-  }, [profile]);
+  const [loadedProfile, setLoadedProfile] = useState<IUser | null>(null);
+  if (profile && loadedProfile !== profile) {
+    setLoadedProfile(profile);
+    setFirstName(profile.first_name);
+    setLastName(profile.last_name);
+    setPhoneNumber(profile.phone_number ?? '');
+    setAvatar(profile.avatar ?? null);
+  }
 
   const handleSave = async () => {
     try {

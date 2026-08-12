@@ -1,6 +1,5 @@
-import { useRouter } from 'expo-router';
+import { useRouter , Stack } from 'expo-router';
 import { View } from 'react-native';
-import { Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
 import { useAppTheme } from '@/theme';
@@ -10,18 +9,14 @@ import { AppImage } from '@/components/shared/AppImage';
 import { ListSkeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { useGetConversationsQuery } from '@/api/messagingApi';
-import { useSocket } from '@/hooks/useSocket';
-import { useAppSelector } from '@/hooks';
 
 export default function MessagesScreen() {
   const { colors, spacing } = useAppTheme();
   const router = useRouter();
-  const user = useAppSelector((state) => state.auth.user);
 
   const { data: conversations, isLoading } = useGetConversationsQuery(undefined, {
     pollingInterval: 15000,
   });
-  const socket = useSocket();
 
   return (
     <>

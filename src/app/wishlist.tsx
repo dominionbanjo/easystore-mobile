@@ -3,7 +3,7 @@ import { Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
 import { useAppTheme } from '@/theme';
-import { AppText, Row, Spacer } from '@/components/ui/Text';
+import { AppText, Row } from '@/components/ui/Text';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { AppImage } from '@/components/shared/AppImage';

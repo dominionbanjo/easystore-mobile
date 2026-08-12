@@ -1,4 +1,5 @@
 import { createContext, useContext } from 'react';
+import type { ReactNode } from 'react';
 import { useColorScheme } from 'react-native';
 
 export type ThemeMode = 'light' | 'dark';
@@ -101,6 +102,23 @@ const ThemeContext = createContext<Theme>({
   typography,
   isDark: false,
 });
+
+export function ThemeProvider({ children }: { children: ReactNode }) {
+  const mode = useThemeMode();
+  const value: Theme = {
+    mode,
+    colors: mode === 'dark' ? darkColors : lightColors,
+    spacing,
+    radius,
+    typography,
+    isDark: mode === 'dark',
+  };
+  return (
+    <ThemeContext.Provider value={value}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
 
 export function useAppTheme(): Theme {
   return useContext(ThemeContext);

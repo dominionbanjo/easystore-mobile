@@ -29,15 +29,16 @@ export default function ConversationScreen() {
   const [markRead] = useMarkConversationReadMutation();
   const socket = useSocket();
 
-  const [messages, setMessages] = useState<IMessage[]>([]);
+  const [messages, setMessages] = useState<IMessage[] | null>(null);
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
 
-  useEffect(() => {
-    if (initialMessages) {
-      setMessages(initialMessages);
-    }
-  }, [initialMessages]);
+  const [loadedBatch, setLoadedBatch] = useState<IMessage[] | null>(null);
+  if (initialMessages && loadedBatch !== initialMessages) {
+    setLoadedBatch(initialMessages);
+    setMessages(initialMessages);
+  }
+  const visibleMessages = messages ?? initialMessages ?? [];
 
   useEffect(() => {
     socket.joinConversation(params.id);
@@ -53,10 +54,10 @@ export default function ConversationScreen() {
       const incoming = message as IMessage;
       if (incoming.conversation_id === params.id) {
         setMessages((current) => {
-          if (current.some((existing) => existing.id === incoming.id)) {
+          if (current && current.some((existing) => existing.id === incoming.id)) {
             return current;
           }
-          return [...current, incoming];
+          return [...(current ?? []), incoming];
         });
       }
     });
@@ -66,7 +67,7 @@ export default function ConversationScreen() {
 
   useEffect(() => {
     scrollRef.current?.scrollToEnd({ animated: true });
-  }, [messages.length]);
+  }, [visibleMessages.length]);
 
   const handleSend = async () => {
     const content = draft.trim();
@@ -99,7 +100,7 @@ export default function ConversationScreen() {
           contentContainerStyle={{ padding: spacing.lg, gap: spacing.sm }}
           onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: true })}
         >
-          {messages.map((message) => {
+          {visibleMessages.map((message) => {
             const isMine = message.sender_id === user?.id;
             return (
               <View

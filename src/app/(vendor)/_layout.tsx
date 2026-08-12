@@ -1,16 +1,14 @@
 import { useState } from 'react';
-import { Stack, Redirect } from 'expo-router';
+import { Stack, Redirect , useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Pressable, View } from 'react-native';
 
 import { useAppTheme } from '@/theme';
-import { useAppSelector } from '@/hooks';
+import { useAppSelector , useAppDispatch } from '@/hooks';
 import { AppText } from '@/components/ui/Text';
 import { AppModal } from '@/components/ui/Modal';
 import { useLogoutMutation } from '@/api/authApi';
 import { clearCredentials } from '@/features/authSlice';
-import { useAppDispatch } from '@/hooks';
-import { useRouter } from 'expo-router';
 
 interface MenuItem {
   label: string;

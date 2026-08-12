@@ -17,8 +17,7 @@ import type { IOrder } from '@/types/order';
 const STATUS_FILTERS = ['', 'pending', 'processing', 'paid', 'in_transit', 'delivered', 'completed', 'canceled'];
 
 export default function VendorOrdersScreen() {
-  const { colors, spacing } = useAppTheme();
-  const router = useRouter();
+  const { spacing } = useAppTheme();
   const [status, setStatus] = useState('');
   const [page, setPage] = useState(1);
 

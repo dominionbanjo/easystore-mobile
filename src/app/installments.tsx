@@ -1,17 +1,14 @@
 import { useState } from 'react';
 import { View } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 
 import { useAppTheme } from '@/theme';
 import { AppText, Row, Spacer } from '@/components/ui/Text';
-import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { PaginatedList } from '@/components/shared/PaginatedList';
 import { formatNGN } from '@/utils/money';
 import { useGetMyInstallmentsQuery } from '@/api/installmentApi';
-import type { IInstallmentPlan } from '@/types/installment';
 
 export default function InstallmentsScreen() {
   const { colors, spacing } = useAppTheme();

@@ -33,7 +33,7 @@ const VENDOR_STATUS_FLOW: { status: OrderStatus; label: string }[] = [
 ];
 
 export default function OrderDetailScreen() {
-  const { colors, spacing } = useAppTheme();
+  const { colors } = useAppTheme();
   const router = useRouter();
   const toast = useToast();
   const params = useLocalSearchParams<{ id: string }>();

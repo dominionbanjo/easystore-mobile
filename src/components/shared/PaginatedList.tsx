@@ -1,9 +1,7 @@
 import { FlatList, RefreshControl, View } from 'react-native';
-import type { ReactNode } from 'react';
 import { useAppTheme } from '@/theme';
 import { ListSkeleton } from '../ui/Skeleton';
-import { EmptyState } from '../ui/EmptyState';
-import { ListFooter } from '../ui/EmptyState';
+import { EmptyState , ListFooter } from '../ui/EmptyState';
 import type { IPagination } from '@/types/api';
 
 export interface PaginatedListProps<T> {

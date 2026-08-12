@@ -1,0 +1,543 @@
+﻿
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\api\client.ts
+  62:9  warning  'hadToken' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\api\installmentApi.ts
+   9:8   warning  'C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\types\installment.ts' imported multiple times  import/no-duplicates
+  10:60  warning  'C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\types\installment.ts' imported multiple times  import/no-duplicates
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\(admin)\_layout.tsx
+  6:29  error  Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\(admin)\access-control.tsx
+  3:29  error    Parse errors in imported module '@/theme': '>' expected. (116:32)                                                                     import/namespace
+  5:22  warning  'C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\components\ui\Card.tsx' imported multiple times  import/no-duplicates
+  6:23  warning  'C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\components\ui\Card.tsx' imported multiple times  import/no-duplicates
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\(admin)\analytics.tsx
+  4:29  error  Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\(admin)\broadcasts.tsx
+  4:29  error  Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\(admin)\index.tsx
+   4:29  error    Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+  18:9   warning  'router' is assigned a value but never used                        @typescript-eslint/no-unused-vars
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\(admin)\installments.tsx
+  4:29  error  Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\(admin)\logs.tsx
+  4:29  error  Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\(admin)\notifications.tsx
+  4:29  error    Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+  5:24  warning  'Spacer' is defined but never used                                 @typescript-eslint/no-unused-vars
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\(admin)\orders.tsx
+  4:29  error  Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\(admin)\payouts.tsx
+  4:29  error  Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\(admin)\reports.tsx
+  1:10  warning  'useState' is defined but never used                               @typescript-eslint/no-unused-vars
+  5:29  error    Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\(admin)\school-zones.tsx
+   4:29  error    Parse errors in imported module '@/theme': '>' expected. (116:32)                                                            import/namespace
+  15:34  warning  'C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\types\zone.ts' imported multiple times  import/no-duplicates
+  16:39  warning  'C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\types\zone.ts' imported multiple times  import/no-duplicates
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\(admin)\settings.tsx
+  3:29  error  Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\(admin)\transactions.tsx
+  4:29  error  Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\(admin)\users.tsx
+  4:29  error  Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\(admin)\vendors.tsx
+  4:29  error  Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\(auth)\_layout.tsx
+  4:29  error  Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\(auth)\forgot-password.tsx
+  14:29  error  Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\(auth)\login.tsx
+  14:29  error  Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\(auth)\reset-password.tsx
+  14:29  error  Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\(auth)\signup.tsx
+  14:29  error    Parse errors in imported module '@/theme': '>' expected. (116:32)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       import/namespace
+  42:23  warning  Compilation Skipped: Use of incompatible library
+
+This API returns functions which cannot be memoized without leading to stale UI. To prevent this, by default React Compiler will skip memoizing this component/hook. However, you may see issues if values from this API are passed to other components/hooks that are memoized.
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\(auth)\signup.tsx:42:23
+  40 |   });
+  41 |
+> 42 |   const accountType = watch('account_type');
+     |                       ^^^^^ React Hook Form's `useForm()` API returns a `watch()` function which cannot be memoized safely.
+  43 |
+  44 |   const onSubmit = async (values: SignupFormValues) => {
+  45 |     try {  react-hooks/incompatible-library
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\(auth)\verify-otp.tsx
+  12:29  error  Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\(staff)\_layout.tsx
+  6:29  error  Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\(staff)\sales-history.tsx
+  4:29  error  Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\(staff)\settings.tsx
+  4:29  error  Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\(storefront)\_layout.tsx
+  3:29  error  Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\(storefront)\account.tsx
+  10:29  error  Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\(storefront)\cart.tsx
+  13:29  error  Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\(storefront)\home.tsx
+  11:29  error    Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+  15:3   warning  'useGetProductsByCategoryQuery' is defined but never used          @typescript-eslint/no-unused-vars
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\(storefront)\search.tsx
+  11:29  error    Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+  24:17  warning  'setLimit' is assigned a value but never used                      @typescript-eslint/no-unused-vars
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\(vendor)\_layout.tsx
+   2:33  warning  'C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\node_modules\expo-router\build\index.js' imported multiple times  import/no-duplicates
+   6:29  error    Parse errors in imported module '@/theme': '>' expected. (116:32)                                                                                  import/namespace
+   7:32  warning  'C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\hooks.ts' imported multiple times                             import/no-duplicates
+  12:32  warning  'C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\hooks.ts' imported multiple times                             import/no-duplicates
+  13:27  warning  'C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\node_modules\expo-router\build\index.js' imported multiple times  import/no-duplicates
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\(vendor)\analytics.tsx
+  4:29  error  Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\(vendor)\customers.tsx
+  4:29  error  Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\(vendor)\index.tsx
+   5:29  error    Parse errors in imported module '@/theme': '>' expected. (116:32)                                                              import/namespace
+   6:24  warning  'Spacer' is defined but never used                                                                                             @typescript-eslint/no-unused-vars
+  11:43  warning  'C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\api\storeApi.ts' imported multiple times  import/no-duplicates
+  12:36  warning  'C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\api\storeApi.ts' imported multiple times  import/no-duplicates
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\(vendor)\orders.tsx
+   6:29  error    Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+  20:11  warning  'colors' is assigned a value but never used                        @typescript-eslint/no-unused-vars
+  21:9   warning  'router' is assigned a value but never used                        @typescript-eslint/no-unused-vars
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\(vendor)\payouts.tsx
+  4:29  error  Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\(vendor)\pos.tsx
+    6:29  error    Parse errors in imported module '@/theme': '>' expected. (116:32)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  import/namespace
+    7:24  warning  'Spacer' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 @typescript-eslint/no-unused-vars
+   28:3   warning  'setSaleNotes' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           @typescript-eslint/no-unused-vars
+   32:44  warning  'C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\types\product.ts' imported multiple times                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     import/no-duplicates
+   33:38  warning  'C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\types\product.ts' imported multiple times                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     import/no-duplicates
+   41:16  warning  'setPage' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       @typescript-eslint/no-unused-vars
+   43:18  warning  'setSearch' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     @typescript-eslint/no-unused-vars
+   70:7   error    Error: Cannot access variable before it is declared
+
+`handleProductPick` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\(vendor)\pos.tsx:70:7
+  68 |   useEffect(() => {
+  69 |     if (barcodeResult) {
+> 70 |       handleProductPick({
+     |       ^^^^^^^^^^^^^^^^^ `handleProductPick` accessed before it is declared
+  71 |         id: barcodeResult.id,
+  72 |         name: barcodeResult.name,
+  73 |         slug: barcodeResult.slug,
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\(vendor)\pos.tsx:91:3
+   89 |         );
+   90 |
+>  91 |   const handleProductPick = (product: ISalesTerminalProduct) => {
+      |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  92 |     if (product.variants && product.variants.length > 0) {
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  93 |       setVariantProduct(product);
+      ΓÇª
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 107 |     );
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 108 |   };
+      | ^^^^^ `handleProductPick` is declared here
+  109 |
+  110 |   const confirmVariant = () => {
+  111 |     if (!variantProduct) {  react-hooks/immutability
+   79:7   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\(vendor)\pos.tsx:79:7
+  77 |         variants: barcodeResult.variants,
+  78 |       });
+> 79 |       setBarcode('');
+     |       ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  80 |     }
+  81 |     // eslint-disable-next-line react-hooks/exhaustive-deps
+  82 |   }, [barcodeResult]);                                                                                                                                                                                                                                                                                           react-hooks/set-state-in-effect
+  519:11  warning  'colors' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        @typescript-eslint/no-unused-vars
+  524:7   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\(vendor)\pos.tsx:524:7
+  522 |   useEffect(() => {
+  523 |     if (!visible) {
+> 524 |       setScanned(false);
+      |       ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  525 |     }
+  526 |   }, [visible]);
+  527 |                                                                                                                                                                                                                                                                                                                                                              react-hooks/set-state-in-effect
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\(vendor)\product-edit\[id].tsx
+  7:29  error  Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\(vendor)\products.tsx
+  6:29  error  Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\(vendor)\sales-history.tsx
+  4:29  error  Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\(vendor)\school-zones.tsx
+  4:29  error  Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\(vendor)\settings.tsx
+   6:29  error    Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+  25:3   warning  'useGetVendorPayoutsQuery' is defined but never used               @typescript-eslint/no-unused-vars
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\(vendor)\staff.tsx
+  3:10  warning  'Ionicons' is defined but never used                               @typescript-eslint/no-unused-vars
+  5:29  error    Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\_layout.tsx
+  13:58  error    Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+  24:9   warning  'isAuthenticated' is assigned a value but never used               @typescript-eslint/no-unused-vars
+  96:9   warning  'mode' is assigned a value but never used                          @typescript-eslint/no-unused-vars
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\addresses.tsx
+  6:29  error    Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+  7:24  warning  'Spacer' is defined but never used                                 @typescript-eslint/no-unused-vars
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\category\[slug].tsx
+   5:29  error    Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+  14:16  warning  'setPage' is assigned a value but never used                       @typescript-eslint/no-unused-vars
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\checkout.tsx
+  6:29  error  Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\conversation\[id].tsx
+   6:29  error  Parse errors in imported module '@/theme': '>' expected. (116:32)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              import/namespace
+  38:7   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\conversation\[id].tsx:38:7
+  36 |   useEffect(() => {
+  37 |     if (initialMessages) {
+> 38 |       setMessages(initialMessages);
+     |       ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  39 |     }
+  40 |   }, [initialMessages]);
+  41 |  react-hooks/set-state-in-effect
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\installment\[id].tsx
+  6:29  error  Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\installments.tsx
+   4:10  warning  'Ionicons' is defined but never used                               @typescript-eslint/no-unused-vars
+   6:29  error    Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+   8:10  warning  'Button' is defined but never used                                 @typescript-eslint/no-unused-vars
+  14:15  warning  'IInstallmentPlan' is defined but never used                       @typescript-eslint/no-unused-vars
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\messages.tsx
+   1:27  warning  'C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\node_modules\expo-router\build\index.js' imported multiple times  import/no-duplicates
+   3:23  warning  'C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\node_modules\expo-router\build\index.js' imported multiple times  import/no-duplicates
+   6:29  error    Parse errors in imported module '@/theme': '>' expected. (116:32)                                                                                  import/namespace
+  19:9   warning  'user' is assigned a value but never used                                                                                                          @typescript-eslint/no-unused-vars
+  24:9   warning  'socket' is assigned a value but never used                                                                                                        @typescript-eslint/no-unused-vars
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\order\[id].tsx
+   6:29  error    Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+  36:19  warning  'spacing' is assigned a value but never used                       @typescript-eslint/no-unused-vars
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\orders.tsx
+   6:29  error    Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+   7:24  warning  'Spacer' is defined but never used                                 @typescript-eslint/no-unused-vars
+  20:11  warning  'colors' is assigned a value but never used                        @typescript-eslint/no-unused-vars
+  21:9   warning  'router' is assigned a value but never used                        @typescript-eslint/no-unused-vars
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\product\[slug].tsx
+   6:29  error    Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+   7:24  warning  'Spacer' is defined but never used                                 @typescript-eslint/no-unused-vars
+  51:23  warning  'setActiveImage' is assigned a value but never used                @typescript-eslint/no-unused-vars
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\products.tsx
+   1:10  warning  'useState' is defined but never used                                                                                                               @typescript-eslint/no-unused-vars
+   3:45  warning  'C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\node_modules\expo-router\build\index.js' imported multiple times  import/no-duplicates
+   5:29  error    Parse errors in imported module '@/theme': '>' expected. (116:32)                                                                                  import/namespace
+  17:10  warning  'ProductRail' is defined but never used                                                                                                            @typescript-eslint/no-unused-vars
+  20:27  warning  'C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\node_modules\expo-router\build\index.js' imported multiple times  import/no-duplicates
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\profile.tsx
+   5:29  error  Parse errors in imported module '@/theme': '>' expected. (116:32)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   import/namespace
+  32:7   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\profile.tsx:32:7
+  30 |   useEffect(() => {
+  31 |     if (profile) {
+> 32 |       setFirstName(profile.first_name);
+     |       ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  33 |       setLastName(profile.last_name);
+  34 |       setPhoneNumber(profile.phone_number ?? '');
+  35 |       setAvatar(profile.avatar ?? null);  react-hooks/set-state-in-effect
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\settings.tsx
+  4:29  error  Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\store\[slug].tsx
+   6:29  error    Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+  17:16  warning  'setPage' is assigned a value but never used                       @typescript-eslint/no-unused-vars
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\verify-payment.tsx
+   6:29  error    Parse errors in imported module '@/theme': '>' expected. (116:32)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      import/namespace
+   7:19  warning  'Spacer' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     @typescript-eslint/no-unused-vars
+  24:7   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\verify-payment.tsx:24:7
+  22 |   useEffect(() => {
+  23 |     if (!params.reference && params.orderId) {
+> 24 |       setStatus('pending');
+     |       ^^^^^^^^^ Avoid calling setState() directly within an effect
+  25 |       return;
+  26 |     }
+  27 |     if (params.reference) {  react-hooks/set-state-in-effect
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\wishlist.tsx
+  5:29  error    Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+  6:24  warning  'Spacer' is defined but never used                                 @typescript-eslint/no-unused-vars
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\app\zone\[identifier].tsx
+   1:10  warning  'useState' is defined but never used                                                                                          @typescript-eslint/no-unused-vars
+   5:29  error    Parse errors in imported module '@/theme': '>' expected. (116:32)                                                             import/namespace
+  10:45  warning  'C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\api\zoneApi.ts' imported multiple times  import/no-duplicates
+  11:41  warning  'C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\api\zoneApi.ts' imported multiple times  import/no-duplicates
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\components\shared\AppImage.tsx
+  4:29  error  Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\components\shared\ImageUpload.tsx
+  3:29  error  Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\components\shared\PaginatedList.tsx
+  2:15  warning  'ReactNode' is defined but never used                                                                                                       @typescript-eslint/no-unused-vars
+  3:29  error    Parse errors in imported module '@/theme': '>' expected. (116:32)                                                                           import/namespace
+  5:28  warning  'C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\components\ui\EmptyState.tsx' imported multiple times  import/no-duplicates
+  6:28  warning  'C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\components\ui\EmptyState.tsx' imported multiple times  import/no-duplicates
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\components\shared\ProductCard.tsx
+  3:29  error  Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\components\shared\ProductForm.tsx
+   5:29  error    Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+  71:20  warning  'setVariants' is assigned a value but never used                   @typescript-eslint/no-unused-vars
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\components\shared\RatingStars.tsx
+  2:29  error  Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\components\shared\SectionHeader.tsx
+  2:29  error  Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\components\ui\Button.tsx
+  3:29  error  Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\components\ui\Card.tsx
+  3:29  error  Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\components\ui\EmptyState.tsx
+  3:29  error  Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\components\ui\Form.tsx
+  7:29  error  Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\components\ui\Input.tsx
+  3:29  error  Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\components\ui\Modal.tsx
+  3:29  error  Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\components\ui\Screen.tsx
+  4:15  warning  'RefreshControlProps' is defined but never used                    @typescript-eslint/no-unused-vars
+  5:29  error    Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\components\ui\Select.tsx
+  3:29  error  Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\components\ui\Skeleton.tsx
+  2:29  error  Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\components\ui\StatsCard.tsx
+   2:29  error    Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+  19:28  warning  'radius' is assigned a value but never used                        @typescript-eslint/no-unused-vars
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\components\ui\Text.tsx
+  3:29  error  Parse errors in imported module '@/theme': '>' expected. (116:32)  import/namespace
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\components\ui\Toast.tsx
+   5:29  error    Parse errors in imported module '@/theme': '>' expected. (116:32)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             import/namespace
+  13:11  warning  'colors' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-unused-vars
+  13:19  warning  'radius' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-unused-vars
+  52:19  error    Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\components\ui\Toast.tsx:52:19
+  50 |   onDone: () => void;
+  51 | }) {
+> 52 |   const opacity = useRef(new Animated.Value(0)).current;
+     |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Cannot access ref value during render
+  53 |   const translateY = useRef(new Animated.Value(-16)).current;
+  54 |   const { colors, radius, spacing } = useAppTheme();
+  55 |   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);                                                                                                                           react-hooks/refs
+  53:22  error    Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\components\ui\Toast.tsx:53:22
+  51 | }) {
+  52 |   const opacity = useRef(new Animated.Value(0)).current;
+> 53 |   const translateY = useRef(new Animated.Value(-16)).current;
+     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Cannot access ref value during render
+  54 |   const { colors, radius, spacing } = useAppTheme();
+  55 |   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  56 |                                                                                                                                            react-hooks/refs
+  53:22  error    Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\components\ui\Toast.tsx:53:22
+  51 | }) {
+  52 |   const opacity = useRef(new Animated.Value(0)).current;
+> 53 |   const translateY = useRef(new Animated.Value(-16)).current;
+     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Cannot access ref value during render
+  54 |   const { colors, radius, spacing } = useAppTheme();
+  55 |   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  56 |                                                                                                                                            react-hooks/refs
+  53:22  error    Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\components\ui\Toast.tsx:53:22
+  51 | }) {
+  52 |   const opacity = useRef(new Animated.Value(0)).current;
+> 53 |   const translateY = useRef(new Animated.Value(-16)).current;
+     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Cannot access ref value during render
+  54 |   const { colors, radius, spacing } = useAppTheme();
+  55 |   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  56 |                                                                                                                                            react-hooks/refs
+  81:14  error    Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\components\ui\Toast.tsx:81:14
+  79 |   return (
+  80 |     <Animated.View
+> 81 |       style={[
+     |              ^
+> 82 |         {
+     | ^^^^^^^^^
+> 83 |           backgroundColor: colors.surface,
+     ΓÇª
+     | ^^^^^^^^^
+> 95 |         },
+     | ^^^^^^^^^
+> 96 |       ]}
+     | ^^^^^^^^ Cannot access ref value during render
+  97 |     >
+  98 |       <AppText variant="label" weight="medium">
+  99 |         {message}                                                                                                                                              react-hooks/refs
+  82:9   error    Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\components\ui\Toast.tsx:82:9
+  80 |     <Animated.View
+  81 |       style={[
+> 82 |         {
+     |         ^
+> 83 |           backgroundColor: colors.surface,
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 84 |           borderRadius: radius.md,
+     ΓÇª
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 94 |           transform: [{ translateY }],
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 95 |         },
+     | ^^^^^^^^^^ Cannot access ref value during render
+  96 |       ]}
+  97 |     >
+  98 |       <AppText variant="label" weight="medium">  react-hooks/refs
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\hooks\useSocket.ts
+  45:7  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\Dominion Banjo\Desktop\My Learning\Projects\EasyStore\easystore-mobile\src\hooks\useSocket.ts:45:7
+  43 |       socketRef.current?.disconnect();
+  44 |       socketRef.current = null;
+> 45 |       setConnected(false);
+     |       ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  46 |       return;
+  47 |     }
+  48 |     let cancelled = false;  react-hooks/set-state-in-effect
+
+Γ£û 159 problems (93 errors, 66 warnings)
+  0 errors and 11 warnings potentially fixable with the `--fix` option.
+

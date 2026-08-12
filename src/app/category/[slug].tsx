@@ -11,7 +11,7 @@ import { useGetProductsByCategoryQuery } from '@/api/productApi';
 export default function CategoryScreen() {
   const { colors, spacing } = useAppTheme();
   const params = useLocalSearchParams<{ slug: string }>();
-  const [page, setPage] = useState(1);
+  const [page] = useState(1);
 
   const { data, isLoading } = useGetProductsByCategoryQuery({
     identifier: params.slug,

@@ -4,7 +4,7 @@ import { Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
 import { useAppTheme } from '@/theme';
-import { AppText, Row, Spacer } from '@/components/ui/Text';
+import { AppText, Row } from '@/components/ui/Text';
 import { Chip } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { StatusBadge } from '@/components/shared/StatusBadge';
@@ -17,8 +17,7 @@ import type { IOrder } from '@/types/order';
 const STATUS_FILTERS = ['', 'pending', 'processing', 'paid', 'in_transit', 'delivered', 'completed', 'canceled'];
 
 export default function OrdersScreen() {
-  const { colors, spacing } = useAppTheme();
-  const router = useRouter();
+  const { spacing } = useAppTheme();
   const [status, setStatus] = useState('');
   const [page, setPage] = useState(1);
 

@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { Stack, useLocalSearchParams } from 'expo-router';
 
@@ -7,8 +6,7 @@ import { AppText, Spacer } from '@/components/ui/Text';
 import { AppImage } from '@/components/shared/AppImage';
 import { ProductGrid } from '@/components/shared/ProductCard';
 import { ProductGridSkeleton } from '@/components/ui/Skeleton';
-import { useGetZoneByIdentifierQuery } from '@/api/zoneApi';
-import { useGetZoneProductsQuery } from '@/api/zoneApi';
+import { useGetZoneByIdentifierQuery , useGetZoneProductsQuery } from '@/api/zoneApi';
 
 export default function ZoneScreen() {
   const { colors, spacing } = useAppTheme();

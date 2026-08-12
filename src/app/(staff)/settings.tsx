@@ -26,17 +26,17 @@ export default function StaffSettingsScreen() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [loaded, setLoaded] = useState(false);
 
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [saving, setSaving] = useState(false);
 
-  if (staff && !loaded) {
+  const [loadedProfile, setLoadedProfile] = useState<string | null>(null);
+  if (staff && loadedProfile !== staff.id) {
+    setLoadedProfile(staff.id);
     setFirstName(staff.user.first_name);
     setLastName(staff.user.last_name);
     setPhoneNumber(staff.user.phone_number ?? '');
-    setLoaded(true);
   }
 
   const handleSaveProfile = async () => {
