@@ -20,13 +20,29 @@ import { useToast } from '@/hooks/useToast';
 import { getErrorMessage } from '@/utils/error';
 import { useAppSelector, useAppDispatch } from '@/hooks';
 import { addGuestItem } from '@/features/cartSlice';
-import type { IProductVariant } from '@/types/product';
+import type { IProductDetails, IProductVariant } from '@/types/product';
 
 interface SelectedVariant {
   variant?: IProductVariant;
   size?: string;
   color?: string;
   options: Record<string, string>;
+}
+
+function normalizeProduct(
+  raw: IProductDetails | { product?: IProductDetails } | undefined,
+): IProductDetails | null {
+  if (!raw || typeof raw !== 'object') {
+    return null;
+  }
+  const nested = (raw as { product?: IProductDetails }).product;
+  if (nested && typeof nested.name === 'string' && typeof nested.id === 'string') {
+    return nested;
+  }
+  if (typeof (raw as IProductDetails).name === 'string' && typeof (raw as IProductDetails).id === 'string') {
+    return raw as IProductDetails;
+  }
+  return null;
 }
 
 export default function ProductDetailScreen() {
@@ -37,7 +53,8 @@ export default function ProductDetailScreen() {
   const params = useLocalSearchParams<{ slug: string }>();
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 
-  const { data: product, isLoading } = useGetProductBySlugQuery(params.slug);
+  const { data: rawProduct, isLoading } = useGetProductBySlugQuery(params.slug);
+  const product = normalizeProduct(rawProduct);
   const { data: reviewsData } = useGetProductReviewsQuery(product?.id ?? '', {
     skip: !product?.id,
   });
@@ -163,7 +180,9 @@ export default function ProductDetailScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ title: product.name.slice(0, 40), headerShown: true }} />
+      <Stack.Screen
+        options={{ title: (product.name ?? 'Product').slice(0, 40), headerShown: true }}
+      />
       <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
         <AppImage
           uri={activeImageUrl}
