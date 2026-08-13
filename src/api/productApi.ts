@@ -34,6 +34,7 @@ export const productApi = apiManager.injectEndpoints({
     }),
     getProductBySlug: build.query<IProductDetails, string>({
       query: (identifier) => `product/${identifier}`,
+      transformResponse: (response: { product: IProductDetails }) => response.product,
       providesTags: (_result, _err, identifier) => [{ type: 'Product', id: identifier }],
     }),
     searchProducts: build.query<IPaginatedData<IProduct>, IProductSearchParams>({

@@ -307,10 +307,10 @@ export default function ProductDetailScreen() {
 
           <Card style={{ gap: spacing.md }}>
             <AppText variant="label" weight="semibold">
-              Reviews ({reviewsData?.pagination?.total ?? product.review_count ?? 0})
+              Reviews ({reviewsData?.length ?? product.review_count ?? 0})
             </AppText>
-            {reviewsData && reviewsData.items.length > 0 ? (
-              reviewsData.items.slice(0, 3).map((review) => (
+            {reviewsData && reviewsData.length > 0 ? (
+              reviewsData.slice(0, 3).map((review) => (
                 <View key={review.id} style={{ gap: 4 }}>
                   <Row style={{ gap: spacing.sm }}>
                     <RatingStars rating={review.rating} showValue={false} />

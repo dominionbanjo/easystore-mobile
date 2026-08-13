@@ -1,11 +1,12 @@
 import { apiManager } from './client';
 import type { IProductReview } from '@/types/product';
-import type { SuccessResponse, IPaginatedData } from '@/types/api';
+import type { SuccessResponse } from '@/types/api';
 
 export const reviewApi = apiManager.injectEndpoints({
   endpoints: (build) => ({
-    getProductReviews: build.query<IPaginatedData<IProductReview>, string>({
+    getProductReviews: build.query<IProductReview[], string>({
       query: (productId) => `products/${productId}/reviews?limit=20`,
+      transformResponse: (response: IProductReview[]) => response,
       providesTags: ['Reviews'],
     }),
     createProductReview: build.mutation<
