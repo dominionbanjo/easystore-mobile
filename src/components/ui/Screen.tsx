@@ -24,6 +24,7 @@ export function Screen({
 
   const content = scroll ? (
     <ScrollView
+      style={{ flex: 1 }}
       showsVerticalScrollIndicator={false}
       contentContainerStyle={[
         padded && { padding: spacing.lg, paddingBottom: spacing.xxl },

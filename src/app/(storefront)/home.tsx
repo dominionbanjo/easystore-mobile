@@ -109,7 +109,11 @@ export default function HomeScreen() {
 
   return (
     <Screen scroll={false}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32 }}>
+      <ScrollView
+        style={{ flex: 1 }}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 32 }}
+      >
         <View
           style={{
             paddingHorizontal: spacing.lg,

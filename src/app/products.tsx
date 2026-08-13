@@ -1,5 +1,5 @@
-import { View } from 'react-native';
-import { Stack, useLocalSearchParams , useRouter } from 'expo-router';
+import { ScrollView, View } from 'react-native';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 
 import { useAppTheme } from '@/theme';
 import { AppText } from '@/components/ui/Text';
@@ -57,7 +57,7 @@ export default function ProductsListScreen() {
   return (
     <>
       <Stack.Screen options={{ title: titles[mode] ?? 'Products', headerShown: true }} />
-      <View style={{ flex: 1, padding: spacing.lg }}>
+      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: spacing.lg }}>
         {isLoading ? (
           <ProductGridSkeleton count={6} />
         ) : mode === 'stores' ? (
@@ -126,7 +126,7 @@ export default function ProductsListScreen() {
         ) : (
           <EmptyState title="No products found" description="Try a different category" />
         )}
-      </View>
+      </ScrollView>
     </>
   );
 }

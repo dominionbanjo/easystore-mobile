@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { Stack, useLocalSearchParams } from 'expo-router';
 
 import { useAppTheme } from '@/theme';
@@ -22,8 +22,8 @@ export default function CategoryScreen() {
   return (
     <>
       <Stack.Screen options={{ title: 'Category', headerShown: true }} />
-      <View style={{ flex: 1, padding: spacing.lg }}>
-        <AppText variant="subtitle" weight="bold" style={{ marginBottom: spacing.md }}>
+      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: spacing.lg }}>
+        <AppText style={{ fontSize: 20, letterSpacing: -0.4, marginBottom: spacing.md }} weight="black">
           {params.slug.replace(/-/g, ' ')}
         </AppText>
         {isLoading ? (
@@ -37,7 +37,7 @@ export default function CategoryScreen() {
             </AppText>
           </View>
         )}
-      </View>
+      </ScrollView>
     </>
   );
 }

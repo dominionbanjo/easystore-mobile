@@ -16,8 +16,27 @@ const WEB_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID;
 const ANDROID_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID;
 const IOS_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
 
+const GOOGLE_CONFIGURED = Boolean(WEB_CLIENT_ID);
+
 export function GoogleSignInButton() {
-  const { colors, radius, spacing } = useAppTheme();
+  const { colors, spacing } = useAppTheme();
+
+  if (!GOOGLE_CONFIGURED) {
+    return (
+      <View style={{ alignItems: 'center', padding: spacing.sm }}>
+        <AppText variant="small" color={colors.textSubtle} center>
+          Google sign-in is not configured. Set EXPO_PUBLIC_GOOGLE_CLIENT_ID (and
+          EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID for Android) in .env to enable it.
+        </AppText>
+      </View>
+    );
+  }
+
+  return <GoogleButtonInner />;
+}
+
+function GoogleButtonInner() {
+  const { radius } = useAppTheme();
   const router = useRouter();
   const toast = useToast();
   const [googleLogin, { isLoading }] = useGoogleLoginMutation();
@@ -43,16 +62,6 @@ export function GoogleSignInButton() {
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [response]);
-
-  if (!WEB_CLIENT_ID) {
-    return (
-      <View style={{ alignItems: 'center', padding: spacing.sm }}>
-        <AppText variant="small" color={colors.textSubtle} center>
-          Google sign-in is not configured — set EXPO_PUBLIC_GOOGLE_CLIENT_ID in .env to enable it.
-        </AppText>
-      </View>
-    );
-  }
 
   return (
     <Button
