@@ -1,8 +1,20 @@
 import { useState } from 'react';
 import { View } from 'react-native';
 import { Image } from 'expo-image';
-import { useAppTheme } from '@/theme';
+import { useAppTheme } from '../../theme';
 import { AppText } from '../ui/Text';
+
+type ImageUri = string | { url?: string } | null | undefined;
+
+function resolveUri(uri: ImageUri): string | undefined {
+  if (typeof uri === 'string') {
+    return uri;
+  }
+  if (uri && typeof uri === 'object' && typeof uri.url === 'string') {
+    return uri.url;
+  }
+  return undefined;
+}
 
 export function AppImage({
   uri,
@@ -10,15 +22,16 @@ export function AppImage({
   fallbackText,
   contentFit = 'cover',
 }: {
-  uri?: string;
+  uri: ImageUri;
   style: object;
   fallbackText?: string;
   contentFit?: 'cover' | 'contain';
 }) {
   const { colors, radius } = useAppTheme();
   const [failed, setFailed] = useState(false);
+  const resolved = resolveUri(uri);
 
-  if (!uri || failed) {
+  if (!resolved || failed) {
     return (
       <View
         style={[
@@ -26,7 +39,7 @@ export function AppImage({
             backgroundColor: colors.surfaceAlt,
             alignItems: 'center',
             justifyContent: 'center',
-            borderRadius: radius.md,
+            borderRadius: radius.sm,
           },
           style,
         ]}
@@ -40,12 +53,12 @@ export function AppImage({
 
   return (
     <Image
-      source={{ uri }}
-      style={[{ backgroundColor: colors.surfaceAlt, borderRadius: radius.md }, style]}
+      source={{ uri: resolved }}
+      style={[{ backgroundColor: colors.surfaceAlt, borderRadius: radius.sm }, style]}
       contentFit={contentFit}
       transition={150}
       onError={() => setFailed(true)}
-      recyclingKey={uri}
+      recyclingKey={resolved}
     />
   );
 }

@@ -85,10 +85,11 @@ export default function ProductDetailScreen() {
     );
   }
 
-  const gallery = [product.image, ...(product.gallery ?? []).map((image) => image.url)].filter(
-    (url): url is string => Boolean(url),
-  );
-  const activeImageUrl = gallery[activeImage] ?? product.image;
+  const gallery = [
+    typeof product.image === 'string' ? product.image : undefined,
+    ...(product.gallery ?? []).map((image) => (typeof image.url === 'string' ? image.url : undefined)),
+  ].filter((url): url is string => Boolean(url));
+  const activeImageUrl = gallery[activeImage] ?? (typeof product.image === 'string' ? product.image : undefined);
 
   const hasVariants = (product.variants?.length ?? 0) > 0;
   const hasOptions = (product.options?.length ?? 0) > 0;
