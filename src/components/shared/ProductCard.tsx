@@ -6,7 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAppTheme } from '@/theme';
 import { AppText, Row } from '../ui/Text';
 import { AppImage } from './AppImage';
-import { formatNGN } from '@/utils/money';
+import { formatNaira } from '@/utils/money';
 import type { IProduct } from '@/types/product';
 
 export function ProductCard({
@@ -122,11 +122,11 @@ export function ProductCard({
             <View style={{ gap: 0 }}>
               {product.discount_price ? (
                 <AppText style={{ fontSize: 9, textDecorationLine: 'line-through' }} color={colors.textSubtle}>
-                  {formatNGN(product.price)}
+                  {formatNaira(product.price)}
                 </AppText>
               ) : null}
               <AppText style={{ fontSize: 14 }} weight="extrabold">
-                {formatNGN(price)}
+                {formatNaira(price)}
               </AppText>
             </View>
             <Pressable

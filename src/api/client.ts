@@ -8,8 +8,8 @@ import type {
   FetchArgs,
   FetchBaseQueryError,
 } from '@reduxjs/toolkit/query/react';
-import * as SecureStore from 'expo-secure-store';
-import { API_BASE_URL, TOKEN_STORAGE_KEY } from '@/constants/api';
+import { API_BASE_URL } from '@/constants/api';
+import { getToken, deleteToken } from '@/utils/tokenStorage';
 import { getErrorMessage, isUnauthorizedError } from '@/utils/error';
 import type { RootState } from '@/store';
 
@@ -31,7 +31,7 @@ export function getStoreRef(): AppStore | null {
 const rawBaseQuery = fetchBaseQuery({
   baseUrl: API_BASE_URL,
   prepareHeaders: async (headers) => {
-    const token = await SecureStore.getItemAsync(TOKEN_STORAGE_KEY);
+    const token = await getToken();
     if (token) {
       headers.set('Authorization', `Bearer ${token}`);
     }
@@ -47,7 +47,7 @@ export interface ApiEnvelope<T> {
 }
 
 async function handleUnauthorized(): Promise<void> {
-  await SecureStore.deleteItemAsync(TOKEN_STORAGE_KEY);
+  await deleteToken();
   if (storeRef) {
     storeRef.dispatch({ type: 'auth/clearCredentials' });
   }

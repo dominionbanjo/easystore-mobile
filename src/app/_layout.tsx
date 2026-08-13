@@ -3,7 +3,6 @@ import { View } from 'react-native';
 import { Stack, SplashScreen } from 'expo-router';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
-import * as SecureStore from 'expo-secure-store';
 import { StatusBar } from 'expo-status-bar';
 import {
   Outfit_300Light,
@@ -19,7 +18,7 @@ import {
 import { store, persistor } from '@/store';
 import { setStoreRef } from '@/api/client';
 import { setCredentials, clearCredentials, setAccessToken } from '@/features/authSlice';
-import { TOKEN_STORAGE_KEY } from '@/constants/api';
+import { getToken } from '@/utils/tokenStorage';
 import { useAppTheme, ThemeProvider, useThemeMode } from '@/theme';
 import { ToastHost } from '@/components/ui/Toast';
 import { userApi } from '@/api/userApi';
@@ -48,7 +47,7 @@ function RootNavigator() {
   useEffect(() => {
     (async () => {
       try {
-        const token = await SecureStore.getItemAsync(TOKEN_STORAGE_KEY);
+        const token = await getToken();
         if (token) {
           const persistedUser = store.getState().auth.user;
           if (persistedUser) {

@@ -11,7 +11,7 @@ import { ProductGrid, ProductRail } from '@/components/shared/ProductCard';
 import { AppImage } from '@/components/shared/AppImage';
 import { ProductGridSkeleton } from '@/components/ui/Skeleton';
 import { Card } from '@/components/ui/Card';
-import { formatNGN } from '@/utils/money';
+import { formatNaira } from '@/utils/money';
 import { useAppTheme } from '@/theme';
 import { useGetFeaturedProductsQuery, useGetProductsQuery , useSearchProductsQuery } from '@/api/productApi';
 import { useGetTrendingStoresQuery } from '@/api/storeApi';
@@ -37,7 +37,7 @@ function SectionGrid({
   subtitle?: string;
   actionLabel?: string;
   onAction?: () => void;
-  products?: IProduct[];
+  products?: IProduct[] | { items?: IProduct[] } | null;
   loading?: boolean;
   tinted?: boolean;
   showSkeleton?: boolean;
@@ -46,7 +46,8 @@ function SectionGrid({
   if (loading && showSkeleton) {
     return <ProductGridSkeleton count={4} />;
   }
-  if (!products || products.length === 0) {
+  const list = Array.isArray(products) ? products : (products?.items ?? []);
+  if (list.length === 0) {
     return null;
   }
   return (
@@ -57,7 +58,7 @@ function SectionGrid({
       ]}
     >
       <SectionHeader title={title} subtitle={subtitle} actionLabel={actionLabel} onAction={onAction} />
-      <ProductGrid products={products.slice(0, 4)} />
+      <ProductGrid products={list.slice(0, 4)} />
     </View>
   );
 }
@@ -197,11 +198,11 @@ export default function HomeScreen() {
                 <Row style={{ gap: spacing.md, alignItems: 'baseline' }}>
                   {hero.discount_price ? (
                     <AppText style={{ fontSize: 13, textDecorationLine: 'line-through', color: 'rgba(255,255,255,0.7)' }}>
-                      {formatNGN(hero.price)}
+                      {formatNaira(hero.price)}
                     </AppText>
                   ) : null}
                   <AppText style={{ fontSize: 18, fontWeight: '900', color: '#34d399' }}>
-                    {formatNGN(hero.discount_price ?? hero.price)}
+                    {formatNaira(hero.discount_price ?? hero.price)}
                   </AppText>
                 </Row>
                 <Pressable

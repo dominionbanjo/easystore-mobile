@@ -11,7 +11,7 @@ import { RatingStars } from '@/components/shared/RatingStars';
 import { Card } from '@/components/ui/Card';
 import { ProductGridSkeleton } from '@/components/ui/Skeleton';
 import { AppModal } from '@/components/ui/Modal';
-import { formatNGN } from '@/utils/money';
+import { formatNaira } from '@/utils/money';
 import { useGetProductBySlugQuery } from '@/api/productApi';
 import { useAddCartItemMutation } from '@/api/cartApi';
 import { useAddToWishlistMutation, useRemoveFromWishlistMutation } from '@/api/wishlistApi';
@@ -220,7 +220,7 @@ export default function ProductDetailScreen() {
 
           <Row style={{ gap: spacing.md, alignItems: 'baseline' }}>
             <AppText variant="title" weight="bold" color={colors.primary}>
-              {formatNGN(unitPrice)}
+              {formatNaira(unitPrice)}
             </AppText>
             {product.discount_price ? (
               <AppText
@@ -228,7 +228,7 @@ export default function ProductDetailScreen() {
                 color={colors.textSubtle}
                 style={{ textDecorationLine: 'line-through' }}
               >
-                {formatNGN(product.price)}
+                {formatNaira(product.price)}
               </AppText>
             ) : null}
             {typeof unitStock === 'number' ? (

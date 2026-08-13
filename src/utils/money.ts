@@ -11,6 +11,18 @@ export function formatNGN(amountKobo: number | string | null | undefined): strin
   return `₦${formatted}`;
 }
 
+export function formatNaira(amountNaira: number | string | null | undefined): string {
+  const naira = Number(amountNaira ?? 0);
+  if (!Number.isFinite(naira)) {
+    return '₦0';
+  }
+  const formatted = naira.toLocaleString('en-NG', {
+    minimumFractionDigits: naira % 1 === 0 ? 0 : 2,
+    maximumFractionDigits: 2,
+  });
+  return `₦${formatted}`;
+}
+
 export function formatNGNCompact(amountKobo: number | string | null | undefined): string {
   const kobo = Number(amountKobo ?? 0);
   const naira = kobo / 100;

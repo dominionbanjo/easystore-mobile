@@ -21,6 +21,7 @@ export const productApi = apiManager.injectEndpoints({
     }),
     getFeaturedProducts: build.query<IProduct[], void>({
       query: () => 'product/featured',
+      transformResponse: (response: IPaginatedData<IProduct>) => response.items,
       providesTags: ['Product'],
     }),
     getProductsByCategory: build.query<

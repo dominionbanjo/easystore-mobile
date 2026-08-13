@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { io } from 'socket.io-client';
 import type { Socket } from 'socket.io-client';
-import * as SecureStore from 'expo-secure-store';
-import { SOCKET_URL, TOKEN_STORAGE_KEY } from '../constants/api';
+import { SOCKET_URL } from '../constants/api';
+import { getToken } from '../utils/tokenStorage';
 import { useAppSelector } from '../hooks';
 
 export interface SocketEventMap {
@@ -44,7 +44,7 @@ export function useSocket(): MessagingSocket {
     }
     let cancelled = false;
     (async () => {
-      const token = await SecureStore.getItemAsync(TOKEN_STORAGE_KEY);
+      const token = await getToken();
       if (!token || cancelled) {
         return;
       }

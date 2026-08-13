@@ -1,6 +1,6 @@
-import * as SecureStore from 'expo-secure-store';
+
 import { apiManager } from './client';
-import { TOKEN_STORAGE_KEY } from '@/constants/api';
+import { setToken, deleteToken } from '@/utils/tokenStorage';
 import { setCredentials } from '@/features/authSlice';
 import type {
   IAuthData,
@@ -18,7 +18,7 @@ export const authApi = apiManager.injectEndpoints({
       onQueryStarted: async (_arg, { dispatch, queryFulfilled }) => {
         try {
           const { data } = await queryFulfilled;
-          await SecureStore.setItemAsync(TOKEN_STORAGE_KEY, data.access);
+          await setToken(data.access);
           dispatch(setCredentials(data));
         } catch {
           // handled by caller
@@ -31,7 +31,7 @@ export const authApi = apiManager.injectEndpoints({
       onQueryStarted: async (_arg, { dispatch, queryFulfilled }) => {
         try {
           const { data } = await queryFulfilled;
-          await SecureStore.setItemAsync(TOKEN_STORAGE_KEY, data.access);
+          await setToken(data.access);
           dispatch(setCredentials(data));
         } catch {
           // handled by caller
@@ -44,7 +44,7 @@ export const authApi = apiManager.injectEndpoints({
       onQueryStarted: async (_arg, { dispatch, queryFulfilled }) => {
         try {
           const { data } = await queryFulfilled;
-          await SecureStore.setItemAsync(TOKEN_STORAGE_KEY, data.access);
+          await setToken(data.access);
           dispatch(setCredentials(data));
         } catch {
           // handled by caller
@@ -57,7 +57,7 @@ export const authApi = apiManager.injectEndpoints({
       onQueryStarted: async (_arg, { dispatch, queryFulfilled }) => {
         try {
           const { data } = await queryFulfilled;
-          await SecureStore.setItemAsync(TOKEN_STORAGE_KEY, data.access);
+          await setToken(data.access);
           dispatch(setCredentials(data));
         } catch {
           // handled by caller
@@ -83,7 +83,7 @@ export const authApi = apiManager.injectEndpoints({
         try {
           const { data } = await queryFulfilled;
           if (data.success && data.access_token) {
-            await SecureStore.setItemAsync(TOKEN_STORAGE_KEY, data.access_token);
+            await setToken(data.access_token);
             dispatch({ type: 'auth/setAccessToken', payload: data.access_token });
           }
         } catch {
@@ -98,7 +98,7 @@ export const authApi = apiManager.injectEndpoints({
         try {
           await queryFulfilled;
         } finally {
-          await SecureStore.deleteItemAsync(TOKEN_STORAGE_KEY);
+          await deleteToken();
         }
       },
       invalidatesTags: ['Auth', 'User'],

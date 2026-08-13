@@ -9,7 +9,7 @@ import { Card } from '@/components/ui/Card';
 import { AppImage } from '@/components/shared/AppImage';
 import { ListSkeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { formatNGN } from '@/utils/money';
+import { formatNaira } from '@/utils/money';
 import {
   useGetWishlistQuery,
   useRemoveFromWishlistMutation,
@@ -75,7 +75,7 @@ export default function WishlistScreen() {
                         {item.name}
                       </AppText>
                       <AppText variant="label" weight="bold" color={colors.primary}>
-                        {formatNGN(item.price)}
+                        {formatNaira(item.price)}
                       </AppText>
                       <Row style={{ gap: spacing.sm, marginTop: 4 }}>
                         <Button
