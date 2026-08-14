@@ -1,16 +1,19 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+
+
+import { Search } from 'lucide-react-native';
 
 import { useAppTheme } from '@/theme';
 import { AppText, Row, Spacer } from '@/components/ui/Text';
-import { Chip, Button } from '@/components/ui/Button';
+import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { AppImage } from '@/components/shared/AppImage';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { PaginatedList } from '@/components/shared/PaginatedList';
 import { ConfirmDialog } from '@/components/ui/Modal';
+import { FilterDropdown, type FilterOption } from '@/components/ui/FilterDropdown';
 import { formatNGN } from '@/utils/money';
 import {
   useGetVendorProductsQuery,
@@ -22,7 +25,20 @@ import { useToast } from '@/hooks/useToast';
 import { getErrorMessage } from '@/utils/error';
 import type { IStoreProduct } from '@/types/product';
 
-const STATUS_FILTERS = ['', 'active', 'inactive', 'draft'];
+const STATUS_FILTERS: FilterOption[] = [
+  { label: 'All', value: '' },
+  { label: 'Active', value: 'active' },
+  { label: 'Inactive', value: 'inactive' },
+  { label: 'Draft', value: 'draft' },
+];
+
+const INVENTORY_FILTERS: FilterOption[] = [
+  { label: 'All Stock', value: 'all' },
+  { label: 'Out of Stock', value: 'out_of_stock' },
+  { label: 'On Sale', value: 'on_sale' },
+];
+
+type InventoryFilter = 'all' | 'out_of_stock' | 'on_sale';
 
 export default function VendorProductsScreen() {
   const { colors, spacing } = useAppTheme();
@@ -30,20 +46,41 @@ export default function VendorProductsScreen() {
   const toast = useToast();
 
   const [status, setStatus] = useState('');
+  const [inventoryFilter, setInventoryFilter] = useState<InventoryFilter>('all');
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [page, setPage] = useState(1);
 
-  const { data, isLoading, isFetching } = useGetVendorProductsQuery({
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search), 400);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch]);
+
+  const { data, isLoading, isFetching, isError, refetch } = useGetVendorProductsQuery({
     page,
     limit: 20,
     status: status || undefined,
-    search: search || undefined,
+    search: debouncedSearch || undefined,
   });
 
   const [updateStatus] = useUpdateProductStatusMutation();
   const [toggleOnSale] = useToggleProductOnSaleMutation();
   const [deleteProduct] = useDeleteProductMutation();
   const [deletingProduct, setDeletingProduct] = useState<IStoreProduct | null>(null);
+
+  const visibleItems = (data?.items ?? []).filter((product) => {
+    if (inventoryFilter === 'out_of_stock') {
+      return product.is_out_of_stock || product.stock <= 0;
+    }
+    if (inventoryFilter === 'on_sale') {
+      return Boolean(product.on_sale);
+    }
+    return true;
+  });
 
   const handleToggleStatus = async (product: IStoreProduct) => {
     const nextStatus = product.status === 'active' ? 'inactive' : 'active';
@@ -77,26 +114,45 @@ export default function VendorProductsScreen() {
     }
   };
 
+  if (isError) {
+    return (
+      <View style={{ padding: spacing.xl, gap: spacing.md, alignItems: 'center' }}>
+        <AppText center color={colors.textMuted}>
+          Couldn&apos;t load products
+        </AppText>
+        <Button title="Try Again" onPress={refetch} fullWidth={false} />
+      </View>
+    );
+  }
+
   return (
     <View style={{ flex: 1 }}>
       <View style={{ paddingHorizontal: spacing.lg, paddingTop: spacing.md, gap: spacing.md }}>
-        <Row style={{ gap: spacing.sm, flexWrap: 'wrap' }}>
-          {STATUS_FILTERS.map((filter) => (
-            <Chip
-              key={filter}
-              label={filter === '' ? 'All' : filter}
-              selected={status === filter}
-              onPress={() => {
+        <Row style={{ gap: spacing.sm }}>
+          <View style={{ flex: 1 }}>
+            <FilterDropdown
+              label="Status"
+              value={status}
+              onChange={(filter) => {
                 setStatus(filter);
                 setPage(1);
               }}
+              options={STATUS_FILTERS}
             />
-          ))}
+          </View>
+          <View style={{ flex: 1 }}>
+            <FilterDropdown
+              label="Stock"
+              value={inventoryFilter}
+              onChange={(filter) => setInventoryFilter(filter as InventoryFilter)}
+              options={INVENTORY_FILTERS}
+            />
+          </View>
         </Row>
         <Spacer height={4} />
         <Card padded={false} style={{ paddingHorizontal: spacing.md, paddingVertical: spacing.sm }}>
           <Row style={{ gap: spacing.sm }}>
-            <Ionicons name="search" size={16} color={colors.textSubtle} />
+            <Search size={16} color={colors.textSubtle} />
             <TextInput
               value={search}
               onChangeText={(text) => {
@@ -112,7 +168,7 @@ export default function VendorProductsScreen() {
       </View>
       <Spacer height={8} />
       <PaginatedList
-        items={data?.items}
+        items={visibleItems}
         pagination={data?.pagination}
         isLoading={isLoading}
         isFetching={isFetching}
@@ -142,9 +198,20 @@ export default function VendorProductsScreen() {
                   {product.on_sale ? <StatusBadge status="on_sale" /> : null}
                 </Row>
                 <Row style={{ justifyContent: 'space-between' }}>
-                  <AppText variant="small" weight="semibold" color={colors.primary}>
-                    {formatNGN(product.discount_price ?? product.price)}
-                  </AppText>
+                  <Row style={{ gap: spacing.xs }}>
+                    <AppText variant="small" weight="semibold" color={colors.primary}>
+                      {formatNGN(product.discount_price ?? product.price)}
+                    </AppText>
+                    {product.on_sale && product.discount_price ? (
+                      <AppText
+                        variant="small"
+                        color={colors.textSubtle}
+                        style={{ textDecorationLine: 'line-through' }}
+                      >
+                        {formatNGN(product.price)}
+                      </AppText>
+                    ) : null}
+                  </Row>
                   <AppText variant="small" color={colors.textMuted}>
                     Stock: {product.stock}
                   </AppText>

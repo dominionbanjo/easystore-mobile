@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 
 import { useAppTheme } from '@/theme';
 import { AppText, Spacer } from '@/components/ui/Text';
@@ -16,7 +16,7 @@ import { useToast } from '@/hooks/useToast';
 import { getErrorMessage } from '@/utils/error';
 
 export default function StaffSettingsScreen() {
-  const { colors, spacing } = useAppTheme();
+  const { colors, radius, spacing } = useAppTheme();
   const toast = useToast();
 
   const { data: staff } = useGetStaffMeQuery();
@@ -34,9 +34,9 @@ export default function StaffSettingsScreen() {
   const [loadedProfile, setLoadedProfile] = useState<string | null>(null);
   if (staff && loadedProfile !== staff.id) {
     setLoadedProfile(staff.id);
-    setFirstName(staff.user.first_name);
-    setLastName(staff.user.last_name);
-    setPhoneNumber(staff.user.phone_number ?? '');
+    setFirstName(staff.first_name);
+    setLastName(staff.last_name);
+    setPhoneNumber(staff.phone_number ?? '');
   }
 
   const handleSaveProfile = async () => {
@@ -70,19 +70,22 @@ export default function StaffSettingsScreen() {
   };
 
   return (
-    <View style={{ flex: 1, padding: spacing.lg, gap: spacing.md }}>
+    <ScrollView
+      contentContainerStyle={{ padding: spacing.lg, gap: spacing.md }}
+      showsVerticalScrollIndicator={false}
+    >
       <Card style={{ alignItems: 'center', gap: spacing.md }}>
         <AppImage
-          uri={staff?.user.avatar}
-          style={{ width: 72, height: 72, borderRadius: 36 }}
+          uri={staff?.avatar}
+          style={{ width: 72, height: 72, borderRadius: radius.full }}
           fallbackText={`${firstName[0] ?? ''}${lastName[0] ?? ''}`}
         />
         <View style={{ alignItems: 'center', gap: 2 }}>
-          <AppText variant="subtitle" weight="bold">
+          <AppText variant="subtitle" weight="bold" numberOfLines={1}>
             {firstName} {lastName}
           </AppText>
-          <AppText variant="small" color={colors.textMuted}>
-            {staff?.user.email}
+          <AppText variant="small" color={colors.textMuted} numberOfLines={1}>
+            {staff?.email}
           </AppText>
         </View>
       </Card>
@@ -112,6 +115,6 @@ export default function StaffSettingsScreen() {
         secureTextEntry
       />
       <Button title="Change Password" variant="outline" onPress={handleChangePassword} loading={saving} />
-    </View>
+    </ScrollView>
   );
 }

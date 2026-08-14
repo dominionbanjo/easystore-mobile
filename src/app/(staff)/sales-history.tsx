@@ -5,7 +5,6 @@ import { useAppTheme } from '@/theme';
 import { AppText, Row } from '@/components/ui/Text';
 import { Chip } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { StatusBadge } from '@/components/shared/StatusBadge';
 import { PaginatedList } from '@/components/shared/PaginatedList';
 import { formatNGN } from '@/utils/money';
 import { useGetSalesHistoryQuery } from '@/api/orderApi';
@@ -58,13 +57,10 @@ export default function StaffSalesHistoryScreen() {
                   minute: '2-digit',
                 })}
               </AppText>
-              <StatusBadge status={sale.status} />
-            </Row>
-            <Row style={{ justifyContent: 'space-between' }}>
               <AppText variant="label" weight="medium" numberOfLines={1} style={{ flex: 1 }}>
-                {sale.order_items?.[0]?.name ?? 'Sale'}
-                {sale.order_items && sale.order_items.length > 1
-                  ? ` +${sale.order_items.length - 1}`
+                {sale.items?.[0]?.name ?? 'Sale'}
+                {sale.items && sale.items.length > 1
+                  ? ` +${sale.items.length - 1}`
                   : ''}
               </AppText>
               <AppText variant="label" weight="bold" color="green">

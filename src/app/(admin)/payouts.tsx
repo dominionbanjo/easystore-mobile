@@ -16,18 +16,30 @@ import {
 } from '@/api/adminApi';
 import { useToast } from '@/hooks/useToast';
 import { getErrorMessage } from '@/utils/error';
-import type { IAdminEscrow } from '@/types/admin';
+import type { IAdminPayout } from '@/types/admin';
 
 export default function AdminPayoutsScreen() {
   const { spacing } = useAppTheme();
   const toast = useToast();
 
   const [page, setPage] = useState(1);
-  const { data: escrows, isLoading, isFetching } = useGetAdminEscrowsQuery({ page, limit: 20 });
-  const { data: payouts } = useGetAdminPayoutsQuery({ page: 1, limit: 10 });
+  const {
+    data: escrows,
+    isLoading,
+    isFetching,
+    isError: escrowsError,
+    refetch: refetchEscrows,
+  } = useGetAdminEscrowsQuery({ page, limit: 20 });
+  const {
+    data: payouts,
+    isError: payoutsError,
+    refetch: refetchPayouts,
+  } = useGetAdminPayoutsQuery({ page: 1, limit: 20 });
 
-  const [markTransferred] = useMarkEscrowTransferredMutation();
-  const [transferTarget, setTransferTarget] = useState<IAdminEscrow | null>(null);
+  const [markTransferred, { isLoading: marking }] = useMarkEscrowTransferredMutation();
+  const [transferTarget, setTransferTarget] = useState<IAdminPayout | null>(null);
+
+  const isError = escrowsError || payoutsError;
 
   const handleMarkTransferred = async () => {
     if (!transferTarget) {
@@ -44,21 +56,21 @@ export default function AdminPayoutsScreen() {
 
   return (
     <View style={{ flex: 1 }}>
-      {payouts && payouts.items.length > 0 ? (
+      {payouts && payouts.items.length > 0 && !isError ? (
         <View style={{ padding: spacing.lg, paddingBottom: 0, gap: spacing.sm }}>
           <AppText variant="label" weight="bold">
-            Recent Payouts
+            Payouts
           </AppText>
-          {payouts.items.slice(0, 3).map((payout) => (
+          {payouts.items.map((payout) => (
             <Card key={payout.id} style={{ gap: 2 }}>
               <Row style={{ justifyContent: 'space-between' }}>
                 <AppText variant="label" weight="bold">
-                  {formatNGN(payout.amount)}
+                  {formatNGN(payout.amount_kobo)}
                 </AppText>
                 <StatusBadge status={payout.status} />
               </Row>
-              <AppText variant="small" color="gray">
-                {payout.vendor?.store_name ?? 'Vendor'} · {payout.payout_type}
+              <AppText variant="small" color="gray" numberOfLines={1}>
+                {payout.vendor_bank?.store_name ?? 'Vendor'} · {payout.payout_type}
               </AppText>
             </Card>
           ))}
@@ -70,6 +82,11 @@ export default function AdminPayoutsScreen() {
         pagination={escrows?.pagination}
         isLoading={isLoading}
         isFetching={isFetching}
+        error={isError}
+        onRetry={() => {
+          refetchEscrows();
+          refetchPayouts();
+        }}
         isLoadingMore={isFetching && page > 1}
         onEndReached={() => setPage((p) => p + 1)}
         onRefresh={() => setPage(1)}
@@ -78,20 +95,19 @@ export default function AdminPayoutsScreen() {
           <Card style={{ marginHorizontal: spacing.lg, marginBottom: spacing.md, gap: spacing.sm }}>
             <Row style={{ justifyContent: 'space-between' }}>
               <AppText variant="label" weight="bold">
-                {formatNGN(escrow.amount)}
+                {formatNGN(escrow.amount_kobo)}
               </AppText>
               <StatusBadge status={escrow.status} />
             </Row>
             <AppText variant="small" color="gray" numberOfLines={1}>
-              {escrow.vendor?.store_name ?? 'Vendor'} · {escrow.buyer
-                ? `${escrow.buyer.first_name} ${escrow.buyer.last_name}`
-                : ''}
+              {escrow.vendor_bank?.store_name ?? 'Vendor'} ·{' '}
+              {escrow.vendor_bank?.account_name ?? ''}
             </AppText>
             <Row style={{ justifyContent: 'space-between' }}>
               <AppText variant="small" color="gray">
-                Fee: {formatNGN(escrow.escrow_fee ?? 0)}
+                {escrow.vendor_bank?.bank_name ?? ''}
               </AppText>
-              {escrow.status === 'delivered' || escrow.status === 'released' ? (
+              {escrow.status === 'pending_manual' ? (
                 <Button
                   title="Mark Transferred"
                   variant="primary"
@@ -103,11 +119,11 @@ export default function AdminPayoutsScreen() {
             </Row>
           </Card>
         )}
-        emptyTitle="No escrows found"
+        emptyTitle="No payouts found"
         ListHeaderComponent={
           <View style={{ padding: spacing.lg, paddingBottom: 0 }}>
             <AppText variant="label" weight="bold">
-              Escrow Queue
+              Manual Payout Queue
             </AppText>
             <View style={{ height: 8 }} />
           </View>
@@ -116,8 +132,9 @@ export default function AdminPayoutsScreen() {
 
       <ConfirmDialog
         visible={Boolean(transferTarget)}
-        title="Mark escrow as transferred?"
-        message={`Confirm transfer of ${formatNGN(transferTarget?.amount ?? 0)} to the vendor.`}
+        title="Mark payout as transferred?"
+        message={`Confirm transfer of ${formatNGN(transferTarget?.amount_kobo ?? 0)} to the vendor.`}
+        loading={marking}
         onConfirm={handleMarkTransferred}
         onCancel={() => setTransferTarget(null)}
       />

@@ -1,64 +1,94 @@
+import {
+  ArrowLeftRight,
+  BarChart3,
+  CalendarDays,
+  FileText,
+  LayoutGrid,
+  List,
+  LogOut,
+  Megaphone,
+  Menu,
+  MessageSquareText,
+  Receipt,
+  School,
+  Settings,
+  ShieldCheck,
+  Store,
+  Users,
+  Wallet,
+} from 'lucide-react-native';
+import type { LucideIcon } from 'lucide-react-native';
 import { useState } from 'react';
 import { Stack, Redirect, useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+
 import { Pressable, View } from 'react-native';
 
 import { useAppTheme } from '@/theme';
 import { useAppSelector, useAppDispatch } from '@/hooks';
 import { AppText, Row } from '@/components/ui/Text';
-import { AppModal } from '@/components/ui/Modal';
+import { Drawer } from '@/components/ui/Drawer';
+import { ConfirmDialog } from '@/components/ui/Modal';
+import { MoreDrawerContent, type MoreDrawerRow } from '@/components/shared/MoreDrawerContent';
 import { useLogoutMutation } from '@/api/authApi';
 import { clearCredentials } from '@/features/authSlice';
 
 interface AdminMenuItem {
   label: string;
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: LucideIcon;
   href: string;
 }
 
 const ADMIN_MENU: AdminMenuItem[] = [
-  { label: 'Overview', icon: 'grid-outline', href: '/admin' },
-  { label: 'Users', icon: 'people-outline', href: '/admin/users' },
-  { label: 'Vendors', icon: 'storefront-outline', href: '/admin/vendors' },
-  { label: 'Orders', icon: 'receipt-outline', href: '/admin/orders' },
-  { label: 'Transactions', icon: 'swap-horizontal-outline', href: '/admin/transactions' },
-  { label: 'Payouts & Escrow', icon: 'wallet-outline', href: '/admin/payouts' },
-  { label: 'Installments', icon: 'calendar-outline', href: '/admin/installments' },
-  { label: 'School Zones', icon: 'school-outline', href: '/admin/school-zones' },
-  { label: 'Broadcasts', icon: 'megaphone-outline', href: '/admin/broadcasts' },
-  { label: 'Notifications', icon: 'notifications-outline', href: '/admin/notifications' },
-  { label: 'Reports', icon: 'document-text-outline', href: '/admin/reports' },
-  { label: 'System Logs', icon: 'list-outline', href: '/admin/logs' },
-  { label: 'Analytics', icon: 'stats-chart-outline', href: '/admin/analytics' },
-  { label: 'Access Control', icon: 'shield-checkmark-outline', href: '/admin/access-control' },
-  { label: 'Settings', icon: 'settings-outline', href: '/admin/settings' },
+  { label: 'Overview', icon: LayoutGrid, href: '/admin' },
+  { label: 'Users', icon: Users, href: '/admin/users' },
+  { label: 'Vendors', icon: Store, href: '/admin/vendors' },
+  { label: 'Orders', icon: Receipt, href: '/admin/orders' },
+  { label: 'Transactions', icon: ArrowLeftRight, href: '/admin/transactions' },
+  { label: 'Payouts & Escrow', icon: Wallet, href: '/admin/payouts' },
+  { label: 'Installments', icon: CalendarDays, href: '/admin/installments' },
+  { label: 'School Zones', icon: School, href: '/admin/school-zones' },
+  { label: 'Broadcasts', icon: Megaphone, href: '/admin/broadcasts' },
+  { label: 'Notifications', icon: MessageSquareText, href: '/admin/notifications' },
+  { label: 'Reports', icon: FileText, href: '/admin/reports' },
+  { label: 'System Logs', icon: List, href: '/admin/logs' },
+  { label: 'Analytics', icon: BarChart3, href: '/admin/analytics' },
+  { label: 'Access Control', icon: ShieldCheck, href: '/admin/access-control' },
+  { label: 'Settings', icon: Settings, href: '/admin/settings' },
 ];
 
 export default function AdminLayout() {
   const { colors, spacing } = useAppTheme();
+  const isDark = useAppTheme().isDark;
   const router = useRouter();
   const dispatch = useAppDispatch();
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
   const user = useAppSelector((state) => state.auth.user);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [logout] = useLogoutMutation();
+  const [logoutOpen, setLogoutOpen] = useState(false);
+  const [logout, { isLoading: loggingOut }] = useLogoutMutation();
 
   if (!isAuthenticated || !user) {
-    return <Redirect href="/login" />;
+    return <Redirect href="/home" />;
   }
   if (user.account_type !== 'admin') {
     return <Redirect href={user.account_type === 'vendor' ? '/vendor' : user.account_type === 'staff' ? '/staff' : '/home'} />;
   }
 
   const handleLogout = async () => {
+    setLogoutOpen(false);
     try {
       await logout().unwrap();
     } catch {
       // ignore
     }
     dispatch(clearCredentials());
-    router.replace('/home');
   };
+
+  const drawerRows: MoreDrawerRow[] = ADMIN_MENU.map((item) => ({
+    label: item.label,
+    icon: <item.icon size={20} color={colors.primary} strokeWidth={2} />,
+    href: item.href,
+  }));
 
   return (
     <>
@@ -71,7 +101,7 @@ export default function AdminLayout() {
           headerRight: () => (
             <Row style={{ gap: 12 }}>
               <Pressable onPress={() => router.push('/messages')} hitSlop={8}>
-                <Ionicons name="chatbubble-ellipses-outline" size={22} color={colors.text} />
+                <MessageSquareText size={22} color={colors.text} />
               </Pressable>
               <Pressable
                 onPress={() => setMenuOpen(true)}
@@ -87,7 +117,7 @@ export default function AdminLayout() {
                   backgroundColor: colors.surfaceAlt,
                 }}
               >
-                <Ionicons name="menu" size={18} color={colors.text} />
+                <Menu size={18} color={colors.text} />
               </Pressable>
             </Row>
           ),
@@ -110,56 +140,62 @@ export default function AdminLayout() {
         <Stack.Screen name="settings" options={{ title: 'Platform Settings' }} />
       </Stack>
 
-      <AppModal
+      <Drawer
         visible={menuOpen}
         onClose={() => setMenuOpen(false)}
-        title={`EazyStore Admin`}
-        scrollable
+        side="left"
+        title="eazystore Admin"
       >
-        <View style={{ gap: spacing.xs }}>
-          {ADMIN_MENU.map((item) => (
+        <MoreDrawerContent
+          rows={drawerRows}
+          onNavigate={(href) => {
+            setMenuOpen(false);
+            router.push(href as never);
+          }}
+          footer={
             <Pressable
-              key={item.label}
-              onPress={() => {
-                setMenuOpen(false);
-                router.push(item.href as never);
-              }}
+              onPress={() => setLogoutOpen(true)}
+              disabled={loggingOut}
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',
                 gap: spacing.md,
                 paddingVertical: spacing.md,
                 paddingHorizontal: spacing.md,
-                borderRadius: spacing.sm,
-                backgroundColor: colors.surfaceAlt,
+                borderRadius: 4,
+                backgroundColor: isDark ? 'rgba(239,68,68,0.12)' : '#fee2e2',
               }}
             >
-              <Ionicons name={item.icon} size={20} color={colors.primary} />
-              <AppText variant="label" weight="medium" style={{ flex: 1 }}>
-                {item.label}
+              <View
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: 4,
+                  backgroundColor: isDark ? 'rgba(239,68,68,0.2)' : '#fecaca',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <LogOut size={18} color={isDark ? '#f87171' : '#b91c1c'} />
+              </View>
+              <AppText variant="label" weight="medium" color={isDark ? '#f87171' : '#b91c1c'}>
+                Sign Out
               </AppText>
-              <Ionicons name="chevron-forward" size={16} color={colors.textSubtle} />
             </Pressable>
-          ))}
-          <Pressable
-            onPress={handleLogout}
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: spacing.md,
-              paddingVertical: spacing.md,
-              paddingHorizontal: spacing.md,
-              borderRadius: spacing.sm,
-              backgroundColor: '#fee2e2',
-            }}
-          >
-            <Ionicons name="log-out-outline" size={20} color="#b91c1c" />
-            <AppText variant="label" weight="medium" color="#b91c1c">
-              Sign Out
-            </AppText>
-          </Pressable>
-        </View>
-      </AppModal>
+          }
+        />
+      </Drawer>
+
+      <ConfirmDialog
+        visible={logoutOpen}
+        title="Sign out of eazystore?"
+        message="You will need to sign in again to continue."
+        confirmText="Sign Out"
+        destructive
+        loading={loggingOut}
+        onConfirm={handleLogout}
+        onCancel={() => setLogoutOpen(false)}
+      />
     </>
   );
 }

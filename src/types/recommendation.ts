@@ -1,16 +1,7 @@
-export interface IRecommendedProduct {
-  id: string;
-  name: string;
-  slug: string;
-  price: number;
-  discount_price?: number;
-  image?: string;
-  rating_average?: string;
-  store_name?: string;
-  store_slug?: string;
-  reason?: string;
-  is_in_wishlist?: boolean;
-}
+import type { IProduct } from './product';
+
+/** Recommendation items are product-card payloads (category is a name string). */
+export type IRecommendedProduct = IProduct;
 
 export interface ISavePreferencesPayload {
   category_ids: string[];

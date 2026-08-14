@@ -1,12 +1,16 @@
 import { apiManager } from './client';
-import type { SuccessResponse, IPaginatedData } from '@/types/api';
+import type { SuccessResponse } from '@/types/api';
 import type {
   IInstallmentConfig,
+  IInstallmentDetailResponse,
+  IInstallmentListData,
   IInstallmentPaymentInitResponse,
   IInstallmentPlan,
   ICreateInstallmentPayload,
   IInstallmentPreset,
- IAdminInstallment, IVendorInstallment } from '@/types/installment';
+  IAdminInstallment,
+  IVendorInstallment,
+} from '@/types/installment';
 
 export const installmentApi = apiManager.injectEndpoints({
   endpoints: (build) => ({
@@ -24,7 +28,7 @@ export const installmentApi = apiManager.injectEndpoints({
       invalidatesTags: ['Installments', 'Order'],
     }),
     getMyInstallments: build.query<
-      IPaginatedData<IInstallmentPlan>,
+      IInstallmentListData<IInstallmentPlan>,
       { page?: number; limit?: number; status?: string }
     >({
       query: ({ page = 1, limit = 10, status } = {}) => {
@@ -34,7 +38,7 @@ export const installmentApi = apiManager.injectEndpoints({
       },
       providesTags: ['Installments'],
     }),
-    getInstallmentById: build.query<IInstallmentPlan, string>({
+    getInstallmentById: build.query<IInstallmentDetailResponse, string>({
       query: (id) => `installments/${id}`,
       providesTags: ['Installments'],
     }),
@@ -51,7 +55,7 @@ export const installmentApi = apiManager.injectEndpoints({
       invalidatesTags: ['Installments'],
     }),
     getVendorInstallments: build.query<
-      IPaginatedData<IVendorInstallment>,
+      IInstallmentListData<IVendorInstallment>,
       { page?: number; limit?: number; status?: string }
     >({
       query: ({ page = 1, limit = 10, status } = {}) => {
@@ -62,7 +66,7 @@ export const installmentApi = apiManager.injectEndpoints({
       providesTags: ['Installments'],
     }),
     getAdminInstallments: build.query<
-      IPaginatedData<IAdminInstallment>,
+      IInstallmentListData<IAdminInstallment>,
       { page?: number; limit?: number; status?: string }
     >({
       query: ({ page = 1, limit = 10, status } = {}) => {

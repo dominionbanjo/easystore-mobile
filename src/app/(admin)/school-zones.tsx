@@ -9,19 +9,45 @@ import { AppImage } from '@/components/shared/AppImage';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { PaginatedList } from '@/components/shared/PaginatedList';
 import { AppModal } from '@/components/ui/Modal';
+import { AppInput } from '@/components/ui/Input';
+import { FilterDropdown, type FilterOption } from '@/components/ui/FilterDropdown';
 import { useGetAdminSchoolZonesQuery, useApproveSchoolZoneMutation } from '@/api/adminApi';
 import { useToast } from '@/hooks/useToast';
 import { getErrorMessage } from '@/utils/error';
-import type { ISchoolZone , SchoolZoneStatus } from '@/types/zone';
+import type { ISchoolZone, SchoolZoneStatus } from '@/types/zone';
+
+const STATUS_FILTERS: FilterOption[] = [
+  { label: 'All', value: '' },
+  { label: 'Pending', value: 'pending' },
+  { label: 'Active', value: 'active' },
+  { label: 'Rejected', value: 'rejected' },
+];
 
 export default function AdminSchoolZonesScreen() {
-  const { spacing } = useAppTheme();
+  const { radius, spacing } = useAppTheme();
   const toast = useToast();
 
   const [page, setPage] = useState(1);
-  const { data, isLoading, isFetching } = useGetAdminSchoolZonesQuery({ page });
+  const [status, setStatus] = useState('');
+  const [search, setSearch] = useState('');
+  const { data, isLoading, isFetching, isError, refetch } = useGetAdminSchoolZonesQuery({ page });
   const [approveZone] = useApproveSchoolZoneMutation();
   const [target, setTarget] = useState<ISchoolZone | null>(null);
+
+  const zones = data?.items ?? [];
+  const visibleZones = zones.filter((zone) => {
+    const matchesStatus = status === '' || (zone.status ?? 'pending') === status;
+    const query = search.trim().toLowerCase();
+    const matchesSearch = !query || zone.name.toLowerCase().includes(query);
+    return matchesStatus && matchesSearch;
+  });
+
+  const counts = {
+    total: zones.length,
+    pending: zones.filter((zone) => (zone.status ?? 'pending') === 'pending').length,
+    active: zones.filter((zone) => zone.status === 'active').length,
+    rejected: zones.filter((zone) => zone.status === 'rejected').length,
+  };
 
   const handleDecision = async (decision: SchoolZoneStatus) => {
     if (!target) {
@@ -38,11 +64,50 @@ export default function AdminSchoolZonesScreen() {
 
   return (
     <View style={{ flex: 1 }}>
+      <View style={{ padding: spacing.md, gap: spacing.sm }}>
+        <View style={{ flexDirection: 'row', gap: spacing.sm }}>
+          {[
+            { label: 'Total', value: counts.total },
+            { label: 'Pending', value: counts.pending },
+            { label: 'Active', value: counts.active },
+            { label: 'Rejected', value: counts.rejected },
+          ].map((stat) => (
+            <Card key={stat.label} style={{ flex: 1, alignItems: 'center', gap: 2, padding: 10 }}>
+              <AppText variant="subtitle" weight="extrabold">
+                {stat.value}
+              </AppText>
+              <AppText variant="small" color="gray">
+                {stat.label}
+              </AppText>
+            </Card>
+          ))}
+        </View>
+        <AppInput
+          value={search}
+          onChangeText={(text) => {
+            setSearch(text);
+            setPage(1);
+          }}
+          placeholder="Search zones…"
+          size="sm"
+        />
+        <FilterDropdown
+          label="Status"
+          value={status}
+          onChange={(filter) => {
+            setStatus(filter);
+            setPage(1);
+          }}
+          options={STATUS_FILTERS}
+        />
+      </View>
       <PaginatedList
-        items={data?.items}
+        items={visibleZones}
         pagination={data?.pagination}
         isLoading={isLoading}
         isFetching={isFetching}
+        error={isError}
+        onRetry={refetch}
         isLoadingMore={isFetching && page > 1}
         onEndReached={() => setPage((p) => p + 1)}
         onRefresh={() => setPage(1)}
@@ -52,11 +117,11 @@ export default function AdminSchoolZonesScreen() {
             <Row style={{ gap: spacing.md }}>
               <AppImage
                 uri={zone.logo}
-                style={{ width: 48, height: 48, borderRadius: 24 }}
+                style={{ width: 48, height: 48, borderRadius: radius.full }}
                 fallbackText={zone.name}
               />
               <View style={{ flex: 1, gap: 2 }}>
-                <AppText variant="label" weight="semibold">
+                <AppText variant="label" weight="semibold" numberOfLines={1}>
                   {zone.name}
                 </AppText>
                 <AppText variant="small" color="gray" numberOfLines={2}>

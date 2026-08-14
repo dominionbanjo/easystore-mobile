@@ -1,16 +1,20 @@
 import { apiManager } from './client';
-import type { SuccessResponse, IPaginatedData } from '@/types/api';
+import type { SuccessResponse, MessageOnlyResponse, IPaginatedData } from '@/types/api';
 import type {
   ICreateProductPayload,
   IProduct,
-  IProductDetails,
+  IProductDetailResponse,
   IProductDraft,
+  IProductDraftList,
+  IProductOnSaleResponse,
   IProductSearchParams,
-  IProductVariantInput,
+  IProductStatusResponse,
   IStoreProduct,
+  ISalesTerminalCategory,
   ISalesTerminalProduct,
   IUpdateProductPayload,
   IVendorProductParams,
+  IBarcodeProductResult,
 } from '@/types/product';
 
 export const productApi = apiManager.injectEndpoints({
@@ -32,9 +36,8 @@ export const productApi = apiManager.injectEndpoints({
         `product/category/${identifier}?page=${page}&limit=${limit}`,
       providesTags: ['Product'],
     }),
-    getProductBySlug: build.query<IProductDetails, string>({
+    getProductBySlug: build.query<IProductDetailResponse, string>({
       query: (identifier) => `product/${identifier}`,
-      transformResponse: (response: { product: IProductDetails }) => response.product,
       providesTags: (_result, _err, identifier) => [{ type: 'Product', id: identifier }],
     }),
     searchProducts: build.query<IPaginatedData<IProduct>, IProductSearchParams>({
@@ -82,10 +85,7 @@ export const productApi = apiManager.injectEndpoints({
       query: ({ id, body }) => ({ url: `vendor/products/${id}`, method: 'PATCH', body }),
       invalidatesTags: ['Product'],
     }),
-    updateProductStatus: build.mutation<
-      SuccessResponse,
-      { id: string; status: string }
-    >({
+    updateProductStatus: build.mutation<IProductStatusResponse, { id: string; status: string }>({
       query: ({ id, status }) => ({
         url: `vendor/products/${id}/status`,
         method: 'PATCH',
@@ -93,7 +93,7 @@ export const productApi = apiManager.injectEndpoints({
       }),
       invalidatesTags: ['Product'],
     }),
-    toggleProductOnSale: build.mutation<SuccessResponse, { id: string; on_sale: boolean }>({
+    toggleProductOnSale: build.mutation<IProductOnSaleResponse, { id: string; on_sale: boolean }>({
       query: ({ id, on_sale }) => ({
         url: `vendor/products/${id}/on-sale`,
         method: 'PATCH',
@@ -101,17 +101,15 @@ export const productApi = apiManager.injectEndpoints({
       }),
       invalidatesTags: ['Product'],
     }),
-    deleteProduct: build.mutation<SuccessResponse, string>({
+    deleteProduct: build.mutation<MessageOnlyResponse, string>({
       query: (id) => ({ url: `vendor/products/${id}`, method: 'DELETE' }),
       invalidatesTags: ['Product'],
     }),
-    getProductDrafts: build.query<IPaginatedData<IProductDraft>, { page?: number; limit?: number }>(
-      {
-        query: ({ page = 1, limit = 20 } = {}) =>
-          `vendor/products/drafts?page=${page}&limit=${limit}`,
-        providesTags: ['Draft'],
-      },
-    ),
+    getProductDrafts: build.query<IProductDraftList, { page?: number; limit?: number }>({
+      query: ({ page = 1, limit = 20 } = {}) =>
+        `vendor/products/drafts?page=${page}&limit=${limit}`,
+      providesTags: ['Draft'],
+    }),
     saveProductDraft: build.mutation<SuccessResponse, IProductDraft>({
       query: (body) => ({ url: 'vendor/products/drafts', method: 'POST', body }),
       invalidatesTags: ['Draft'],
@@ -127,7 +125,7 @@ export const productApi = apiManager.injectEndpoints({
       query: (id) => ({ url: `vendor/products/drafts/${id}`, method: 'DELETE' }),
       invalidatesTags: ['Draft'],
     }),
-    getBarcodeProduct: build.query<IProductDetails, string>({
+    getBarcodeProduct: build.query<IBarcodeProductResult, string>({
       query: (code) => `vendor/products/barcode/${encodeURIComponent(code)}`,
       providesTags: ['Product'],
     }),
@@ -142,20 +140,9 @@ export const productApi = apiManager.injectEndpoints({
       },
       providesTags: ['Product'],
     }),
-    getSalesTerminalCategories: build.query<{ id: string; name: string }[], void>({
+    getSalesTerminalCategories: build.query<ISalesTerminalCategory[], void>({
       query: () => 'vendor/products/sales-terminal/categories',
       providesTags: ['Categories'],
-    }),
-    createVariants: build.mutation<
-      SuccessResponse,
-      { productId: string; variants: IProductVariantInput[] }
-    >({
-      query: ({ productId, variants }) => ({
-        url: `vendor/products/${productId}/variants`,
-        method: 'POST',
-        body: { variants },
-      }),
-      invalidatesTags: ['Product'],
     }),
   }),
 });

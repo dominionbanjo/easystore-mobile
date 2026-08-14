@@ -1,10 +1,10 @@
 import { apiManager } from './client';
-import type { SuccessResponse, IPaginatedData } from '@/types/api';
+import type { MessageOnlyResponse, IPaginatedData } from '@/types/api';
 import type {
   IConversation,
+  IConversationEntity,
   IMessage,
   IStartConversationPayload,
-  IChatroom,
 } from '@/types/messaging';
 import type { IProduct } from '@/types/product';
 
@@ -18,18 +18,18 @@ export const messagingApi = apiManager.injectEndpoints({
       query: (id) => `messaging/conversations/${id}`,
       providesTags: ['Messaging'],
     }),
-    getMessages: build.query<IMessage[], { conversationId: string; page?: number }>({
+    getMessages: build.query<IPaginatedData<IMessage>, { conversationId: string; page?: number }>({
       query: ({ conversationId, page = 1 }) =>
         `messaging/conversations/${conversationId}/messages?page=${page}`,
       providesTags: ['Messaging'],
     }),
-    startConversation: build.mutation<IConversation, IStartConversationPayload>({
+    startConversation: build.mutation<IConversationEntity, IStartConversationPayload>({
       query: (body) => ({ url: 'messaging/conversations', method: 'POST', body }),
       invalidatesTags: ['Messaging'],
     }),
     sendMessage: build.mutation<
       IMessage,
-      { conversationId: string; content: string; product_id?: string }
+      { conversationId: string; content: string; product_id?: string; local_id?: string }
     >({
       query: ({ conversationId, ...body }) => ({
         url: `messaging/conversations/${conversationId}/messages`,
@@ -38,18 +38,18 @@ export const messagingApi = apiManager.injectEndpoints({
       }),
       invalidatesTags: ['Messaging'],
     }),
-    markConversationRead: build.mutation<SuccessResponse, string>({
+    markConversationRead: build.mutation<MessageOnlyResponse, string>({
       query: (conversationId) => ({
         url: `messaging/conversations/${conversationId}/read`,
         method: 'PATCH',
       }),
       invalidatesTags: ['Messaging'],
     }),
-    getChatroom: build.query<IChatroom, void>({
-      query: () => 'messaging/chatroom',
+    getChatroom: build.query<IPaginatedData<IMessage>, { page?: number }>({
+      query: ({ page = 1 } = {}) => `messaging/chatroom?page=${page}`,
       providesTags: ['Messaging'],
     }),
-    getChatroomMessages: build.query<IMessage[], { page?: number }>({
+    getChatroomMessages: build.query<IPaginatedData<IMessage>, { page?: number }>({
       query: ({ page = 1 } = {}) => `messaging/chatroom?page=${page}`,
       providesTags: ['Messaging'],
     }),

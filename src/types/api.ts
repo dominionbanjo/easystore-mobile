@@ -25,6 +25,12 @@ export interface SuccessResponse {
   id?: string;
 }
 
+/**
+ * Backend endpoints that return only `{ message }` produce `data: null`
+ * after the global ResponseInterceptor. This is the honest type for them.
+ */
+export type MessageOnlyResponse = null;
+
 export interface ErrorDetail {
   property?: string;
   constraints?: Record<string, string>;

@@ -19,14 +19,15 @@ export interface IUser {
   phone_number?: string;
   username?: string;
   account_type: AccountType;
-  account_status: AccountStatus;
+  /** Never returned by the backend sanitizer — optional. */
+  account_status?: AccountStatus;
   avatar?: string;
   email_verified: boolean;
   payout_verified?: boolean;
   rating_average?: string;
   rating_count?: number;
   review_count?: number;
-  address?: IUserAddress;
+  address?: IUserAddress | null;
   addresses?: IUserAddress[];
   must_change_password?: boolean;
   active_store_id?: string;
@@ -35,6 +36,18 @@ export interface IUser {
   bank_name?: string;
   created_at: string;
   updated_at?: string;
+}
+
+/** `GET users/me` — backend returns `{ user }`, not the user object itself. */
+export interface IProfileResponse {
+  user: IUser;
+}
+
+export interface IBankVerifyResponse {
+  account_name: string;
+  account_number: string;
+  bank_id: number;
+  bank_name: string;
 }
 
 export interface IAuthData {

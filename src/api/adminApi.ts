@@ -1,7 +1,7 @@
 import { apiManager } from './client';
 import type { SuccessResponse, IPaginatedData } from '@/types/api';
 import type {
-  IAdminEscrow,
+  IAdminOrder,
   IAdminPayout,
   IAdminTransaction,
   IAdminUser,
@@ -12,13 +12,12 @@ import type {
   IOrderBreakdown,
   IOverviewStats,
   IRecentSignup,
+  IRevenueDataPoint,
   ISignupMethod,
-  ISystemLog,
   ITopStore,
   ITransactionBreakdown,
   IUserDistribution,
 } from '@/types/admin';
-import type { IOrder } from '@/types/order';
 import type { ISchoolZone, SchoolZoneStatus } from '@/types/zone';
 
 export const adminApi = apiManager.injectEndpoints({
@@ -34,7 +33,10 @@ export const adminApi = apiManager.injectEndpoints({
         return `admin/users?${params.toString()}`;
       },
     }),
-    updateUserStatus: build.mutation<SuccessResponse, { id: string; status: string }>({
+    updateUserStatus: build.mutation<
+      { user: { id: string; account_status: string } },
+      { id: string; status: string }
+    >({
       query: ({ id, status }) => ({
         url: `admin/users/${id}/status`,
         method: 'PATCH',
@@ -52,7 +54,10 @@ export const adminApi = apiManager.injectEndpoints({
         return `admin/users/vendors?${params.toString()}`;
       },
     }),
-    updateVendorStatus: build.mutation<SuccessResponse, { storeId: string; status: string }>({
+    updateVendorStatus: build.mutation<
+      { store: { id: string; status: string } },
+      { storeId: string; status: string }
+    >({
       query: ({ storeId, status }) => ({
         url: `admin/users/vendor/${storeId}/status`,
         method: 'PATCH',
@@ -60,7 +65,7 @@ export const adminApi = apiManager.injectEndpoints({
       }),
     }),
     getAdminOrders: build.query<
-      IPaginatedData<IOrder>,
+      IPaginatedData<IAdminOrder>,
       { page?: number; limit?: number; status?: string; search?: string }
     >({
       query: ({ page = 1, limit = 20, status, search } = {}) => {
@@ -89,7 +94,7 @@ export const adminApi = apiManager.injectEndpoints({
       },
       providesTags: ['Transactions'],
     }),
-    flagTransaction: build.mutation<SuccessResponse, { id: string; is_flagged: boolean }>({
+    flagTransaction: build.mutation<{ id: string; is_flagged: boolean }, { id: string; is_flagged: boolean }>({
       query: ({ id, is_flagged }) => ({
         url: `admin/transactions/${id}/flag`,
         method: 'PATCH',
@@ -101,7 +106,7 @@ export const adminApi = apiManager.injectEndpoints({
       query: ({ page = 1, limit = 20 } = {}) => `admin/payouts?page=${page}&limit=${limit}`,
       providesTags: ['Payout'],
     }),
-    getAdminEscrows: build.query<IPaginatedData<IAdminEscrow>, { page?: number; limit?: number }>({
+    getAdminEscrows: build.query<IPaginatedData<IAdminPayout>, { page?: number; limit?: number }>({
       query: ({ page = 1, limit = 20 } = {}) => `admin/payouts/escrow?page=${page}&limit=${limit}`,
       providesTags: ['Payout'],
     }),
@@ -128,11 +133,11 @@ export const adminApi = apiManager.injectEndpoints({
       }),
       invalidatesTags: ['SchoolZone'],
     }),
-    getBroadcasts: build.query<IPaginatedData<IBroadcast>, { page?: number }>({
-      query: ({ page = 1 } = {}) => `admin/broadcasts?page=${page}&limit=20`,
+    getBroadcasts: build.query<IBroadcast[], void>({
+      query: () => 'admin/broadcasts',
       providesTags: ['Broadcast'],
     }),
-    createBroadcast: build.mutation<SuccessResponse, Partial<IBroadcast>>({
+    createBroadcast: build.mutation<IBroadcast, Partial<IBroadcast>>({
       query: (body) => ({ url: 'admin/broadcasts', method: 'POST', body }),
       invalidatesTags: ['Broadcast'],
     }),
@@ -192,17 +197,13 @@ export const adminApi = apiManager.injectEndpoints({
       query: () => 'admin/analytics/order-breakdown',
       providesTags: ['Analytics'],
     }),
-    getRevenueAnalytics: build.query<IGrowthDataPoint[], { months?: number }>({
+    getRevenueAnalytics: build.query<IRevenueDataPoint[], { months?: number }>({
       query: ({ months } = {}) => `admin/analytics/revenue${months ? `?months=${months}` : ''}`,
       providesTags: ['Analytics'],
     }),
     getSignupMethods: build.query<ISignupMethod[], void>({
       query: () => 'admin/analytics/signup-methods',
       providesTags: ['Analytics'],
-    }),
-    getSystemLogs: build.query<IPaginatedData<ISystemLog>, { page?: number; limit?: number }>({
-      query: ({ page = 1, limit = 30 } = {}) =>
-        `admin/logs?page=${page}&limit=${limit}`,
     }),
   }),
 });
@@ -238,5 +239,4 @@ export const {
   useGetOrderBreakdownQuery,
   useGetRevenueAnalyticsQuery,
   useGetSignupMethodsQuery,
-  useGetSystemLogsQuery,
 } = adminApi;

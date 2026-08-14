@@ -1,10 +1,27 @@
 import { Badge } from '../ui/Card';
 import type { BadgeVariant } from '../ui/Card';
 
+const STATUS_LABELS: Record<string, string> = {
+  pending_manual: 'In Review',
+  success: 'Paid',
+  in_transit: 'Shipped',
+  shipped: 'Shipped',
+  assigned: 'Assigned',
+  failed: 'Failed',
+  returned: 'Returned',
+  canceled: 'Canceled',
+  cancelled: 'Canceled',
+  flagged: 'Flagged',
+  refunding: 'Refunding',
+  reversed: 'Reversed',
+};
+
 const STATUS_VARIANTS: Record<string, BadgeVariant> = {
   active: 'success',
   completed: 'success',
   delivered: 'success',
+  shipped: 'info',
+  returned: 'success',
   success: 'success',
   paid: 'success',
   released: 'success',
@@ -24,6 +41,7 @@ const STATUS_VARIANTS: Record<string, BadgeVariant> = {
   rejected: 'destructive',
   defaulted: 'destructive',
   refunded: 'muted',
+  refunding: 'warning',
   draft: 'muted',
   inactive: 'muted',
   disputed: 'warning',
@@ -40,8 +58,11 @@ export function StatusBadge({ status }: { status?: string }) {
   if (!status) {
     return null;
   }
-  const variant = STATUS_VARIANTS[status.toLowerCase()] ?? 'default';
-  const label = status.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
+  const key = status.toLowerCase();
+  const variant = STATUS_VARIANTS[key] ?? 'default';
+  const label =
+    STATUS_LABELS[key] ??
+    status.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
   return <Badge label={label} variant={variant} />;
 }
 

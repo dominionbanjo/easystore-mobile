@@ -1,10 +1,12 @@
 import { View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { ArrowLeftRight, Receipt, UserPlus, Users } from 'lucide-react-native';
+import type { LucideIcon } from 'lucide-react-native';
 
 import { useAppTheme } from '@/theme';
 import { AppText, Row, Spacer } from '@/components/ui/Text';
 import { Card } from '@/components/ui/Card';
 import { ListSkeleton } from '@/components/ui/Skeleton';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { formatNGN } from '@/utils/money';
 import {
   useGetGrowthAnalyticsQuery,
@@ -37,9 +39,32 @@ export default function AdminReportsScreen() {
     );
   }
 
+  const isError =
+    growth.isError || revenue.isError || distribution.isError ||
+    breakdown.isError || orders.isError || signups.isError;
+
+  if (isError) {
+    return (
+      <View style={{ flex: 1, padding: spacing.lg }}>
+        <EmptyState
+          title="Failed to load"
+          description="Check your connection and try again"
+          actionLabel="Try Again"
+          onAction={() => {
+            growth.refetch();
+            revenue.refetch();
+            distribution.refetch();
+            breakdown.refetch();
+            orders.refetch();
+            signups.refetch();
+          }}
+        />
+      </View>
+    );
+  }
+
   const growthItems = growth.data ?? [];
-  const totalUsersGrowth = growthItems.reduce((sum, point) => sum + (point.users ?? 0), 0);
-  const totalOrdersGrowth = growthItems.reduce((sum, point) => sum + (point.orders ?? 0), 0);
+  const latest = growthItems[growthItems.length - 1];
 
   return (
     <View style={{ flex: 1, padding: spacing.lg, gap: spacing.md }}>
@@ -47,12 +72,15 @@ export default function AdminReportsScreen() {
         <AppText variant="label" weight="bold">
           Growth (last {growthItems.length} months)
         </AppText>
+        <AppText variant="small" color="gray">
+          Latest month: Users / Orders
+        </AppText>
         <Row style={{ justifyContent: 'space-between' }}>
           <AppText variant="small" color="gray">
             Users
           </AppText>
           <AppText variant="small" weight="bold">
-            {totalUsersGrowth}
+            {latest?.users ?? 0}
           </AppText>
         </Row>
         <Row style={{ justifyContent: 'space-between' }}>
@@ -60,7 +88,7 @@ export default function AdminReportsScreen() {
             Orders
           </AppText>
           <AppText variant="small" weight="bold">
-            {totalOrdersGrowth}
+            {latest?.orders ?? 0}
           </AppText>
         </Row>
         <Row style={{ justifyContent: 'space-between' }}>
@@ -79,30 +107,39 @@ export default function AdminReportsScreen() {
         <AppText variant="label" weight="bold">
           User Distribution
         </AppText>
-        <MetricRow label="Users" value={String(distribution.data?.users ?? 0)} icon="person-outline" />
-        <MetricRow label="Vendors" value={String(distribution.data?.vendors ?? 0)} icon="storefront-outline" />
-        <MetricRow label="Staff" value={String(distribution.data?.staff ?? 0)} icon="briefcase-outline" />
-        <MetricRow label="Admins" value={String(distribution.data?.admins ?? 0)} icon="shield-outline" />
+        {(distribution.data ?? []).map((item) => (
+          <MetricRow key={item.name} label={item.name} value={String(item.value)} icon={Users} />
+        ))}
       </Card>
 
-      {breakdown.data ? (
+      {breakdown.data && breakdown.data.length > 0 ? (
         <Card style={{ gap: spacing.sm }}>
           <AppText variant="label" weight="bold">
             Transaction Breakdown
           </AppText>
-          {Object.entries(breakdown.data).map(([key, value]) => (
-            <MetricRow key={key} label={key.replace(/_/g, ' ')} value={String(value)} icon="swap-horizontal-outline" />
+          {breakdown.data.map((item) => (
+            <MetricRow
+              key={item.name}
+              label={item.name}
+              value={`${item.count} · ${formatNGN(item.total)}`}
+              icon={ArrowLeftRight}
+            />
           ))}
         </Card>
       ) : null}
 
-      {orders.data ? (
+      {orders.data && orders.data.length > 0 ? (
         <Card style={{ gap: spacing.sm }}>
           <AppText variant="label" weight="bold">
             Order Breakdown
           </AppText>
-          {Object.entries(orders.data).map(([key, value]) => (
-            <MetricRow key={key} label={key} value={String(value)} icon="receipt-outline" />
+          {orders.data.map((item) => (
+            <MetricRow
+              key={item.name}
+              label={item.name}
+              value={`${item.count} · ${formatNGN(item.totalAmount)}`}
+              icon={Receipt}
+            />
           ))}
         </Card>
       ) : null}
@@ -113,7 +150,7 @@ export default function AdminReportsScreen() {
             Signup Methods
           </AppText>
           {signups.data.map((method) => (
-            <MetricRow key={method.medium} label={method.medium} value={String(method.count)} icon="person-add-outline" />
+            <MetricRow key={method.name} label={method.name} value={String(method.value)} icon={UserPlus} />
           ))}
         </Card>
       ) : null}
@@ -125,17 +162,17 @@ export default function AdminReportsScreen() {
 function MetricRow({
   label,
   value,
-  icon,
+  icon: Icon,
 }: {
   label: string;
   value: string;
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: LucideIcon;
 }) {
   const { colors, spacing } = useAppTheme();
   return (
     <Row style={{ justifyContent: 'space-between' }}>
       <Row style={{ gap: spacing.sm }}>
-        <Ionicons name={icon} size={16} color={colors.textSubtle} />
+        <Icon size={16} color={colors.textSubtle} strokeWidth={2} />
         <AppText variant="small" style={{ textTransform: 'capitalize' }}>
           {label}
         </AppText>

@@ -9,6 +9,7 @@ import type {
   IOrderQueryParams,
   IRecordVendorOfflineSalePayload,
   IReceiptData,
+  IReceiptPdfResponse,
   ISalesRecord,
   IVendorOrderQueryParams,
 } from '@/types/order';
@@ -26,7 +27,7 @@ export const orderApi = apiManager.injectEndpoints({
       invalidatesTags: ['Order', 'Cart', 'Product'],
     }),
     createOfflineOrder: build.mutation<
-      SuccessResponse & { order_id?: string },
+      { success: boolean; order_ids: string[] },
       ICreateOfflineOrderPayload
     >({
       query: (body) => ({ url: 'orders/offline', method: 'POST', body }),
@@ -103,7 +104,7 @@ export const orderApi = apiManager.injectEndpoints({
       query: (id) => `orders/${id}/receipt-data`,
       providesTags: (_result, _err, id) => [{ type: 'Order', id }],
     }),
-    getReceiptPdf: build.query<{ pdf: string; filename: string }, string>({
+    getReceiptPdf: build.query<IReceiptPdfResponse, string>({
       query: (id) => `orders/${id}/receipt`,
       keepUnusedDataFor: 60,
     }),

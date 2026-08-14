@@ -1,3 +1,14 @@
+import type { IPaginatedData } from './api';
+import type { IProduct } from './product';
+
+export interface IStoreAddress {
+  street: string | null;
+  city: string | null;
+  state: string | null;
+  country: string | null;
+  postal_code: string | null;
+}
+
 export interface IStore {
   id: string;
   store_name: string;
@@ -9,56 +20,161 @@ export interface IStore {
   cover_image?: string;
   rating_average?: string;
   total_products?: number;
-  address?: string;
+  address?: IStoreAddress | null;
   created_at?: string;
 }
 
-export interface IStoreDetails extends IStore {
+/** Public store detail (`GET store/:identifier`) — flat address fields, no `address` object. */
+export interface IStorePublicDetail {
+  id: string;
   user_id: string;
-  vendor_id?: string;
-  email?: string;
-  phone_number?: string;
-  website?: string;
-  social_links?: Record<string, string>;
-  address_street?: string;
-  address_city?: string;
-  address_state?: string;
-  address_country?: string;
-  address_postal_code?: string;
-  setup_stage?: string;
-  bank_code?: string;
-  account_number?: string;
-  bank_name?: string;
-  recipient_code?: string;
-  payout_verified?: boolean;
-  escrow_enabled?: boolean;
-  installments_enabled?: boolean;
-  status?: string;
-  user?: { id: string; first_name: string; last_name: string; email: string; avatar?: string };
-  theme?: {
-    template?: { id: string; name: string };
+  vendor_id: string;
+  store_name: string;
+  slug: string;
+  subdomain: string | null;
+  status: string;
+  category: string | null;
+  description: string | null;
+  logo: string | null;
+  cover_image: string | null;
+  email: string | null;
+  phone_number: string | null;
+  social_links: Record<string, string> | null;
+  rating_average: string | null;
+  rating_count: number;
+  address_city: string | null;
+  address_state: string | null;
+  address_country: string | null;
+  address_postal_code: string | null;
+  total_products: number;
+  payout_verified: boolean;
+  created_at: string;
+  user: {
+    first_name: string;
+    last_name: string;
+    username?: string;
+    avatar?: string;
+  } | null;
+  theme: {
+    template?: { id: string; name: string } | null;
     custom_config?: Record<string, string>;
   };
-  category_ids?: string[];
-  total_orders?: number;
-  total_revenue?: number;
+}
+
+export interface IStoreDetailResponse {
+  store: IStorePublicDetail;
+  products: IPaginatedData<IProduct> | null;
+  categories: { id: string; name: string; slug: string }[];
+}
+
+/** Owner view (`GET store/me`) — full entity spread, `setup_stage` is a number (4 = completed). */
+export interface IStoreOwnerDetails {
+  id: string;
+  user_id: string;
+  status: 'active' | 'pending' | 'restricted' | 'banned';
+  store_name: string;
+  slug: string;
+  subdomain: string | null;
+  category: string | null;
+  description: string | null;
+  logo: string | null;
+  cover_image: string | null;
+  email: string | null;
+  phone_number: string | null;
+  social_links: Record<string, string> | null;
+  rating_average: string | null;
+  rating_count: number;
+  category_ids: string[] | null;
+  total_revenue: string | null;
+  total_orders: number;
+  total_products: number;
+  active_customers: number;
+  products_listed: number;
+  account_number: string | null;
+  bank_code: string | null;
+  bank_name: string | null;
+  recipient_code: string | null;
+  settlement_email: string | null;
+  payout_verified: boolean;
+  escrow_enabled: boolean;
+  installments_enabled: boolean;
+  address_street: string | null;
+  address_city: string | null;
+  address_state: string | null;
+  address_country: string | null;
+  address_postal_code: string | null;
+  setup_stage: number;
+  last_bank_update: string | null;
+  created_at: string;
+  updated_at: string;
+  user?: {
+    id: string;
+    first_name: string;
+    last_name: string;
+    username: string;
+    email: string;
+    avatar: string;
+    account_status: string;
+  };
+}
+
+export interface IStoreThemeSetting {
+  id: string;
+  store_id: string;
+  template_id: string | null;
+  custom_config?: Record<string, string>;
 }
 
 export interface IStoreAnalytics {
   summary: {
     total_sales: number;
+    online_sales: number;
+    offline_sales: number;
     orders: number;
-    total_products: number;
     customers: number;
+    conversion_rate: number;
+    total_products: number;
     out_of_stock_count: number;
     pending_orders_count: number;
-    conversion_rate?: number;
+    pending_payouts: number;
+    store_status: string;
+    account_status: string;
+    id?: string;
+    payout_verified: boolean;
+    escrow_enabled: boolean;
+    installments_enabled: boolean;
   };
   trends: {
-    monthly: { month: string; revenue: number; orders: number }[];
+    monthly: {
+      year: number;
+      month: number;
+      revenue: string;
+      online_revenue: string;
+      offline_revenue: string;
+      orders: string;
+      unique_customers: string;
+    }[];
   };
-  top_products: { id: string; name: string; revenue: number; orders: number; image?: string }[];
-  customers: { id: string; name: string; orders_count: number; total_spent: number }[];
+  customers: {
+    id: string;
+    user_id: string;
+    name: string;
+    email: string | null;
+    location: string | null;
+    phone_number: string | null;
+    orders: string;
+    spent: string;
+    rating: string | null;
+    last_order_at: string | null;
+  }[];
+  top_products: {
+    product_id: string;
+    name: string;
+    slug: string;
+    image: { url: string; public_id?: string } | null;
+    total_sold: string;
+    total_revenue: string;
+  }[];
 }
 
 export interface IVendorCustomer {
@@ -68,8 +184,9 @@ export interface IVendorCustomer {
   phone_number?: string;
   location?: string;
   orders_count: number;
-  total_spent: number;
-  rating?: number;
+  /** Numeric/bigint columns serialize as strings. */
+  total_spent: string;
+  rating?: string;
   last_order_at?: string;
   created_at?: string;
 }
@@ -88,10 +205,20 @@ export interface IStoreThemeConfig {
 export interface IDeliveryRate {
   id: string;
   state: string;
+  location?: string | null;
+  /** Numeric column serializes as string. */
+  fee: string;
+  duration?: string | null;
+  notes?: string | null;
+}
+
+/** Request payload for create/update delivery rates — `fee` is kobo. */
+export interface IDeliveryRatePayload {
+  state: string;
   location?: string;
   fee: number;
-  duration?: string;
-  notes?: string;
+  duration?: string | null;
+  notes?: string | null;
 }
 
 export interface ICreateStorePayload {
@@ -121,7 +248,7 @@ export interface IUpdateStorePayload {
   address_state?: string;
   address_country?: string;
   address_postal_code?: string;
-  setup_stage?: string;
+  setup_stage?: number;
   escrow_enabled?: boolean;
   installments_enabled?: boolean;
   logo?: string;
@@ -147,7 +274,8 @@ export interface IVendorPayout {
   vendor_id?: string;
   order_id?: string;
   escrow_id?: string;
-  amount: number;
+  /** Bigint column serializes as string. */
+  amount: string;
   currency: string;
   status: 'pending' | 'pending_manual' | 'success' | 'failed' | 'reversed';
   payout_type: 'auto' | 'manual';

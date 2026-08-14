@@ -2,7 +2,7 @@ import { View } from 'react-native';
 
 import { useAppTheme } from '@/theme';
 import { AppText, Row } from '@/components/ui/Text';
-import { Card , Badge } from '@/components/ui/Card';
+import { Card, Badge } from '@/components/ui/Card';
 import { ALL_PERMISSION_CODES, ROLE_PERMISSIONS } from '@/constants/permissions';
 
 const ROLES: { role: string; label: string }[] = [

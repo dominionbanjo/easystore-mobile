@@ -1,10 +1,10 @@
 import { apiManager } from './client';
-import type { IWishlistItem } from '@/types/cart';
-import type { SuccessResponse } from '@/types/api';
+import type { IWishlistResponse } from '@/types/cart';
+import type { SuccessResponse, MessageOnlyResponse } from '@/types/api';
 
 export const wishlistApi = apiManager.injectEndpoints({
   endpoints: (build) => ({
-    getWishlist: build.query<IWishlistItem[], void>({
+    getWishlist: build.query<IWishlistResponse, void>({
       query: () => 'wishlist',
       providesTags: ['Wishlist'],
     }),
@@ -12,11 +12,11 @@ export const wishlistApi = apiManager.injectEndpoints({
       query: (body) => ({ url: 'wishlist', method: 'POST', body }),
       invalidatesTags: ['Wishlist', 'Product'],
     }),
-    removeFromWishlist: build.mutation<SuccessResponse, string>({
+    removeFromWishlist: build.mutation<MessageOnlyResponse, string>({
       query: (productId) => ({ url: `wishlist/${productId}`, method: 'DELETE' }),
       invalidatesTags: ['Wishlist', 'Product'],
     }),
-    moveWishlistToCart: build.mutation<SuccessResponse, void>({
+    moveWishlistToCart: build.mutation<MessageOnlyResponse, void>({
       query: () => ({ url: 'wishlist/move-to-cart', method: 'POST' }),
       invalidatesTags: ['Wishlist', 'Cart'],
     }),

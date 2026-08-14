@@ -1,12 +1,15 @@
 import { apiManager } from './client';
-import type { SuccessResponse, IPaginatedData } from '@/types/api';
+import type { SuccessResponse, MessageOnlyResponse, IPaginatedData } from '@/types/api';
 import type {
   ICreateStorePayload,
   IDeliveryRate,
+  IDeliveryRatePayload,
   IStore,
   IStoreAnalytics,
-  IStoreDetails,
+  IStoreDetailResponse,
+  IStoreOwnerDetails,
   IStoreTemplate,
+  IStoreThemeSetting,
   IUpdateStorePayload,
   IVendorCustomer,
   IVendorPayout,
@@ -14,15 +17,15 @@ import type {
 
 export const storeApi = apiManager.injectEndpoints({
   endpoints: (build) => ({
-    getStoreByIdentifier: build.query<IStoreDetails, string>({
+    getStoreByIdentifier: build.query<IStoreDetailResponse, string>({
       query: (identifier) => `store/${identifier}`,
       providesTags: ['Store'],
     }),
-    getMyStore: build.query<IStoreDetails, void>({
+    getMyStore: build.query<IStoreOwnerDetails, void>({
       query: () => 'store/me',
       providesTags: ['Store'],
     }),
-    getMyStores: build.query<IStore[], void>({
+    getMyStores: build.query<IStoreOwnerDetails[], void>({
       query: () => 'store/my-stores',
       providesTags: ['Store'],
     }),
@@ -49,7 +52,7 @@ export const storeApi = apiManager.injectEndpoints({
       invalidatesTags: ['Store', 'User'],
     }),
     updateStoreTheme: build.mutation<
-      SuccessResponse,
+      IStoreThemeSetting,
       { id: string; body: { template_id?: string; custom_config?: Record<string, string> } }
     >({
       query: ({ id, body }) => ({ url: `store/${id}/theme`, method: 'PATCH', body }),
@@ -62,7 +65,7 @@ export const storeApi = apiManager.injectEndpoints({
       query: (storeId) => `store-delivery-rates/store/${storeId}`,
       providesTags: ['Store'],
     }),
-    createDeliveryRate: build.mutation<SuccessResponse, { storeId: string; body: Partial<IDeliveryRate> }>({
+    createDeliveryRate: build.mutation<SuccessResponse, { storeId: string; body: IDeliveryRatePayload }>({
       query: ({ storeId, body }) => ({
         url: `store-delivery-rates/store/${storeId}`,
         method: 'POST',
@@ -70,7 +73,7 @@ export const storeApi = apiManager.injectEndpoints({
       }),
       invalidatesTags: ['Store'],
     }),
-    updateDeliveryRate: build.mutation<SuccessResponse, { rateId: string; body: Partial<IDeliveryRate> }>({
+    updateDeliveryRate: build.mutation<MessageOnlyResponse, { rateId: string; body: Partial<IDeliveryRatePayload> }>({
       query: ({ rateId, body }) => ({
         url: `store-delivery-rates/${rateId}`,
         method: 'PATCH',
@@ -78,7 +81,7 @@ export const storeApi = apiManager.injectEndpoints({
       }),
       invalidatesTags: ['Store'],
     }),
-    deleteDeliveryRate: build.mutation<SuccessResponse, string>({
+    deleteDeliveryRate: build.mutation<MessageOnlyResponse, string>({
       query: (rateId) => ({ url: `store-delivery-rates/${rateId}`, method: 'DELETE' }),
       invalidatesTags: ['Store'],
     }),
@@ -89,7 +92,7 @@ export const storeApi = apiManager.injectEndpoints({
       query: ({ storeId, body }) => ({ url: `store/${storeId}/bank`, method: 'POST', body }),
       invalidatesTags: ['Store'],
     }),
-    checkStoreName: build.query<{ available: boolean; message?: string }, string>({
+    checkStoreName: build.query<MessageOnlyResponse, string>({
       query: (name) => `store/lookup/check-name?name=${encodeURIComponent(name)}`,
     }),
     checkSubdomain: build.query<{ available: boolean }, { subdomain: string; storeId?: string }>({

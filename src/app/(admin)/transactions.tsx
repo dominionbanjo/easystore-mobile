@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { PaginatedList } from '@/components/shared/PaginatedList';
+import { ConfirmDialog } from '@/components/ui/Modal';
 import { formatNGN } from '@/utils/money';
 import { useGetAdminTransactionsQuery, useFlagTransactionMutation } from '@/api/adminApi';
 import { useToast } from '@/hooks/useToast';
@@ -18,13 +19,18 @@ export default function AdminTransactionsScreen() {
   const toast = useToast();
 
   const [page, setPage] = useState(1);
-  const { data, isLoading, isFetching } = useGetAdminTransactionsQuery({ page, limit: 20 });
-  const [flagTransaction] = useFlagTransactionMutation();
+  const { data, isLoading, isFetching, isError, refetch } = useGetAdminTransactionsQuery({ page, limit: 20 });
+  const [flagTransaction, { isLoading: flagging }] = useFlagTransactionMutation();
+  const [flagTarget, setFlagTarget] = useState<IAdminTransaction | null>(null);
 
-  const handleFlag = async (transaction: IAdminTransaction) => {
+  const handleFlag = async () => {
+    if (!flagTarget) {
+      return;
+    }
     try {
-      await flagTransaction({ id: transaction.id, is_flagged: !transaction.is_flagged }).unwrap();
-      toast.showSuccess(transaction.is_flagged ? 'Unflagged' : 'Flagged');
+      await flagTransaction({ id: flagTarget.id, is_flagged: !flagTarget.is_flagged }).unwrap();
+      toast.showSuccess(flagTarget.is_flagged ? 'Unflagged' : 'Flagged');
+      setFlagTarget(null);
     } catch (error) {
       toast.showError(getErrorMessage(error));
     }
@@ -37,6 +43,8 @@ export default function AdminTransactionsScreen() {
         pagination={data?.pagination}
         isLoading={isLoading}
         isFetching={isFetching}
+        error={isError}
+        onRetry={refetch}
         isLoadingMore={isFetching && page > 1}
         onEndReached={() => setPage((p) => p + 1)}
         onRefresh={() => setPage(1)}
@@ -67,12 +75,27 @@ export default function AdminTransactionsScreen() {
                 variant={transaction.is_flagged ? 'primary' : 'outline'}
                 size="sm"
                 fullWidth={false}
-                onPress={() => handleFlag(transaction)}
+                onPress={() => setFlagTarget(transaction)}
               />
             </Row>
           </Card>
         )}
         emptyTitle="No transactions found"
+      />
+
+      <ConfirmDialog
+        visible={Boolean(flagTarget)}
+        title={flagTarget?.is_flagged ? 'Unflag this transaction?' : 'Flag this transaction for review?'}
+        message={
+          flagTarget?.is_flagged
+            ? 'Remove the review flag from this transaction.'
+            : 'This transaction will be marked for manual review.'
+        }
+        confirmText={flagTarget?.is_flagged ? 'Unflag' : 'Flag'}
+        destructive={!flagTarget?.is_flagged}
+        loading={flagging}
+        onConfirm={handleFlag}
+        onCancel={() => setFlagTarget(null)}
       />
     </View>
   );

@@ -1,5 +1,6 @@
 import { apiManager } from './client';
 import type { SuccessResponse, IPaginatedData } from '@/types/api';
+import type { IProduct } from '@/types/product';
 import type {
   ISchoolZone,
   ISchoolZoneDetail,
@@ -7,6 +8,7 @@ import type {
   IZoneApplicationPayload,
   IZoneCreationPayload,
   IZoneMember,
+  IZoneStore,
 } from '@/types/zone';
 
 export const zoneApi = apiManager.injectEndpoints({
@@ -19,23 +21,23 @@ export const zoneApi = apiManager.injectEndpoints({
       query: (identifier) => `school-zones/${identifier}`,
       providesTags: ['SchoolZone'],
     }),
-    getZoneStores: build.query<IPaginatedData<ISchoolZoneDetail>, string>({
+    getZoneStores: build.query<IPaginatedData<IZoneStore>, string>({
       query: (identifier) => `school-zones/${identifier}/stores`,
       providesTags: ['SchoolZone'],
     }),
     getZoneProducts: build.query<
-      IPaginatedData<{ id: string; name: string; slug: string; price: number; image?: string }>,
+      IPaginatedData<IProduct>,
       { identifier: string; page?: number; limit?: number }
     >({
       query: ({ identifier, page = 1, limit = 20 }) =>
         `school-zones/${identifier}/products?page=${page}&limit=${limit}`,
       providesTags: ['SchoolZone'],
     }),
-    getMyMemberships: build.query<IMyMembership[], void>({
+    getMyMemberships: build.query<IPaginatedData<IMyMembership>, void>({
       query: () => 'school-zones/me/memberships',
       providesTags: ['SchoolZone'],
     }),
-    getMyCreatedZones: build.query<ISchoolZone[], void>({
+    getMyCreatedZones: build.query<IPaginatedData<ISchoolZone>, void>({
       query: () => 'school-zones/me/created',
       providesTags: ['SchoolZone'],
     }),

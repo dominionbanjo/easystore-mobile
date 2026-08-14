@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { AppImage } from '@/components/shared/AppImage';
 import { ListSkeleton } from '@/components/ui/Skeleton';
-import { formatNGN } from '@/utils/money';
+import { formatNaira, formatNGN } from '@/utils/money';
 import {
   useGetOrderSummaryMutation,
   useCreateOnlineOrderMutation,
@@ -20,6 +20,7 @@ import { useToast } from '@/hooks/useToast';
 import { getErrorMessage } from '@/utils/error';
 import { useAppSelector } from '@/hooks';
 import type { IUserAddress } from '@/types/auth';
+import type { ICheckoutSummaryGroup } from '@/types/order';
 
 export default function CheckoutScreen() {
   const { colors, spacing } = useAppTheme();
@@ -35,18 +36,13 @@ export default function CheckoutScreen() {
   const [getSummary] = useGetOrderSummaryMutation();
   const [createOnlineOrder, { isLoading: creating }] = useCreateOnlineOrderMutation();
 
-  const [summary, setSummary] = useState<{
-    subtotal: number;
-    shipping: number;
-    platform_fee?: number;
-    total: number;
-  } | null>(null);
+  const [summary, setSummary] = useState<ICheckoutSummaryGroup[] | null>(null);
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [selectedAddressId, setSelectedAddressId] = useState<string | undefined>();
 
-  const addresses: IUserAddress[] = profile?.addresses ?? [];
+  const addresses: IUserAddress[] = profile?.user.addresses ?? [];
 
-  const items = isAuthenticated ? (serverCart?.items ?? []) : guestCart;
+  const items = isAuthenticated ? (serverCart?.cart.items ?? []) : guestCart;
 
   const handleFetchSummary = async () => {
     setSummaryLoading(true);
@@ -54,11 +50,11 @@ export default function CheckoutScreen() {
       const result = await getSummary({
         order_items: items.map((item) => ({
           product_id: item.product_id,
-          variant_id: item.variant_id,
+          variant_id: item.variant_id ?? undefined,
           quantity: item.quantity,
         })),
       }).unwrap();
-      setSummary(result);
+      setSummary(result.data);
     } catch (error) {
       toast.showError(getErrorMessage(error));
     } finally {
@@ -72,19 +68,22 @@ export default function CheckoutScreen() {
       router.push('/login');
       return;
     }
-    if (!selectedAddressId && addresses.length > 0) {
+    if (!selectedAddressId) {
       toast.showError('Select a delivery address');
+      if (addresses.length === 0) {
+        router.push('/addresses');
+      }
       return;
     }
     try {
       const result = await createOnlineOrder({
-        email: profile?.email ?? '',
+        email: profile?.user.email ?? '',
         order_items: items.map((item) => ({
           product_id: item.product_id,
-          variant_id: item.variant_id,
+          variant_id: item.variant_id ?? undefined,
           quantity: item.quantity,
-          size: item.size,
-          color: item.color,
+          size: item.size ?? undefined,
+          color: item.color ?? undefined,
         })),
         delivery_address_id: selectedAddressId,
       }).unwrap();
@@ -92,7 +91,7 @@ export default function CheckoutScreen() {
       if (result.payment_url) {
         const openResult = await WebBrowser.openAuthSessionAsync(
           result.payment_url,
-          'EazyStore://verify-payment',
+          'easystore://verify-payment',
         );
         if (openResult.type === 'success' && openResult.url) {
           const reference = openResult.url.split('reference=')[1]?.split('&')[0];
@@ -112,10 +111,16 @@ export default function CheckoutScreen() {
     }
   };
 
-  const subtotal = isAuthenticated ? (serverCart?.subtotal ?? 0) : items.reduce(
+  const subtotal = isAuthenticated ? (serverCart?.cart.subtotal ?? 0) : items.reduce(
     (sum, item) => sum + (item.discount_price ?? item.price) * item.quantity,
     0,
   );
+
+  const serviceCharge = Math.round(subtotal * 0.01);
+  const summaryTotalKobo =
+    summary?.reduce((sum, group) => sum + group.subtotal, 0) ?? null;
+  const summaryServiceCharge =
+    summaryTotalKobo !== null ? Math.round(summaryTotalKobo * 0.01) : 0;
 
   return (
     <>
@@ -148,7 +153,7 @@ export default function CheckoutScreen() {
                         {item.name}
                       </AppText>
                       <AppText variant="small" color={colors.textMuted}>
-                        Qty {item.quantity} · {formatNGN((item.discount_price ?? item.price) * item.quantity)}
+                        Qty {item.quantity} · {formatNaira((item.discount_price ?? item.price) * item.quantity)}
                       </AppText>
                     </View>
                   </Row>
@@ -182,7 +187,25 @@ export default function CheckoutScreen() {
                   Subtotal
                 </AppText>
                 <AppText variant="label" weight="semibold">
-                  {formatNGN(subtotal)}
+                  {formatNaira(subtotal)}
+                </AppText>
+              </Row>
+              {summary?.map((group) => (
+                <Row key={group.store_id ?? group.vendor_id} style={{ justifyContent: 'space-between' }}>
+                  <AppText variant="small" color={colors.textMuted} numberOfLines={1} style={{ flex: 1 }}>
+                    {group.store_name} · {group.items.reduce((sum, item) => sum + item.quantity, 0)} item(s)
+                  </AppText>
+                  <AppText variant="small" weight="semibold">
+                    {formatNGN(group.subtotal)}
+                  </AppText>
+                </Row>
+              ))}
+              <Row style={{ justifyContent: 'space-between' }}>
+                <AppText variant="label" color={colors.textMuted}>
+                  Service charge (1%)
+                </AppText>
+                <AppText variant="label" weight="semibold">
+                  {summaryTotalKobo !== null ? formatNGN(summaryServiceCharge) : formatNaira(serviceCharge)}
                 </AppText>
               </Row>
               <Row style={{ justifyContent: 'space-between' }}>
@@ -190,15 +213,7 @@ export default function CheckoutScreen() {
                   Delivery fee
                 </AppText>
                 <AppText variant="label" weight="semibold">
-                  {summary ? formatNGN(summary.shipping) : '—'}
-                </AppText>
-              </Row>
-              <Row style={{ justifyContent: 'space-between' }}>
-                <AppText variant="label" color={colors.textMuted}>
-                  Platform fee
-                </AppText>
-                <AppText variant="label" weight="semibold">
-                  {summary?.platform_fee ? formatNGN(summary.platform_fee) : '—'}
+                  {summaryTotalKobo !== null ? 'Calculated at payment' : '—'}
                 </AppText>
               </Row>
               <Spacer height={4} />
@@ -207,7 +222,9 @@ export default function CheckoutScreen() {
                   Total
                 </AppText>
                 <AppText variant="title" weight="bold" color={colors.primary}>
-                  {formatNGN(summary?.total ?? subtotal)}
+                  {summaryTotalKobo !== null
+                    ? formatNGN(summaryTotalKobo + summaryServiceCharge)
+                    : formatNaira(subtotal + serviceCharge)}
                 </AppText>
               </Row>
             </Card>

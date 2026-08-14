@@ -23,14 +23,15 @@ export interface IOrderItem {
   product_id: string;
   name: string;
   slug: string;
-  price: number;
-  discount_price?: number;
-  image?: string;
+  /** Kobo — raw order_items column (numeric serializes as string). */
+  price: string | number;
+  discount_price?: string | number | null;
+  image?: string | null;
   quantity: number;
-  size?: string;
-  color?: string;
-  variant_id?: string;
-  variant_options?: Record<string, string>;
+  size?: string | null;
+  color?: string | null;
+  variant_id?: string | null;
+  variant_options?: Record<string, string> | null;
 }
 
 export interface IDelivery {
@@ -44,12 +45,14 @@ export interface IDelivery {
     | 'failed'
     | 'returned';
   tracking_number?: string;
-  confirmation_code?: string;
+  confirmation_code?: string | null;
   estimated_delivery?: string;
   delivered_at?: string;
   address?: string;
   city?: string;
   state?: string;
+  country?: string;
+  postal_code?: string;
   courier_id?: string;
 }
 
@@ -58,12 +61,13 @@ export interface IOrder {
   buyer_id?: string;
   vendor_id: string;
   order_items: IOrderItem[];
-  subtotal: number;
-  shipping_fee?: number;
-  platform_fee?: number;
-  tax?: number;
-  total: number;
-  payment_method: PaymentMethod;
+  /** Numeric columns serialize as strings on buyer lists; numbers on vendor/detail views. */
+  subtotal: string | number;
+  shipping_fee?: string | number;
+  platform_fee?: string | number;
+  tax?: string | number;
+  total: string | number;
+  payment_method?: PaymentMethod;
   payment_status: PaymentStatus;
   status: OrderStatus;
   payment_reference?: string;
@@ -81,15 +85,28 @@ export interface IOrder {
     postal_code?: string;
   };
   delivery?: IDelivery;
-  escrow?: { status: string };
-  buyer?: { id: string; first_name: string; last_name: string; email?: string; phone_number?: string };
+  escrow?: { id?: string; status: string; release_code?: string };
+  buyer?: { id: string; first_name: string; last_name: string; email?: string; phone_number?: string; avatar?: string };
+  /** Store fields are nested under `vendor.stores[]` — never at `vendor.store_name`. */
   vendor?: {
     id: string;
-    store_name: string;
-    store_slug?: string;
-    logo?: string;
+    first_name?: string;
+    last_name?: string;
+    email?: string;
+    phone_number?: string;
+    stores?: {
+      id: string;
+      store_name: string;
+      slug: string;
+      logo?: string;
+      phone_number?: string;
+      address_street?: string;
+      address_city?: string;
+      address_state?: string;
+    }[];
   };
   created_at: string;
+  updated_at?: string;
   confirmed?: boolean;
 }
 
@@ -127,6 +144,7 @@ export interface IOnlineOrderResponse {
   success: boolean;
   order_id: string;
   payment_url: string | null;
+  reference?: string;
 }
 
 export interface ICheckoutSummaryItem {
@@ -135,12 +153,45 @@ export interface ICheckoutSummaryItem {
   quantity: number;
 }
 
-export interface ICheckoutSummaryResponse {
+/** Per-store checkout summary group (kobo amounts). */
+export interface ICheckoutSummaryGroup {
+  store_id: string | null;
+  vendor_id: string;
+  store_name: string;
+  items: {
+    product_id: string;
+    vendor_id: string;
+    store_id: string | null;
+    name: string;
+    slug: string;
+    price: number;
+    discount_price: number | null;
+    unit_price: number;
+    image: string | null;
+    quantity: number;
+    size: string | null;
+    color: string | null;
+    variant_id?: string | null;
+    variant_options?: Record<string, string> | null;
+  }[];
+  /** Subtotal in kobo. */
   subtotal: number;
-  shipping: number;
-  platform_fee?: number;
-  total: number;
-  items?: ICheckoutSummaryItem[];
+  delivery_options: {
+    id: string;
+    state: string;
+    location?: string | null;
+    fee: string;
+    duration?: string | null;
+    notes?: string | null;
+  }[];
+  escrow_enabled: boolean;
+  installments_enabled: boolean;
+}
+
+/** `POST orders/summary` — double-wrapped `{ success, data: groups[] }`. */
+export interface ICheckoutSummaryResponse {
+  success: boolean;
+  data: ICheckoutSummaryGroup[];
 }
 
 export interface IOrderQueryParams {
@@ -158,27 +209,37 @@ export interface IVendorOrderQueryParams extends IOrderQueryParams {
 
 export interface ISalesRecord {
   id: string;
-  status: OrderStatus;
-  payment_status: PaymentStatus;
-  total: number;
-  created_at: string;
-  order_items?: IOrderItem[];
-  buyer?: { id: string; first_name: string; last_name: string; email?: string };
-  staff?: { id: string; user?: { first_name: string; last_name: string } };
-  payment_method?: PaymentMethod;
-}
-
-export interface IReceiptData {
-  receipt_number: string;
-  store_name: string;
-  store_address?: string;
   items: IOrderItem[];
   subtotal: number;
   total: number;
-  tax?: number;
-  payment_method: PaymentMethod;
+  notes?: string | null;
+  recorded_by?: string;
+  staff_name: string | null;
   created_at: string;
-  customer_name?: string;
+}
+
+export interface IReceiptData {
+  id: string;
+  order_reference: string;
+  store_name: string;
+  store_logo: string | null;
+  items: IOrderItem[];
+  subtotal: number;
+  shipping_fee: number;
+  tax: number;
+  total: number;
+  payment_method: PaymentMethod;
+  payment_status: PaymentStatus;
+  status: OrderStatus;
+  staff_name: string | null;
+  notes?: string | null;
+  created_at: string;
+}
+
+export interface IReceiptPdfResponse {
+  status: 'success';
+  data: string;
+  filename: string;
 }
 
 export interface IStaffSummary {

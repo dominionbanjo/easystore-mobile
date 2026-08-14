@@ -5,6 +5,7 @@ import { useAppTheme } from '@/theme';
 import { AppText, Row, Spacer } from '@/components/ui/Text';
 import { Card } from '@/components/ui/Card';
 import { ListSkeleton } from '@/components/ui/Skeleton';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { formatNGNCompact } from '@/utils/money';
 import {
   useGetGrowthAnalyticsQuery,
@@ -35,15 +36,38 @@ export default function AdminAnalyticsScreen() {
     );
   }
 
+  const isError =
+    growth.isError || revenue.isError || distribution.isError ||
+    signups.isError || topStores.isError;
+
+  if (isError) {
+    return (
+      <View style={{ flex: 1, padding: spacing.lg }}>
+        <EmptyState
+          title="Failed to load"
+          description="Check your connection and try again"
+          actionLabel="Try Again"
+          onAction={() => {
+            growth.refetch();
+            revenue.refetch();
+            distribution.refetch();
+            signups.refetch();
+            topStores.refetch();
+          }}
+        />
+      </View>
+    );
+  }
+
   const revenueData = (revenue.data ?? []).map((point, index) => ({
     value: (point.revenue ?? 0) / 100,
-    label: new Date(point.month).toLocaleDateString('en-NG', { month: 'short' }),
+    label: point.month,
     index,
   }));
 
   const growthData = (growth.data ?? []).map((point, index) => ({
     value: point.users ?? 0,
-    label: new Date(point.month).toLocaleDateString('en-NG', { month: 'short' }),
+    label: point.label,
     index,
   }));
 
@@ -97,19 +121,17 @@ export default function AdminAnalyticsScreen() {
         )}
       </Card>
 
-      {distribution.data ? (
+      {distribution.data && distribution.data.length > 0 ? (
         <Card style={{ gap: spacing.sm }}>
           <AppText variant="label" weight="bold">
             User Distribution
           </AppText>
-          <Row style={{ justifyContent: 'space-between' }}>
-            <AppText variant="small">Users</AppText>
-            <AppText variant="small" weight="bold">{distribution.data.users}</AppText>
-          </Row>
-          <Row style={{ justifyContent: 'space-between' }}>
-            <AppText variant="small">Vendors</AppText>
-            <AppText variant="small" weight="bold">{distribution.data.vendors}</AppText>
-          </Row>
+          {distribution.data.map((item) => (
+            <Row key={item.name} style={{ justifyContent: 'space-between' }}>
+              <AppText variant="small">{item.name}</AppText>
+              <AppText variant="small" weight="bold">{item.value}</AppText>
+            </Row>
+          ))}
         </Card>
       ) : null}
 

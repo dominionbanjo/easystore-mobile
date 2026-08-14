@@ -19,17 +19,28 @@ export interface IStaffMember {
   user: IStaffUser;
 }
 
+/** Backend invite accepts these fields only — `permissions` is ignored. */
 export interface IInviteStaffPayload {
   email: string;
-  permissions: PermissionCode[];
+  first_name?: string;
+  last_name?: string;
+  password?: string;
 }
 
+/** `GET staff/me` — returns the flat user, not a nested profile. */
 export interface IStaffProfile {
   id: string;
-  user: IStaffUser;
-  status: string;
-  permissions?: PermissionCode[];
-  last_login_at?: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone_number?: string;
+  avatar?: string;
+  created_at?: string;
+}
+
+/** `GET staff/permissions` — wrapped `{ permissions }` object, not an array. */
+export interface IStaffPermissionsResponse {
+  permissions: PermissionCode[];
 }
 
 export interface IChangePasswordPayload {

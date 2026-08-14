@@ -5,7 +5,6 @@ import { AppText, Row, Spacer } from '@/components/ui/Text';
 import { Card } from '@/components/ui/Card';
 import { API_BASE_URL } from '@/constants/api';
 import { useGetOverviewAnalyticsQuery } from '@/api/adminApi';
-import { formatNGN } from '@/utils/money';
 
 export default function AdminSettingsScreen() {
   const { colors, spacing } = useAppTheme();
@@ -38,9 +37,19 @@ export default function AdminSettingsScreen() {
             Environment
           </AppText>
           <AppText variant="small" weight="medium" color={colors.primary}>
-            Production
+            {__DEV__ ? 'Development' : 'Production'}
           </AppText>
         </Row>
+      </Card>
+
+      <Card style={{ gap: spacing.sm }}>
+        <AppText variant="label" weight="bold">
+          Platform settings
+        </AppText>
+        <AppText variant="small" color="gray">
+          Platform-wide configuration is managed on the web admin dashboard. This screen is
+          read-only for reference.
+        </AppText>
       </Card>
 
       {stats ? (
@@ -50,26 +59,26 @@ export default function AdminSettingsScreen() {
           </AppText>
           <Row style={{ justifyContent: 'space-between' }}>
             <AppText variant="small" color="gray">
-              Total revenue
+              Total users
             </AppText>
             <AppText variant="small" weight="bold">
-              {formatNGN(stats.total_revenue ?? 0)}
+              {stats.totals.users ?? 0}
             </AppText>
           </Row>
           <Row style={{ justifyContent: 'space-between' }}>
             <AppText variant="small" color="gray">
-              Escrow balance
+              Total stores
             </AppText>
             <AppText variant="small" weight="bold">
-              {formatNGN(stats.escrow_balance ?? 0)}
+              {stats.totals.stores ?? 0}
             </AppText>
           </Row>
           <Row style={{ justifyContent: 'space-between' }}>
             <AppText variant="small" color="gray">
-              Pending payouts
+              Total orders
             </AppText>
             <AppText variant="small" weight="bold">
-              {stats.pending_payouts ?? 0}
+              {stats.totals.orders ?? 0}
             </AppText>
           </Row>
         </Card>

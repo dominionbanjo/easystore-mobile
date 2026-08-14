@@ -13,8 +13,9 @@ export interface IProductVariant {
   sku?: string;
   barcode?: string;
   combinations?: Record<string, string>;
+  /** Naira on card/detail endpoints; kobo on raw vendor endpoints. */
   price: number;
-  discount_price?: number;
+  discount_price?: number | null;
   stock: number;
   image_url?: string;
   image_public_id?: string;
@@ -24,11 +25,13 @@ export interface IProduct {
   id: string;
   name: string;
   slug: string;
-  price: number;
-  discount_price?: number;
-  rating_average?: string;
+  /** Naira on card endpoints (backend divides kobo by 100); nullable on vendor lists. */
+  price: number | null;
+  discount_price?: number | null;
+  /** Card endpoints return number; raw entity endpoints return string (numeric column). */
+  rating_average?: number | string;
   stock?: number;
-  image?: string;
+  image?: string | IProductImage | null;
   store_name?: string;
   store_slug?: string;
   is_in_wishlist?: boolean;
@@ -39,11 +42,8 @@ export interface IProduct {
     IProductVariant,
     'id' | 'price' | 'discount_price' | 'stock' | 'combinations' | 'image_url'
   >[];
-  category?: {
-    id: string;
-    name: string;
-    slug?: string;
-  };
+  /** Category NAME on card endpoints (not an object). */
+  category?: string;
   created_at?: string;
 }
 
@@ -51,9 +51,12 @@ export interface IProductDetails extends IProduct {
   vendor_id: string;
   store_id: string;
   category_id?: string;
-  category_ref?: string;
+  /** Full category relation object on the detail endpoint. */
+  category_ref?: { id: string; name: string; slug?: string } | null;
   description?: string;
   tags?: string[];
+  /** JSONB column `{url, public_id}` on raw-entity endpoints. */
+  image: IProductImage | null;
   gallery?: IProductImage[];
   highlights?: string[];
   specs?: Record<string, string>;
@@ -61,7 +64,7 @@ export interface IProductDetails extends IProduct {
   returns_note?: string;
   installment_enabled?: boolean;
   installment_preset_id?: string;
-  installment_presets?: { id: string; name: string; count: number; interval_days: number }[];
+  installment_presets?: string[];
   rating_count?: number;
   review_count?: number;
   total_sold?: number;
@@ -70,11 +73,40 @@ export interface IProductDetails extends IProduct {
   barcode?: string;
 }
 
+export interface IProductDetailStore {
+  id: string;
+  store_name: string;
+  slug: string;
+  address_city?: string | null;
+  address_state?: string | null;
+  address_country?: string | null;
+  address_postal_code?: string | null;
+}
+
+/** Full `GET product/:identifier` payload — product + store + reviews + related products. */
+export interface IProductDetailResponse {
+  product?: IProductDetails;
+  store?: IProductDetailStore | null;
+  reviews?: IProductReview[];
+  related_products?: IProduct[];
+}
+
 export interface IStoreProduct extends IProduct {
   status: 'active' | 'inactive' | 'draft';
   is_out_of_stock: boolean;
-  category_ref?: string;
+  /** Full category relation object on the vendor list endpoint. */
+  category_ref?: { id: string; name: string; slug?: string } | null;
   stock: number;
+  /** Naira or null (backend divides kobo by 100). */
+  price: number | null;
+  discount_price: number | null;
+  /** Raw JSONB column. */
+  image: IProductImage | null;
+  rating_average: number;
+  total_sold?: number;
+  featured?: boolean;
+  on_sale?: boolean;
+  updated_at?: string;
 }
 
 export interface IProductVariantInput {
@@ -123,7 +155,7 @@ export interface IUpdateProductPayload {
   highlights?: string[];
   specs?: Record<string, string>;
   options?: IProductOption[];
-  variants?: IProductVariantInput[];
+  variants?: IProductVariantInput[] | null;
   shipping_note?: string;
   returns_note?: string;
   installment_enabled?: boolean;
@@ -133,15 +165,69 @@ export interface IUpdateProductPayload {
 export interface IProductDraft {
   id: string;
   name?: string;
+  slug?: string;
   description?: string;
-  price?: number;
+  /** Naira or null. */
+  price?: number | null;
+  discount_price?: number | null;
   stock?: number;
-  image?: IProductImage;
-  gallery?: IProductImage[];
+  /** Raw JSONB column. */
+  image?: IProductImage | null;
+  gallery?: IProductImage[] | null;
   tags?: string[];
+  highlights?: string[];
+  specs?: Record<string, string>;
+  options?: IProductOption[];
+  status?: 'draft';
+  category_id?: string;
+  shipping_note?: string;
+  returns_note?: string;
   updated_at?: string;
   created_at?: string;
-  payload?: Partial<ICreateProductPayload>;
+}
+
+/** `GET vendor/products/drafts` — backend key is `drafts`, not `items`. */
+export interface IProductDraftList {
+  drafts: IProductDraft[];
+  pagination: { page: number; limit: number; total: number; pages: number };
+}
+
+export interface IBarcodeVariant {
+  id: string;
+  /** Kobo (raw numeric column serializes as string). */
+  price: string;
+  stock: number;
+  combinations?: Record<string, string>;
+  image_url?: string;
+  product?: {
+    id: string;
+    name: string;
+    slug: string;
+    image: IProductImage | null;
+    store_id: string;
+    status: string;
+  };
+}
+
+export interface IBarcodeProductResult {
+  product: {
+    id: string;
+    name: string;
+    slug: string;
+    /** Kobo (raw numeric column serializes as string). */
+    price: string;
+    image: IProductImage | null;
+    stock: number;
+  };
+  variant: IBarcodeVariant | null;
+}
+
+export interface IProductStatusResponse {
+  status: string;
+}
+
+export interface IProductOnSaleResponse {
+  on_sale: boolean;
 }
 
 export interface IProductSearchParams {
@@ -171,14 +257,20 @@ export interface ISalesTerminalProduct {
   id: string;
   name: string;
   slug: string;
+  /** Kobo (backend does NOT divide by 100). */
   price: number;
-  image?: string;
+  image: string | null;
   stock: number;
-  category?: { id: string; name: string };
-  variants?: Pick<
-    IProductVariant,
-    'id' | 'price' | 'discount_price' | 'stock' | 'combinations' | 'image_url'
-  >[];
+  /** Category NAME (not an object). */
+  category: string | null;
+  options?: IProductOption[];
+  variants?: Pick<IProductVariant, 'id' | 'price' | 'stock' | 'combinations' | 'image_url'>[];
+}
+
+/** `GET vendor/products/sales-terminal/categories` — no `id`, name only + count. */
+export interface ISalesTerminalCategory {
+  name: string;
+  count: number;
 }
 
 export interface IProductReview {

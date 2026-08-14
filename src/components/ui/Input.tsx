@@ -19,6 +19,10 @@ interface AppInputProps {
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
   maxLength?: number;
   size?: 'sm' | 'md';
+  onSubmitEditing?: () => void;
+  returnKeyType?: 'default' | 'go' | 'done' | 'search' | 'next' | 'send';
+  style?: object;
+  backgroundColor?: string;
 }
 
 export function AppInput({
@@ -37,30 +41,37 @@ export function AppInput({
   autoCapitalize = 'sentences',
   maxLength,
   size = 'md',
+  onSubmitEditing,
+  returnKeyType,
+  style,
+  backgroundColor,
 }: AppInputProps) {
   const { colors, radius, spacing, typography } = useAppTheme();
 
   const height = size === 'md' ? 48 : 36;
 
   return (
-    <View style={{ gap: spacing.xs }}>
+    <View style={{ gap: spacing.xs, flex: 1 }}>
       {label ? (
         <AppText variant="label" weight="medium" color={colors.textMuted} style={{ fontSize: 15 }}>
           {label}
         </AppText>
       ) : null}
       <View
-        style={{
-          flexDirection: 'row',
-          alignItems: multiline ? 'flex-start' : 'center',
-          borderWidth: 1,
-          borderColor: error ? colors.danger : colors.border,
-          borderRadius: radius.sm,
-          backgroundColor: colors.surfaceAlt,
-          paddingHorizontal: size === 'md' ? 12 : 10,
-          gap: spacing.sm,
-          minHeight: height,
-        }}
+        style={[
+          {
+            flexDirection: 'row',
+            alignItems: multiline ? 'flex-start' : 'center',
+            borderWidth: 1,
+            borderColor: error ? colors.danger : colors.border,
+            borderRadius: radius.sm,
+            backgroundColor: backgroundColor ?? colors.surfaceAlt,
+            paddingHorizontal: size === 'md' ? 12 : 10,
+            gap: spacing.sm,
+            minHeight: height,
+          },
+          style,
+        ]}
       >
         {icon}
         <TextInput
@@ -75,6 +86,8 @@ export function AppInput({
           editable={editable}
           autoCapitalize={autoCapitalize}
           maxLength={maxLength}
+          onSubmitEditing={onSubmitEditing}
+          returnKeyType={returnKeyType}
           style={{
             flex: 1,
             color: editable ? colors.text : colors.textSubtle,

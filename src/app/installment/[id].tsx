@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
@@ -10,6 +10,7 @@ import { Card } from '@/components/ui/Card';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { ConfirmDialog } from '@/components/ui/Modal';
 import { ListSkeleton } from '@/components/ui/Skeleton';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { formatNGN } from '@/utils/money';
 import {
   useGetInstallmentByIdQuery,
@@ -25,11 +26,21 @@ export default function InstallmentDetailScreen() {
   const toast = useToast();
   const params = useLocalSearchParams<{ id: string }>();
 
-  const { data: plan, isLoading } = useGetInstallmentByIdQuery(params.id);
+  const { data: planData, isLoading, isError, refetch } = useGetInstallmentByIdQuery(params.id);
+  const plan = planData?.data;
   const [pay, { isLoading: paying }] = usePayInstallmentMutation();
   const [payoff, { isLoading: payoffing }] = usePayoffInstallmentMutation();
   const [cancel, { isLoading: cancelling }] = useCancelInstallmentMutation();
   const [cancelOpen, setCancelOpen] = useState(false);
+  const refreshTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (refreshTimer.current) {
+        clearTimeout(refreshTimer.current);
+      }
+    };
+  }, []);
 
   const handlePayment = async (action: 'pay' | 'payoff') => {
     try {
@@ -40,6 +51,9 @@ export default function InstallmentDetailScreen() {
       if (result.payment_url) {
         await WebBrowser.openBrowserAsync(result.payment_url);
         toast.showSuccess('Payment initiated');
+        refreshTimer.current = setTimeout(() => {
+          refetch();
+        }, 5000);
       } else {
         toast.showSuccess('Payment completed');
       }
@@ -62,6 +76,19 @@ export default function InstallmentDetailScreen() {
     return (
       <View style={{ padding: spacing.lg }}>
         <ListSkeleton count={3} />
+      </View>
+    );
+  }
+
+  if (isError) {
+    return (
+      <View style={{ flex: 1, padding: spacing.lg }}>
+        <EmptyState
+          title="Failed to load plan"
+          description="Check your connection and try again"
+          actionLabel="Try Again"
+          onAction={() => refetch()}
+        />
       </View>
     );
   }

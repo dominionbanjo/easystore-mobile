@@ -1,3 +1,5 @@
+import type { IPagination } from './api';
+
 export type InstallmentMode = 'auto' | 'manual';
 export type InstallmentPlanStatus = 'active' | 'completed' | 'defaulted' | 'canceled' | 'refunding';
 export type InstallmentPaymentStatus = 'pending' | 'paid' | 'refunded';
@@ -9,11 +11,12 @@ export interface IInstallmentPreset {
   interval_days: number;
 }
 
+/** `GET installments/config` — no `enabled` flag is returned. */
 export interface IInstallmentConfig {
-  enabled: boolean;
   presets: IInstallmentPreset[];
-  min_order_kobo?: number;
-  max_active_plans?: number;
+  min_order_kobo: number;
+  max_concurrent_plans: number;
+  default_lockout_days: number;
 }
 
 export interface IInstallmentPayment {
@@ -28,12 +31,28 @@ export interface IInstallmentPayment {
   status: InstallmentPaymentStatus;
 }
 
+/** Scalar plan view — relations (order/store/payments/buyer/vendor) are NOT mapped. */
 export interface IInstallmentPlan {
   id: string;
   order_id: string;
   buyer_id?: string;
   vendor_id?: string;
   store_id?: string;
+  total_kobo: number;
+  paid_kobo: number;
+  installments_total: number;
+  installments_paid: number;
+  mode: InstallmentMode;
+  preset_id?: string;
+  next_due_date?: string;
+  status: InstallmentPlanStatus;
+  deposit_expires_at?: string;
+  defaulted_at?: string;
+  canceled_at?: string;
+  completed_at?: string;
+  admin_note?: string;
+  created_at?: string;
+  updated_at?: string;
   store?: { id: string; store_name: string; logo?: string };
   order?: {
     id: string;
@@ -49,20 +68,20 @@ export interface IInstallmentPlan {
     }[];
     created_at: string;
   };
-  total_kobo: number;
-  paid_kobo: number;
-  installments_total: number;
-  installments_paid: number;
-  mode: InstallmentMode;
-  preset_id?: string;
-  next_due_date?: string;
-  status: InstallmentPlanStatus;
-  deposit_expires_at?: string;
-  defaulted_at?: string;
-  canceled_at?: string;
-  completed_at?: string;
   payments?: IInstallmentPayment[];
-  created_at?: string;
+}
+
+/** `GET installments/:id` — double-wrapped `{ success, data: {...plan, payments} }`. */
+export interface IInstallmentDetailResponse {
+  success: boolean;
+  data: IInstallmentPlan & { payments: IInstallmentPayment[] };
+}
+
+/** List endpoints — pagination only carries `{ page, limit, total }`. */
+export interface IInstallmentListData<T> {
+  success: boolean;
+  items: T[];
+  pagination: Pick<IPagination, 'page' | 'limit' | 'total'>;
 }
 
 export interface ICreateInstallmentPayload {

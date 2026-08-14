@@ -1,38 +1,61 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { AlertCircle, CheckCircle2, Clock } from 'lucide-react-native';
 
 import { useAppTheme } from '@/theme';
 import { AppText } from '@/components/ui/Text';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { useVerifyOrderPaymentMutation } from '@/api/orderApi';
-import { useToast } from '@/hooks/useToast';
-import { getErrorMessage } from '@/utils/error';
+
+type VerifyStatus = 'checking' | 'success' | 'pending' | 'error';
 
 export default function VerifyPaymentScreen() {
-  const { colors, spacing } = useAppTheme();
+  const { colors, spacing, radius } = useAppTheme();
   const router = useRouter();
-  const toast = useToast();
-  const params = useLocalSearchParams<{ reference?: string; orderId?: string }>();
+  const params = useLocalSearchParams<{ reference?: string; orderId?: string; installment?: string }>();
   const [verifyPayment, { isLoading }] = useVerifyOrderPaymentMutation();
-  const [status, setStatus] = useState<'checking' | 'success' | 'pending'>(
+  const [status, setStatus] = useState<VerifyStatus>(
     params.reference ? 'checking' : 'pending',
   );
 
-  useEffect(() => {
-    if (params.reference) {
-      verifyPayment(params.reference)
-        .unwrap()
-        .then(() => setStatus('success'))
-        .catch((error) => {
-          setStatus('pending');
-          toast.showError(getErrorMessage(error));
-        });
+  const isInstallment = params.installment === 'true' || params.installment === '1';
+
+  const runVerification = useCallback(() => {
+    if (!params.reference) {
+      return;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.reference]);
+    setStatus('checking');
+    verifyPayment(params.reference)
+      .unwrap()
+      .then(() => setStatus('success'))
+      .catch(() => setStatus('error'));
+  }, [params.reference, verifyPayment]);
+
+  useEffect(() => {
+    runVerification();
+  }, [runVerification]);
+
+  const title =
+    status === 'success'
+      ? isInstallment
+        ? 'Deposit Received'
+        : 'Payment Successful'
+      : status === 'error'
+        ? 'Payment Verification Failed'
+        : isLoading
+          ? 'Verifying Payment…'
+          : 'Payment Pending';
+
+  const description =
+    status === 'success'
+      ? isInstallment
+        ? 'Your deposit has been received. Your installment plan is being set up.'
+        : 'Your order has been confirmed. Track it from your orders.'
+      : status === 'error'
+        ? 'We could not confirm your payment. Please retry or contact support if the issue persists.'
+        : 'We are confirming your payment. This usually takes a few moments.';
 
   return (
     <>
@@ -43,41 +66,54 @@ export default function VerifyPaymentScreen() {
             style={{
               width: 88,
               height: 88,
-              borderRadius: 44,
+              borderRadius: radius.full,
               backgroundColor:
                 status === 'success' ? colors.primaryMuted : colors.surfaceAlt,
               alignItems: 'center',
               justifyContent: 'center',
             }}
           >
-            <Ionicons
-              name={status === 'success' ? 'checkmark-circle' : 'time-outline'}
-              size={44}
-              color={status === 'success' ? colors.primary : colors.warning}
-            />
+            {status === 'success' ? (
+              <CheckCircle2 size={44} color={colors.primary} strokeWidth={2} />
+            ) : status === 'error' ? (
+              <AlertCircle size={44} color={colors.danger} strokeWidth={2} />
+            ) : (
+              <Clock size={44} color={colors.warning} strokeWidth={2} />
+            )}
           </View>
           <AppText variant="title" weight="bold" center>
-            {status === 'success'
-              ? 'Payment Successful'
-              : isLoading
-                ? 'Verifying Payment…'
-                : 'Payment Pending'}
+            {title}
           </AppText>
           <AppText variant="caption" color={colors.textMuted} center>
-            {status === 'success'
-              ? 'Your order has been confirmed. Track it from your orders.'
-              : 'We are confirming your payment. This usually takes a few moments.'}
+            {description}
           </AppText>
         </View>
         <Card style={{ gap: spacing.sm }}>
           <RowInfo label="Order" value={params.orderId ?? '—'} />
           <RowInfo label="Reference" value={params.reference ?? '—'} />
         </Card>
-        <Button
-          title="View My Orders"
-          onPress={() => router.replace('/orders')}
-          loading={isLoading && status !== 'success'}
-        />
+        <View style={{ gap: spacing.sm }}>
+          {status === 'error' ? (
+            <>
+              <Button title="Retry Verification" onPress={runVerification} loading={isLoading} />
+              <Button title="Back to Home" variant="outline" onPress={() => router.replace('/')} />
+            </>
+          ) : status === 'success' ? (
+            <>
+              <Button title="View My Orders" onPress={() => router.replace('/orders')} />
+              <Button title="Back to Home" variant="outline" onPress={() => router.replace('/')} />
+            </>
+          ) : (
+            <>
+              <Button
+                title="View My Orders"
+                onPress={() => router.replace('/orders')}
+                loading={isLoading}
+              />
+              <Button title="Back to Home" variant="outline" onPress={() => router.replace('/')} />
+            </>
+          )}
+        </View>
       </View>
     </>
   );

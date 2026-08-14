@@ -16,17 +16,17 @@ import {
 } from '@/api/installmentApi';
 import { useToast } from '@/hooks/useToast';
 import { getErrorMessage } from '@/utils/error';
-import type { IInstallmentPlan } from '@/types/installment';
+import type { IAdminInstallment } from '@/types/installment';
 
 export default function AdminInstallmentsScreen() {
   const { spacing } = useAppTheme();
   const toast = useToast();
 
   const [page, setPage] = useState(1);
-  const { data, isLoading, isFetching } = useGetAdminInstallmentsQuery({ page });
+  const { data, isLoading, isFetching, isError, refetch } = useGetAdminInstallmentsQuery({ page });
   const [forceComplete] = useForceCompleteInstallmentMutation();
   const [forceCancel] = useForceCancelInstallmentMutation();
-  const [actionTarget, setActionTarget] = useState<{ plan: IInstallmentPlan; action: 'complete' | 'cancel' } | null>(null);
+  const [actionTarget, setActionTarget] = useState<{ plan: IAdminInstallment; action: 'complete' | 'cancel' } | null>(null);
 
   const handleAction = async () => {
     if (!actionTarget) {
@@ -46,7 +46,7 @@ export default function AdminInstallmentsScreen() {
     }
   };
 
-  const items = (data?.items ?? []) as IInstallmentPlan[];
+  const items = data?.items ?? [];
 
   return (
     <View style={{ flex: 1 }}>
@@ -55,6 +55,8 @@ export default function AdminInstallmentsScreen() {
         pagination={data?.pagination}
         isLoading={isLoading}
         isFetching={isFetching}
+        error={isError}
+        onRetry={refetch}
         isLoadingMore={isFetching && page > 1}
         onEndReached={() => setPage((p) => p + 1)}
         onRefresh={() => setPage(1)}

@@ -1,18 +1,23 @@
+import { CalendarDays, Heart, MapPin, RotateCcw, Store, Truck } from 'lucide-react-native';
+import type { LucideIcon } from 'lucide-react-native';
 import { useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+
 
 import { useAppTheme } from '@/theme';
 import { AppText, Row } from '@/components/ui/Text';
 import { Button, IconButton } from '@/components/ui/Button';
-import { AppImage } from '@/components/shared/AppImage';
+import { ProductGallery } from '@/components/shared/ProductGallery';
+import { ProductRail } from '@/components/shared/ProductCard';
+import { SectionHeader } from '@/components/shared/SectionHeader';
 import { RatingStars } from '@/components/shared/RatingStars';
 import { Card } from '@/components/ui/Card';
-import { ProductGridSkeleton } from '@/components/ui/Skeleton';
+import { ListSkeleton } from '@/components/ui/Skeleton';
 import { AppModal } from '@/components/ui/Modal';
 import { formatNaira } from '@/utils/money';
 import { useGetProductBySlugQuery } from '@/api/productApi';
+import { useGetInstallmentConfigQuery } from '@/api/installmentApi';
 import { useAddCartItemMutation } from '@/api/cartApi';
 import { useAddToWishlistMutation, useRemoveFromWishlistMutation } from '@/api/wishlistApi';
 import { useGetProductReviewsQuery } from '@/api/reviewApi';
@@ -27,6 +32,45 @@ interface SelectedVariant {
   size?: string;
   color?: string;
   options: Record<string, string>;
+}
+
+function InfoRow({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string;
+}) {
+  const { colors, spacing, radius } = useAppTheme();
+  return (
+    <Row style={{ gap: spacing.md, alignItems: 'flex-start' }}>
+      <View
+        style={{
+          width: 32,
+          height: 32,
+          borderRadius: radius.sm,
+          backgroundColor: colors.primaryMuted,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Icon size={16} color={colors.primary} />
+      </View>
+      <View style={{ flex: 1, gap: 2 }}>
+        <AppText
+          variant="small"
+          weight="semibold"
+          color={colors.textMuted}
+          style={{ textTransform: 'uppercase', letterSpacing: 0.5 }}
+        >
+          {label}
+        </AppText>
+        <AppText variant="small">{value}</AppText>
+      </View>
+    </Row>
+  );
 }
 
 function normalizeProduct(
@@ -46,18 +90,28 @@ function normalizeProduct(
 }
 
 export default function ProductDetailScreen() {
-  const { colors, spacing } = useAppTheme();
+  const { colors, spacing, radius } = useAppTheme();
   const router = useRouter();
   const toast = useToast();
   const dispatch = useAppDispatch();
   const params = useLocalSearchParams<{ slug: string }>();
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 
-  const { data: rawProduct, isLoading } = useGetProductBySlugQuery(params.slug);
+  const { data: rawProduct, isLoading, isError, refetch } = useGetProductBySlugQuery(params.slug);
   const product = normalizeProduct(rawProduct);
+  const relatedProducts = rawProduct?.related_products ?? [];
+  const detailStore = rawProduct?.store;
+  const shipFromLocation = [
+    detailStore?.address_city,
+    detailStore?.address_state,
+    detailStore?.address_country,
+  ]
+    .filter((part): part is string => typeof part === 'string' && part.length > 0)
+    .join(', ');
   const { data: reviewsData } = useGetProductReviewsQuery(product?.id ?? '', {
     skip: !product?.id,
   });
+  const { data: installmentConfig } = useGetInstallmentConfigQuery();
   const [addCartItem] = useAddCartItemMutation();
   const [addWishlist] = useAddToWishlistMutation();
   const [removeWishlist] = useRemoveFromWishlistMutation();
@@ -65,12 +119,28 @@ export default function ProductDetailScreen() {
   const [variantModalOpen, setVariantModalOpen] = useState(false);
   const [selected, setSelected] = useState<SelectedVariant>({ options: {} });
   const [quantity, setQuantity] = useState(1);
-  const [activeImage] = useState(0);
 
   if (isLoading) {
     return (
       <View style={{ padding: spacing.lg }}>
-        <ProductGridSkeleton count={2} />
+        <ListSkeleton count={3} />
+      </View>
+    );
+  }
+
+  if (isError) {
+    return (
+      <View style={{ padding: spacing.xl, gap: spacing.md }}>
+        <AppText center color={colors.textMuted}>
+          Failed to load product
+        </AppText>
+        <Button
+          title="Retry"
+          variant="outline"
+          fullWidth={false}
+          style={{ alignSelf: 'center' }}
+          onPress={refetch}
+        />
       </View>
     );
   }
@@ -89,7 +159,6 @@ export default function ProductDetailScreen() {
     typeof product.image === 'string' ? product.image : undefined,
     ...(product.gallery ?? []).map((image) => (typeof image.url === 'string' ? image.url : undefined)),
   ].filter((url): url is string => Boolean(url));
-  const activeImageUrl = gallery[activeImage] ?? (typeof product.image === 'string' ? product.image : undefined);
 
   const hasVariants = (product.variants?.length ?? 0) > 0;
   const hasOptions = (product.options?.length ?? 0) > 0;
@@ -114,6 +183,11 @@ export default function ProductDetailScreen() {
     return match;
   };
 
+  const isOptionAvailable = (optionName: string, value: string): boolean =>
+    (product.variants ?? []).some(
+      (variant) => variant.combinations?.[optionName] === value && variant.stock > 0,
+    );
+
   const handleVariantConfirm = () => {
     setSelected((current) => ({
       ...current,
@@ -122,10 +196,10 @@ export default function ProductDetailScreen() {
     setVariantModalOpen(false);
   };
 
-  const handleAddToCart = async () => {
+  const handleAddToCart = async (): Promise<boolean> => {
     if (needsSelection && !effectiveVariant) {
       setVariantModalOpen(true);
-      return;
+      return false;
     }
     const cartPayload = {
       product_id: product.id,
@@ -138,31 +212,37 @@ export default function ProductDetailScreen() {
       try {
         await addCartItem(cartPayload).unwrap();
         toast.showSuccess('Added to cart');
+        return true;
       } catch (error) {
         toast.showError(getErrorMessage(error));
+        return false;
       }
-    } else {
-      dispatch(
-        addGuestItem({
-          product_id: product.id,
-          name: product.name,
-          slug: product.slug,
-          price: unitPrice,
-          image: product.image,
-          quantity,
-          variant_id: effectiveVariant?.id,
-          variant_options: effectiveVariant?.combinations,
-          installment_enabled: product.installment_enabled,
-          installment_presets: product.installment_presets,
-        }),
-      );
-      toast.showSuccess('Added to cart');
     }
+    dispatch(
+      addGuestItem({
+        product_id: product.id,
+        name: product.name,
+        slug: product.slug,
+        price: unitPrice ?? 0,
+        image:
+          typeof product.image === 'string'
+            ? product.image
+            : (product.image?.url ?? null),
+        quantity,
+        variant_id: effectiveVariant?.id,
+        variant_options: effectiveVariant?.combinations,
+        installment_enabled: product.installment_enabled,
+        installment_presets: product.installment_presets,
+      }),
+    );
+    toast.showSuccess('Added to cart');
+    return true;
   };
 
   const handleBuyNow = async () => {
-    await handleAddToCart();
-    router.push('/cart');
+    if (await handleAddToCart()) {
+      router.push('/cart');
+    }
   };
 
   const handleToggleWishlist = async () => {
@@ -185,27 +265,7 @@ export default function ProductDetailScreen() {
         options={{ title: (product.name ?? 'Product').slice(0, 40), headerShown: true }}
       />
       <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
-        <AppImage
-          uri={activeImageUrl}
-          style={{ width: '100%', aspectRatio: 1 }}
-          fallbackText={product.name}
-        />
-        {gallery.length > 1 ? (
-          <Row style={{ justifyContent: 'center', gap: spacing.sm, paddingVertical: spacing.md }}>
-            {gallery.map((url, index) => (
-              <View
-                key={`${url}-${index}`}
-                style={{
-                  width: index === activeImage ? 10 : 8,
-                  height: index === activeImage ? 10 : 8,
-                  borderRadius: 6,
-                  backgroundColor:
-                    index === activeImage ? colors.primary : colors.border,
-                }}
-              />
-            ))}
-          </Row>
-        ) : null}
+        <ProductGallery images={gallery} fallbackText={product.name} />
 
         <View style={{ padding: spacing.lg, gap: spacing.md }}>
           <Row style={{ justifyContent: 'space-between', gap: spacing.md }}>
@@ -215,7 +275,7 @@ export default function ProductDetailScreen() {
               </AppText>
               {product.store_name ? (
                 <Row style={{ gap: spacing.xs, marginTop: 4 }}>
-                  <Ionicons name="storefront-outline" size={14} color={colors.textSubtle} />
+                  <Store size={14} color={colors.textSubtle} />
                   <AppText variant="caption" color={colors.textSubtle}>
                     {product.store_name}
                   </AppText>
@@ -228,10 +288,11 @@ export default function ProductDetailScreen() {
             <IconButton
               accessibilityLabel="Toggle wishlist"
               icon={
-                <Ionicons
-                  name={product.is_in_wishlist ? 'heart' : 'heart-outline'}
+                <Heart
                   size={22}
                   color={product.is_in_wishlist ? colors.danger : colors.textMuted}
+                  fill={product.is_in_wishlist ? colors.danger : 'transparent'}
+                  strokeWidth={2}
                 />
               }
               onPress={handleToggleWishlist}
@@ -257,6 +318,12 @@ export default function ProductDetailScreen() {
               </AppText>
             ) : null}
           </Row>
+
+          {typeof unitStock === 'number' && unitStock > 0 && unitStock <= 5 ? (
+            <AppText variant="small" weight="semibold" color={colors.warning}>
+              Only {unitStock} pieces left!
+            </AppText>
+          ) : null}
 
           {needsSelection ? (
             <Card style={{ gap: spacing.sm }}>
@@ -309,19 +376,69 @@ export default function ProductDetailScreen() {
             </Card>
           ) : null}
 
+          {product.shipping_note || product.returns_note || shipFromLocation ? (
+            <Card style={{ gap: spacing.md }}>
+              <Row style={{ gap: spacing.sm }}>
+                <Truck size={18} color={colors.primary} />
+                <AppText variant="label" weight="semibold">
+                  Delivery &amp; Logistics
+                </AppText>
+              </Row>
+              {product.shipping_note ? (
+                <InfoRow icon={Truck} label="Estimated Delivery" value={product.shipping_note} />
+              ) : null}
+              {product.returns_note ? (
+                <InfoRow icon={RotateCcw} label="Return Policy" value={product.returns_note} />
+              ) : null}
+              {shipFromLocation ? (
+                <InfoRow icon={MapPin} label="Ship From" value={shipFromLocation} />
+              ) : null}
+            </Card>
+          ) : null}
+
+          {product.specs && Object.keys(product.specs).length > 0 ? (
+            <Card style={{ gap: spacing.xs }}>
+              <AppText variant="label" weight="semibold">
+                Specifications
+              </AppText>
+              {Object.entries(product.specs).map(([key, value]) => (
+                <Row
+                  key={key}
+                  style={{
+                    justifyContent: 'space-between',
+                    gap: spacing.md,
+                    paddingVertical: spacing.xs,
+                    borderBottomWidth: 1,
+                    borderBottomColor: colors.border,
+                  }}
+                >
+                  <AppText variant="small" color={colors.textMuted} style={{ flex: 1 }}>
+                    {key}
+                  </AppText>
+                  <AppText variant="small" weight="medium" numberOfLines={2} style={{ flex: 1, textAlign: 'right' }}>
+                    {value}
+                  </AppText>
+                </Row>
+              ))}
+            </Card>
+          ) : null}
+
           {product.installment_enabled && (product.installment_presets?.length ?? 0) > 0 ? (
             <Card style={{ gap: spacing.sm }}>
               <Row style={{ gap: spacing.sm }}>
-                <Ionicons name="calendar-outline" size={18} color={colors.primary} />
+                <CalendarDays size={18} color={colors.primary} />
                 <AppText variant="label" weight="semibold">
                   Pay in installments
                 </AppText>
               </Row>
-              {product.installment_presets?.map((preset) => (
-                <AppText key={preset.id} variant="small" color={colors.textMuted}>
-                  • {preset.name} ({preset.count} payments)
-                </AppText>
-              ))}
+              {product.installment_presets?.map((presetId) => {
+                const preset = installmentConfig?.presets.find((p) => p.id === presetId);
+                return preset ? (
+                  <AppText key={preset.id} variant="small" color={colors.textMuted}>
+                    • {preset.name} — {preset.count} payments every {preset.interval_days} days
+                  </AppText>
+                ) : null;
+              })}
             </Card>
           ) : null}
 
@@ -353,6 +470,20 @@ export default function ProductDetailScreen() {
               </AppText>
             )}
           </Card>
+
+          {relatedProducts.length > 0 ? (
+            <View style={{ marginTop: spacing.sm }}>
+              <SectionHeader
+                title="Related Products"
+                subtitle="More items you might like"
+              />
+              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                <Row style={{ gap: spacing.md }}>
+                  <ProductRail products={relatedProducts.slice(0, 10)} width={210} />
+                </Row>
+              </ScrollView>
+            </View>
+          ) : null}
         </View>
       </ScrollView>
 
@@ -372,7 +503,7 @@ export default function ProductDetailScreen() {
               alignItems: 'center',
               borderWidth: 1,
               borderColor: colors.border,
-              borderRadius: 12,
+              borderRadius: radius.sm,
               paddingHorizontal: spacing.sm,
               gap: spacing.sm,
             }}
@@ -423,6 +554,7 @@ export default function ProductDetailScreen() {
               <Row style={{ flexWrap: 'wrap', gap: spacing.sm }}>
                 {option.values.map((value) => {
                   const isSelected = selected.options[option.name] === value;
+                  const available = isOptionAvailable(option.name, value);
                   return (
                     <Button
                       key={value}
@@ -430,6 +562,7 @@ export default function ProductDetailScreen() {
                       variant={isSelected ? 'primary' : 'outline'}
                       size="sm"
                       fullWidth={false}
+                      disabled={!available}
                       onPress={() =>
                         setSelected((current) => ({
                           ...current,

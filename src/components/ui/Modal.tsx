@@ -1,5 +1,6 @@
 import { Modal as RNModal, Pressable, View, ScrollView, Platform } from 'react-native';
 import type { ReactNode } from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppTheme } from '@/theme';
 import { AppText } from './Text';
 import { Button } from './Button';
@@ -13,6 +14,7 @@ interface AppModalProps {
   footer?: ReactNode;
   scrollable?: boolean;
   dismissible?: boolean;
+  sheet?: boolean;
 }
 
 export function AppModal({
@@ -24,8 +26,10 @@ export function AppModal({
   footer,
   scrollable = true,
   dismissible = true,
+  sheet = false,
 }: AppModalProps) {
   const { colors, radius, spacing, typography } = useAppTheme();
+  const insets = useSafeAreaInsets();
 
   const body = scrollable ? (
     <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: 420 }}>
@@ -47,18 +51,21 @@ export function AppModal({
         style={{
           flex: 1,
           backgroundColor: colors.overlay,
-          justifyContent: 'center',
-          padding: spacing.lg,
+          justifyContent: sheet ? 'flex-end' : 'center',
+          padding: sheet ? 0 : spacing.lg,
         }}
         onPress={dismissible ? onClose : undefined}
       >
         <Pressable
           style={{
             backgroundColor: colors.surface,
-            borderRadius: radius.lg,
+            borderRadius: sheet ? 0 : radius.lg,
+            borderTopLeftRadius: sheet ? radius.lg : 0,
+            borderTopRightRadius: sheet ? radius.lg : 0,
             padding: spacing.lg,
             gap: spacing.md,
             maxHeight: '85%',
+            paddingBottom: sheet ? Math.max(insets.bottom, spacing.lg) : spacing.lg,
           }}
           onPress={(event) => event.stopPropagation()}
         >

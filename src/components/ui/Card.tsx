@@ -17,7 +17,7 @@ export function Badge({
   const { colors, radius, spacing } = useAppTheme();
   const isDark = useAppTheme().isDark;
   const palettes: Record<BadgeVariant, { bg: string; fg: string; border?: string }> = {
-    default: { bg: '#17c06e', fg: '#ffffff' },
+    default: { bg: colors.primary, fg: '#ffffff' },
     secondary: { bg: isDark ? 'rgba(255,255,255,0.06)' : '#f4f4f5', fg: isDark ? '#ffffff' : '#18181b' },
     destructive: { bg: '#f43f5e', fg: '#ffffff' },
     outline: { bg: 'transparent', fg: colors.text, border: colors.border },
@@ -61,7 +61,6 @@ export function Card({
   onPress?: () => void;
 }) {
   const { colors, radius } = useAppTheme();
-  const isDark = useAppTheme().isDark;
   const inner = (
     <View
       style={[
@@ -69,7 +68,7 @@ export function Card({
           backgroundColor: colors.surface,
           borderRadius: radius.sm,
           borderWidth: 1,
-          borderColor: isDark ? 'rgba(255,255,255,0.05)' : '#f4f4f5',
+          borderColor: colors.border,
         },
         padded && { padding: 16 },
         style,

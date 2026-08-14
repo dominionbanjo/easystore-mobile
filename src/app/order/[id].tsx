@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { View } from 'react-native';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+
+import { Package } from 'lucide-react-native';
 
 import { useAppTheme } from '@/theme';
 import { AppText, Row, Spacer } from '@/components/ui/Text';
@@ -9,43 +10,25 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { AppImage } from '@/components/shared/AppImage';
 import { StatusBadge } from '@/components/shared/StatusBadge';
-import { AppModal, ConfirmDialog } from '@/components/ui/Modal';
+import { ConfirmDialog } from '@/components/ui/Modal';
 import { ListSkeleton } from '@/components/ui/Skeleton';
 import { formatNGN } from '@/utils/money';
 import {
   useGetOrderByIdQuery,
-  useUpdateOrderStatusMutation,
   useCancelOrderMutation,
-  useFulfillOfflineOrderMutation,
 } from '@/api/orderApi';
 import { useToast } from '@/hooks/useToast';
 import { getErrorMessage } from '@/utils/error';
-import { useAppSelector } from '@/hooks';
-import type { OrderStatus } from '@/types/order';
-
-const VENDOR_STATUS_FLOW: { status: OrderStatus; label: string }[] = [
-  { status: 'pending', label: 'Pending' },
-  { status: 'processing', label: 'Processing' },
-  { status: 'paid', label: 'Paid' },
-  { status: 'in_transit', label: 'In Transit' },
-  { status: 'delivered', label: 'Delivered' },
-  { status: 'completed', label: 'Completed' },
-];
 
 export default function OrderDetailScreen() {
   const { colors } = useAppTheme();
   const router = useRouter();
   const toast = useToast();
   const params = useLocalSearchParams<{ id: string }>();
-  const user = useAppSelector((state) => state.auth.user);
-  const isBusiness = user?.account_type === 'vendor' || user?.account_type === 'staff';
 
-  const { data: order, isLoading } = useGetOrderByIdQuery(params.id);
-  const [updateStatus, { isLoading: updatingStatus }] = useUpdateOrderStatusMutation();
+  const { data: order, isLoading, isError, refetch } = useGetOrderByIdQuery(params.id);
   const [cancelOrder, { isLoading: cancelling }] = useCancelOrderMutation();
-  const [fulfillOrder, { isLoading: fulfilling }] = useFulfillOfflineOrderMutation();
 
-  const [statusModalOpen, setStatusModalOpen] = useState(false);
   const [cancelOpen, setCancelOpen] = useState(false);
 
   if (isLoading) {
@@ -56,25 +39,16 @@ export default function OrderDetailScreen() {
     );
   }
 
-  if (!order) {
+  if (isError || !order) {
     return (
-      <View style={{ padding: 32 }}>
+      <View style={{ padding: 32, gap: 16 }}>
         <AppText center color={colors.textMuted}>
           Order not found
         </AppText>
+        <Button title="Try Again" variant="outline" fullWidth={false} onPress={() => refetch()} />
       </View>
     );
   }
-
-  const handleUpdateStatus = async (status: OrderStatus) => {
-    try {
-      await updateStatus({ id: order.id, status }).unwrap();
-      toast.showSuccess('Order status updated');
-      setStatusModalOpen(false);
-    } catch (error) {
-      toast.showError(getErrorMessage(error));
-    }
-  };
 
   const handleCancel = async () => {
     try {
@@ -86,20 +60,15 @@ export default function OrderDetailScreen() {
     }
   };
 
-  const handleFulfill = async () => {
-    try {
-      await fulfillOrder(order.id).unwrap();
-      toast.showSuccess('Offline order fulfilled');
-    } catch (error) {
-      toast.showError(getErrorMessage(error));
-    }
-  };
+  const reference = order.payment_reference ?? order.id;
+  const displayReference = reference.slice(0, 8).toUpperCase();
+  const fee = Math.round(Number(order.subtotal) * 0.01);
 
   const customer = order.buyer ?? order.vendor;
 
   return (
     <>
-      <Stack.Screen options={{ title: `Order ${order.id.slice(0, 8)}`, headerShown: true }} />
+      <Stack.Screen options={{ title: `Order ${displayReference}`, headerShown: true }} />
       <View style={{ flex: 1, padding: 16, gap: 16 }}>
         <Card style={{ gap: 8 }}>
           <Row style={{ justifyContent: 'space-between' }}>
@@ -113,6 +82,14 @@ export default function OrderDetailScreen() {
               })}
             </AppText>
             <StatusBadge status={order.status} />
+          </Row>
+          <Row style={{ justifyContent: 'space-between' }}>
+            <AppText variant="label" color={colors.textMuted}>
+              Order #
+            </AppText>
+            <AppText variant="label" weight="bold" numberOfLines={1} style={{ flex: 1, textAlign: 'right', marginLeft: 8 }}>
+              {displayReference}
+            </AppText>
           </Row>
           <Row style={{ justifyContent: 'space-between' }}>
             <AppText variant="label" color={colors.textMuted}>
@@ -143,12 +120,12 @@ export default function OrderDetailScreen() {
         {customer ? (
           <Card style={{ gap: 4 }}>
             <AppText variant="label" weight="bold">
-              {isBusiness ? 'Customer' : 'Store'}
+              Store
             </AppText>
-            <AppText variant="label">
+            <AppText variant="label" numberOfLines={1}>
               {order.buyer
                 ? `${order.buyer.first_name} ${order.buyer.last_name}`
-                : order.vendor?.store_name}
+                : order.vendor?.stores?.[0]?.store_name}
             </AppText>
             {'email' in customer && customer.email ? (
               <AppText variant="small" color={colors.textMuted}>
@@ -174,7 +151,7 @@ export default function OrderDetailScreen() {
                 </AppText>
               </View>
               <AppText variant="small" weight="semibold">
-                {formatNGN((item.discount_price ?? item.price) * item.quantity)}
+                {formatNGN(Number(item.discount_price ?? item.price) * item.quantity)}
               </AppText>
             </Row>
           ))}
@@ -184,6 +161,12 @@ export default function OrderDetailScreen() {
               Subtotal
             </AppText>
             <AppText variant="small">{formatNGN(order.subtotal)}</AppText>
+          </Row>
+          <Row style={{ justifyContent: 'space-between' }}>
+            <AppText variant="small" color={colors.textMuted}>
+              Fee (1%)
+            </AppText>
+            <AppText variant="small">{formatNGN(fee)}</AppText>
           </Row>
           <Row style={{ justifyContent: 'space-between' }}>
             <AppText variant="small" color={colors.textMuted}>
@@ -204,7 +187,7 @@ export default function OrderDetailScreen() {
         {order.delivery ? (
           <Card style={{ gap: 8 }}>
             <Row style={{ gap: 8 }}>
-              <Ionicons name="cube-outline" size={18} color={colors.primary} />
+              <Package size={18} color={colors.primary} />
               <AppText variant="label" weight="bold">
                 Delivery
               </AppText>
@@ -220,7 +203,7 @@ export default function OrderDetailScreen() {
                 <AppText variant="small" color={colors.textMuted}>
                   Tracking
                 </AppText>
-                <AppText variant="small" weight="medium">
+                <AppText variant="small" weight="medium" numberOfLines={1} style={{ flex: 1, textAlign: 'right', marginLeft: 8 }}>
                   {order.delivery.tracking_number}
                 </AppText>
               </Row>
@@ -243,49 +226,20 @@ export default function OrderDetailScreen() {
           </Card>
         ) : null}
 
-        {isBusiness ? (
-          <View style={{ gap: 8 }}>
-            <Button title="Update Status" variant="outline" onPress={() => setStatusModalOpen(true)} />
-            {order.payment_method === 'offline' && order.status === 'pending' ? (
-              <Button title="Fulfill Order" onPress={handleFulfill} loading={fulfilling} />
-            ) : null}
-            {order.status === 'pending' || order.status === 'processing' ? (
-              <Button title="Cancel Order" variant="danger" onPress={() => setCancelOpen(true)} loading={cancelling} />
-            ) : null}
-          </View>
-        ) : (
-          <View style={{ gap: 8 }}>
-            <Button title="Track in My Orders" onPress={() => router.replace('/orders')} />
-            {(order.status === 'pending' || order.status === 'processing') && order.payment_status === 'pending' ? (
+        <View style={{ gap: 8 }}>
+          <Button title="Track in My Orders" variant="outline" onPress={() => router.replace('/orders')} />
+          {order.status === 'pending' || order.status === 'processing' ? (
+            order.payment_status === 'pending' ? (
               <Button
                 title="Cancel Order"
                 variant="danger"
                 onPress={() => setCancelOpen(true)}
                 loading={cancelling}
               />
-            ) : null}
-          </View>
-        )}
-      </View>
-
-      <AppModal
-        visible={statusModalOpen}
-        onClose={() => setStatusModalOpen(false)}
-        title="Update Order Status"
-        scrollable
-      >
-        <View style={{ gap: 8 }}>
-          {VENDOR_STATUS_FLOW.map((option) => (
-            <Button
-              key={option.status}
-              title={option.label}
-              variant={order.status === option.status ? 'primary' : 'outline'}
-              onPress={() => handleUpdateStatus(option.status)}
-              loading={updatingStatus && order.status === option.status}
-            />
-          ))}
+            ) : null
+          ) : null}
         </View>
-      </AppModal>
+      </View>
 
       <ConfirmDialog
         visible={cancelOpen}

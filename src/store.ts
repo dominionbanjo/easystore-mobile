@@ -1,14 +1,26 @@
 import { configureStore } from '@reduxjs/toolkit';
-import { persistReducer, persistStore, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from 'redux-persist';
+import {
+  persistReducer,
+  persistStore,
+  createTransform,
+  FLUSH,
+  REHYDRATE,
+  PAUSE,
+  PERSIST,
+  PURGE,
+  REGISTER,
+} from 'redux-persist';
+import type { PersistConfig } from 'redux-persist';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 import { combineReducers } from 'redux';
 
 import { apiManager } from './api/client';
-import authReducer from './features/authSlice';
+import authReducer, { type AuthState } from './features/authSlice';
 import uiReducer from './features/uiSlice';
 import cartReducer from './features/cartSlice';
 import saleCartReducer from './features/saleCartSlice';
+import type { IUser } from './types/auth';
 
 const webStorage = {
   getItem: async (key: string): Promise<string | null> =>
@@ -25,10 +37,31 @@ const webStorage = {
   },
 };
 
-const persistConfig = {
+/**
+ * Standard mobile session strategy:
+ * - The access token is the ONLY secret — stored exclusively in SecureStore
+ *   (Keychain/Keystore) via `tokenStorage.ts`, never in AsyncStorage.
+ * - The user profile is persisted here (AsyncStorage) so the session can be
+ *   restored instantly on launch (offline-first) and revalidated in the
+ *   background via `GET /users/me`.
+ */
+const authTransform = createTransform<AuthState, { user: IUser | null }, RootReducerState>(
+  (inbound) => ({ user: inbound.user }),
+  (outbound) => ({
+    user: outbound.user,
+    accessToken: null,
+    isAuthenticated: Boolean(outbound.user),
+    isHydrated: true,
+    initialRouteSet: false,
+  }),
+  { whitelist: ['auth'] },
+);
+
+const persistConfig: PersistConfig<RootReducerState> = {
   key: 'root',
   storage: Platform.OS === 'web' ? webStorage : AsyncStorage,
-  whitelist: ['cart', 'saleCart'],
+  whitelist: ['auth', 'cart', 'saleCart'],
+  transforms: [authTransform],
 };
 
 const rootReducer = combineReducers({
@@ -38,6 +71,8 @@ const rootReducer = combineReducers({
   cart: cartReducer,
   saleCart: saleCartReducer,
 });
+
+type RootReducerState = ReturnType<typeof rootReducer>;
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 

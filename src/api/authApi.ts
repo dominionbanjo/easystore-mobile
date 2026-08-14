@@ -2,6 +2,7 @@
 import { apiManager } from './client';
 import { setToken, deleteToken } from '@/utils/tokenStorage';
 import { setCredentials } from '@/features/authSlice';
+import type { MessageOnlyResponse } from '@/types/api';
 import type {
   IAuthData,
   ILoginPayload,
@@ -39,17 +40,8 @@ export const authApi = apiManager.injectEndpoints({
       },
       invalidatesTags: ['Auth', 'User'],
     }),
-    verifyOtp: build.mutation<IAuthData, IVerifyOtpPayload>({
+    verifyOtp: build.mutation<MessageOnlyResponse, IVerifyOtpPayload>({
       query: (body) => ({ url: 'auth/verify-otp', method: 'POST', body }),
-      onQueryStarted: async (_arg, { dispatch, queryFulfilled }) => {
-        try {
-          const { data } = await queryFulfilled;
-          await setToken(data.access);
-          dispatch(setCredentials(data));
-        } catch {
-          // handled by caller
-        }
-      },
       invalidatesTags: ['Auth', 'User'],
     }),
     googleLogin: build.mutation<IAuthData, { token: string }>({
@@ -65,14 +57,14 @@ export const authApi = apiManager.injectEndpoints({
       },
       invalidatesTags: ['Auth', 'User'],
     }),
-    resendOtp: build.mutation<{ success: boolean }, { email: string }>({
+    resendOtp: build.mutation<MessageOnlyResponse, { email: string }>({
       query: (body) => ({ url: 'auth/resend-otp', method: 'POST', body }),
     }),
-    forgotPassword: build.mutation<{ success: boolean }, { email: string }>({
+    forgotPassword: build.mutation<MessageOnlyResponse, { email: string }>({
       query: (body) => ({ url: 'auth/forgot-password', method: 'POST', body }),
     }),
     resetPassword: build.mutation<
-      { success: boolean },
+      MessageOnlyResponse,
       { token: string; email: string; password: string }
     >({
       query: (body) => ({ url: 'auth/reset-password', method: 'POST', body }),
@@ -92,7 +84,7 @@ export const authApi = apiManager.injectEndpoints({
       },
       invalidatesTags: ['Auth', 'User', 'Store'],
     }),
-    logout: build.mutation<{ success: boolean }, void>({
+    logout: build.mutation<MessageOnlyResponse, void>({
       query: () => ({ url: 'auth/logout', method: 'POST' }),
       onQueryStarted: async (_arg, { queryFulfilled }) => {
         try {

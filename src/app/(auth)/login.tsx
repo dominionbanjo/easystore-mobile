@@ -2,7 +2,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useRouter } from 'expo-router';
 import { View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Lock, Mail } from 'lucide-react-native';
+
 
 import { Screen } from '@/components/ui/Screen';
 import { AppText, Spacer } from '@/components/ui/Text';
@@ -73,7 +74,7 @@ export default function LoginScreen() {
           placeholder="you@example.com"
           keyboardType="email-address"
           autoCapitalize="none"
-          icon={<Ionicons name="mail-outline" size={18} color={colors.textSubtle} />}
+          icon={<Mail size={18} color={colors.textSubtle} />}
           control={control}
         />
         <View style={{ gap: 4 }}>
@@ -82,7 +83,7 @@ export default function LoginScreen() {
             label="Password"
             placeholder="••••••••"
             secureTextEntry
-            icon={<Ionicons name="lock-closed-outline" size={18} color={colors.textSubtle} />}
+            icon={<Lock size={18} color={colors.textSubtle} />}
             control={control}
           />
           <View style={{ alignItems: 'flex-end' }}>

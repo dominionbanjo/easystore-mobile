@@ -1,5 +1,6 @@
 import { Pressable, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import type { ReactNode } from 'react';
+import { ArrowRight } from 'lucide-react-native';
 import { useAppTheme } from '@/theme';
 import { AppText } from '../ui/Text';
 
@@ -15,10 +16,10 @@ export function SectionHeader({
   subtitle?: string;
   actionLabel?: string;
   onAction?: () => void;
-  icon?: keyof typeof Ionicons.glyphMap;
+  icon?: ReactNode;
   iconColor?: string;
 }) {
-  const { colors, spacing } = useAppTheme();
+  const { colors, spacing, radius } = useAppTheme();
   return (
     <View style={{ marginBottom: spacing.md, gap: 4 }}>
       <View
@@ -34,13 +35,13 @@ export function SectionHeader({
               style={{
                 width: 36,
                 height: 36,
-                borderRadius: 4,
+                borderRadius: radius.sm,
                 backgroundColor: `${iconColor ?? '#17c06e'}14`,
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
             >
-              <Ionicons name={icon} size={20} color={iconColor ?? '#17c06e'} />
+              {icon}
             </View>
           ) : null}
           <AppText style={{ fontSize: 20, letterSpacing: -0.4 }} weight="black">
@@ -48,11 +49,11 @@ export function SectionHeader({
           </AppText>
         </View>
         {actionLabel && onAction ? (
-          <Pressable onPress={onAction} hitSlop={8} style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
+          <Pressable onPress={onAction} hitSlop={8} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
             <AppText style={{ fontSize: 13 }} weight="bold" color="#17c06e">
               {actionLabel}
             </AppText>
-            <Ionicons name="arrow-forward" size={13} color="#17c06e" />
+            <ArrowRight size={14} color="#17c06e" />
           </Pressable>
         ) : null}
       </View>

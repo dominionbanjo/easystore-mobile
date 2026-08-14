@@ -1,13 +1,15 @@
 import { useState } from 'react';
+import { MapPin } from 'lucide-react-native';
 import { View } from 'react-native';
 import { Stack } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+
 
 import { useAppTheme } from '@/theme';
 import { AppText, Row } from '@/components/ui/Text';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { AppInput } from '@/components/ui/Input';
+import { ListSkeleton } from '@/components/ui/Skeleton';
 import { AppModal, ConfirmDialog } from '@/components/ui/Modal';
 import {
   useGetMeQuery,
@@ -39,7 +41,7 @@ export default function AddressesScreen() {
   const { colors, spacing } = useAppTheme();
   const toast = useToast();
 
-  const { data: profile } = useGetMeQuery();
+  const { data: profile, isLoading } = useGetMeQuery();
   const [addAddress] = useAddAddressMutation();
   const [updateAddress] = useUpdateAddressMutation();
   const [deleteAddress] = useDeleteAddressMutation();
@@ -49,8 +51,9 @@ export default function AddressesScreen() {
   const [form, setForm] = useState<AddressForm>(emptyForm);
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [settingDefaultId, setSettingDefaultId] = useState<string | null>(null);
 
-  const addresses: IUserAddress[] = profile?.addresses ?? [];
+  const addresses: IUserAddress[] = profile?.user.addresses ?? [];
 
   const openCreate = () => {
     setEditingId(null);
@@ -111,53 +114,84 @@ export default function AddressesScreen() {
     }
   };
 
+  const handleSetDefault = async (address: IUserAddress) => {
+    if (!address.id) {
+      return;
+    }
+    setSettingDefaultId(address.id);
+    try {
+      await updateAddress({ id: address.id, body: { is_default: true } }).unwrap();
+      toast.showSuccess('Default address updated');
+    } catch (error) {
+      toast.showError(getErrorMessage(error));
+    } finally {
+      setSettingDefaultId(null);
+    }
+  };
+
   return (
     <>
       <Stack.Screen options={{ title: 'Addresses', headerShown: true }} />
       <View style={{ flex: 1, padding: spacing.lg, gap: spacing.md }}>
-        <Button title="Add New Address" onPress={openCreate} size="sm" fullWidth={false} />
-        {addresses.length === 0 ? (
-          <View style={{ paddingTop: spacing.xxl, alignItems: 'center', gap: spacing.sm }}>
-            <Ionicons name="location-outline" size={36} color={colors.textSubtle} />
-            <AppText color={colors.textMuted} center>
-              No addresses yet. Add one for faster checkout.
-            </AppText>
-          </View>
+        {isLoading ? (
+          <ListSkeleton count={3} />
         ) : (
-          addresses.map((address) => (
-            <Card key={address.id} style={{ gap: spacing.sm }}>
-              <Row style={{ justifyContent: 'space-between' }}>
-                <AppText variant="label" weight="semibold" style={{ flex: 1 }}>
-                  {address.street}, {address.city}
+          <>
+            <Button title="Add New Address" onPress={openCreate} size="sm" fullWidth={false} />
+            {addresses.length === 0 ? (
+              <View style={{ paddingTop: spacing.xxl, alignItems: 'center', gap: spacing.sm }}>
+                <MapPin size={36} color={colors.textSubtle} />
+                <AppText color={colors.textMuted} center>
+                  No addresses yet. Add one for faster checkout.
                 </AppText>
-                {address.is_default ? (
-                  <AppText variant="small" color={colors.primary}>
-                    Default
+              </View>
+            ) : (
+              addresses.map((address) => (
+                <Card key={address.id} style={{ gap: spacing.sm }}>
+                  <Row style={{ justifyContent: 'space-between' }}>
+                    <AppText variant="label" weight="semibold" numberOfLines={2} style={{ flex: 1 }}>
+                      {address.street}, {address.city}
+                    </AppText>
+                    {address.is_default ? (
+                      <AppText variant="small" color={colors.primary}>
+                        Default
+                      </AppText>
+                    ) : null}
+                  </Row>
+                  <AppText variant="caption" color={colors.textMuted}>
+                    {address.state}, {address.country}
+                    {address.postal_code ? ` · ${address.postal_code}` : ''}
                   </AppText>
-                ) : null}
-              </Row>
-              <AppText variant="caption" color={colors.textMuted}>
-                {address.state}, {address.country}
-                {address.postal_code ? ` · ${address.postal_code}` : ''}
-              </AppText>
-              <Row style={{ gap: spacing.md }}>
-                <Button
-                  title="Edit"
-                  variant="ghost"
-                  size="sm"
-                  fullWidth={false}
-                  onPress={() => openEdit(address)}
-                />
-                <Button
-                  title="Delete"
-                  variant="ghost"
-                  size="sm"
-                  fullWidth={false}
-                  onPress={() => setDeletingId(address.id ?? null)}
-                />
-              </Row>
-            </Card>
-          ))
+                  <Row style={{ gap: spacing.md, flexWrap: 'wrap' }}>
+                    <Button
+                      title="Edit"
+                      variant="ghost"
+                      size="sm"
+                      fullWidth={false}
+                      onPress={() => openEdit(address)}
+                    />
+                    <Button
+                      title="Delete"
+                      variant="ghost"
+                      size="sm"
+                      fullWidth={false}
+                      onPress={() => setDeletingId(address.id ?? null)}
+                    />
+                    {address.is_default ? null : (
+                      <Button
+                        title="Set as default"
+                        variant="ghost"
+                        size="sm"
+                        fullWidth={false}
+                        loading={settingDefaultId === address.id}
+                        onPress={() => handleSetDefault(address)}
+                      />
+                    )}
+                  </Row>
+                </Card>
+              ))
+            )}
+          </>
         )}
       </View>
 

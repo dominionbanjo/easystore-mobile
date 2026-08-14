@@ -26,7 +26,7 @@ import type { IStaffMember } from '@/types/staff';
 import type { PermissionCode } from '@/constants/permissions';
 
 export default function VendorStaffScreen() {
-  const { colors, spacing } = useAppTheme();
+  const { colors, radius, spacing } = useAppTheme();
   const toast = useToast();
 
   const [page, setPage] = useState(1);
@@ -54,7 +54,7 @@ export default function VendorStaffScreen() {
       return;
     }
     try {
-      await invite({ email: inviteEmail.trim(), permissions: invitePermissions }).unwrap();
+      await invite({ email: inviteEmail.trim() }).unwrap();
       toast.showSuccess('Invitation sent');
       setInviteModalOpen(false);
       setInviteEmail('');
@@ -146,7 +146,7 @@ export default function VendorStaffScreen() {
             <Row style={{ gap: spacing.md }}>
               <AppImage
                 uri={staff.user.avatar}
-                style={{ width: 48, height: 48, borderRadius: 24 }}
+                style={{ width: 48, height: 48, borderRadius: radius.full }}
                 fallbackText={`${staff.user.first_name[0] ?? ''}${staff.user.last_name[0] ?? ''}`}
               />
               <View style={{ flex: 1, gap: 2 }}>

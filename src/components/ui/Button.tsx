@@ -26,11 +26,11 @@ export function Button({
   fullWidth = true,
   style,
 }: ButtonProps) {
-  const { radius, spacing } = useAppTheme();
+  const { colors, radius, spacing } = useAppTheme();
   const isDark = useAppTheme().isDark;
 
   const backgrounds: Record<string, string> = {
-    primary: '#17c06e',
+    primary: colors.primary,
     secondary: isDark ? 'rgba(255,255,255,0.06)' : '#f4f4f5',
     outline: 'transparent',
     ghost: 'transparent',
@@ -42,9 +42,9 @@ export function Button({
     primary: '#ffffff',
     secondary: isDark ? '#ffffff' : '#18181b',
     outline: isDark ? '#ffffff' : '#18181b',
-    ghost: '#17c06e',
+    ghost: colors.primary,
     danger: '#ffffff',
-    link: '#17c06e',
+    link: colors.primary,
   };
 
   const borders: Record<string, string> = {
@@ -173,9 +173,9 @@ export function Chip({
           paddingHorizontal: spacing.md,
           paddingVertical: spacing.sm,
           borderRadius: radius.full,
-          backgroundColor: selected ? '#17c06e' : colors.surfaceAlt,
+          backgroundColor: selected ? colors.primary : colors.surfaceAlt,
           borderWidth: 1,
-          borderColor: selected ? '#17c06e' : colors.border,
+          borderColor: selected ? colors.primary : colors.border,
           opacity: pressed ? 0.8 : 1,
         },
         style,
@@ -234,7 +234,7 @@ export function SegmentedControl<T extends string>({
             <AppText
               variant="label"
               weight={selected ? 'semibold' : 'regular'}
-              color={selected ? '#17c06e' : colors.textMuted}
+              color={selected ? colors.primary : colors.textMuted}
             >
               {option.label}
             </AppText>

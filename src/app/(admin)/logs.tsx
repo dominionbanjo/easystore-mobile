@@ -2,56 +2,32 @@ import { useState } from 'react';
 import { View } from 'react-native';
 
 import { useAppTheme } from '@/theme';
-import { AppText, Row } from '@/components/ui/Text';
-import { Card } from '@/components/ui/Card';
-import { StatusBadge } from '@/components/shared/StatusBadge';
-import { PaginatedList } from '@/components/shared/PaginatedList';
-import { useGetSystemLogsQuery } from '@/api/adminApi';
+import { AppText } from '@/components/ui/Text';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { List } from 'lucide-react-native';
 
 export default function AdminLogsScreen() {
-  const { spacing } = useAppTheme();
-  const [page, setPage] = useState(1);
-
-  const { data, isLoading, isFetching } = useGetSystemLogsQuery({ page, limit: 30 });
+  const { colors, spacing } = useAppTheme();
+  const [lastChecked, setLastChecked] = useState<string | null>(null);
 
   return (
-    <View style={{ flex: 1 }}>
-      <PaginatedList
-        items={data?.items}
-        pagination={data?.pagination}
-        isLoading={isLoading}
-        isFetching={isFetching}
-        isLoadingMore={isFetching && page > 1}
-        onEndReached={() => setPage((p) => p + 1)}
-        onRefresh={() => setPage(1)}
-        keyExtractor={(item) => item.id}
-        renderItem={(log) => (
-          <Card style={{ marginHorizontal: spacing.lg, marginBottom: spacing.md, gap: spacing.xs }}>
-            <Row style={{ justifyContent: 'space-between' }}>
-              <StatusBadge status={log.level} />
-              <AppText variant="small" color="gray">
-                {new Date(log.created_at).toLocaleString('en-NG', {
-                  day: 'numeric',
-                  month: 'short',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                })}
-              </AppText>
-            </Row>
-            {log.context ? (
-              <AppText variant="small" weight="semibold">
-                {log.context}
-              </AppText>
-            ) : null}
-            {log.message ? (
-              <AppText variant="small" color="gray">
-                {log.message}
-              </AppText>
-            ) : null}
-          </Card>
-        )}
-        emptyTitle="No logs found"
+    <View style={{ flex: 1, padding: spacing.xl }}>
+      <EmptyState
+        icon={<List size={32} color={colors.textMuted} />}
+        title="System logs are not yet available"
+        description={
+          lastChecked
+            ? `Last checked ${lastChecked}. Logs will appear here once the endpoint ships.`
+            : 'The logs endpoint is not implemented on the server yet.'
+        }
+        actionLabel="Refresh"
+        onAction={() =>
+          setLastChecked(new Date().toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit' }))
+        }
       />
+      <AppText variant="small" color={colors.textMuted} center>
+        Request an update from the platform team if you need audit trails.
+      </AppText>
     </View>
   );
 }

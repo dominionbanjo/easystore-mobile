@@ -1,6 +1,15 @@
 import { View } from 'react-native';
 import { Link, useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import {
+  CalendarDays,
+  ChevronRight,
+  Heart,
+  MapPin,
+  MessageSquare,
+  Receipt,
+  Settings,
+  User,
+} from 'lucide-react-native';
 
 import { Screen } from '@/components/ui/Screen';
 import { AppText, Row, Spacer } from '@/components/ui/Text';
@@ -24,7 +33,7 @@ export default function AccountScreen() {
   const [logout] = useLogoutMutation();
   const { data: profile } = useGetMeQuery(undefined, { skip: !isAuthenticated });
 
-  const displayUser = profile ?? user;
+  const displayUser = profile?.user ?? user;
 
   const handleLogout = async () => {
     try {
@@ -37,14 +46,14 @@ export default function AccountScreen() {
     router.replace('/home');
   };
 
-  const menuItems: { label: string; icon: keyof typeof Ionicons.glyphMap; href: string }[] = [
-    { label: 'My Orders', icon: 'receipt-outline', href: '/orders' },
-    { label: 'Wishlist', icon: 'heart-outline', href: '/wishlist' },
-    { label: 'My Installments', icon: 'calendar-outline', href: '/installments' },
-    { label: 'Messages', icon: 'chatbubble-outline', href: '/messages' },
-    { label: 'Profile', icon: 'person-outline', href: '/profile' },
-    { label: 'Addresses', icon: 'location-outline', href: '/addresses' },
-    { label: 'Settings', icon: 'settings-outline', href: '/settings' },
+  const menuItems: { label: string; icon: React.ComponentType<{ size?: number; color?: string; strokeWidth?: number }>; href: string }[] = [
+    { label: 'My Orders', icon: Receipt, href: '/orders' },
+    { label: 'Wishlist', icon: Heart, href: '/wishlist' },
+    { label: 'My Installments', icon: CalendarDays, href: '/installments' },
+    { label: 'Messages', icon: MessageSquare, href: '/messages' },
+    { label: 'Profile', icon: User, href: '/profile' },
+    { label: 'Addresses', icon: MapPin, href: '/addresses' },
+    { label: 'Settings', icon: Settings, href: '/settings' },
   ];
 
   return (
@@ -70,7 +79,7 @@ export default function AccountScreen() {
                 {displayUser.email}
               </AppText>
             </View>
-            <Ionicons name="chevron-forward" size={20} color={colors.textSubtle} />
+            <ChevronRight size={20} color={colors.textSubtle} />
           </Row>
         </Card>
       ) : (
@@ -104,11 +113,11 @@ export default function AccountScreen() {
             style={{ paddingHorizontal: spacing.lg, paddingVertical: spacing.md }}
           >
             <Row style={{ gap: spacing.md }}>
-              <Ionicons name={item.icon} size={20} color={colors.primary} />
+              <item.icon size={20} color={colors.primary} strokeWidth={2} />
               <AppText variant="label" weight="medium" style={{ flex: 1 }}>
                 {item.label}
               </AppText>
-              <Ionicons name="chevron-forward" size={18} color={colors.textSubtle} />
+              <ChevronRight size={18} color={colors.textSubtle} />
             </Row>
           </Card>
         ))}

@@ -1,18 +1,10 @@
-import { Stack, Redirect } from 'expo-router';
-import { useAppSelector } from '../../hooks';
-import { roleHome } from '../../utils/permissions';
+import { Stack } from 'expo-router';
 import { useAppTheme } from '../../theme';
 import { LogoIcon } from '../../components/shared/Logo';
 import { AppText, Row } from '../../components/ui/Text';
 
 export default function AuthLayout() {
-  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
-  const user = useAppSelector((state) => state.auth.user);
   const { colors } = useAppTheme();
-
-  if (isAuthenticated && user) {
-    return <Redirect href={roleHome(user.account_type) as never} />;
-  }
 
   return (
     <Stack

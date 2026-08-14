@@ -2,7 +2,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useRouter } from 'expo-router';
 import { Pressable, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { CheckSquare, Square } from 'lucide-react-native';
 
 import { Screen } from '@/components/ui/Screen';
 import { AppText, Spacer } from '@/components/ui/Text';
@@ -52,7 +52,11 @@ export default function SignupScreen() {
   const agreeToTerms = watch('agree_to_terms');
 
   const debouncedStoreName = useDebounce(storeName?.trim() ?? '', 500);
-  const { data: nameCheck, isFetching: nameChecking } = useCheckStoreNameQuery(debouncedStoreName, {
+  const {
+    isFetching: nameChecking,
+    isSuccess: nameCheckSuccess,
+    isError: nameCheckError,
+  } = useCheckStoreNameQuery(debouncedStoreName, {
     skip: accountType !== 'vendor' || debouncedStoreName.length < 2,
   });
 
@@ -87,7 +91,7 @@ export default function SignupScreen() {
         Create your account
       </AppText>
       <AppText style={{ fontSize: 15 }} color={colors.textMuted}>
-        Join EazyStore and start your journey today.
+        Join eazystore and start your journey today.
       </AppText>
       <Spacer height={24} />
       <View style={{ gap: spacing.md }}>
@@ -172,9 +176,14 @@ export default function SignupScreen() {
                 Checking availability…
               </AppText>
             ) : null}
-            {debouncedStoreName.length >= 2 && !nameChecking && nameCheck ? (
-              <AppText variant="small" color={nameCheck.available ? '#10b981' : '#ef4444'}>
-                {nameCheck.available ? 'Available ✓' : nameCheck.message ?? 'Already taken'}
+            {debouncedStoreName.length >= 2 && !nameChecking && nameCheckSuccess ? (
+              <AppText variant="small" color="#10b981">
+                Available ✓
+              </AppText>
+            ) : null}
+            {debouncedStoreName.length >= 2 && !nameChecking && nameCheckError ? (
+              <AppText variant="small" color="#ef4444">
+                Store name already taken
               </AppText>
             ) : null}
             <FormInput<SignupFormValues>
@@ -205,11 +214,11 @@ export default function SignupScreen() {
           onPress={() => setValue('agree_to_terms', !agreeToTerms as true)}
           style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}
         >
-          <Ionicons
-            name={agreeToTerms ? 'checkbox' : 'square-outline'}
-            size={20}
-            color={agreeToTerms ? '#17c06e' : colors.textSubtle}
-          />
+          {agreeToTerms ? (
+            <CheckSquare size={20} color="#17c06e" strokeWidth={2} />
+          ) : (
+            <Square size={20} color={colors.textSubtle} strokeWidth={2} />
+          )}
           <AppText variant="small" color={colors.textMuted} style={{ flex: 1 }}>
             I agree to the{' '}
             <AppText variant="small" weight="semibold" color="#17c06e">

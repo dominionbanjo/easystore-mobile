@@ -1,6 +1,7 @@
-import { View } from 'react-native';
+import { useState } from 'react';
+import { Pressable, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { ShoppingCart, Trash2 } from 'lucide-react-native';
 
 import { Screen } from '@/components/ui/Screen';
 import { AppText, Row, Spacer } from '@/components/ui/Text';
@@ -9,7 +10,8 @@ import { AppImage } from '@/components/shared/AppImage';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ListSkeleton } from '@/components/ui/Skeleton';
 import { Card } from '@/components/ui/Card';
-import { formatNGN } from '@/utils/money';
+import { ConfirmDialog } from '@/components/ui/Modal';
+import { formatNaira } from '@/utils/money';
 import { useAppTheme } from '@/theme';
 import { useAppSelector, useAppDispatch } from '@/hooks';
 import {
@@ -20,11 +22,12 @@ import {
 import {
   updateGuestQuantity,
   removeGuestItem,
+  clearGuestCart,
   selectGuestCart,
 } from '@/features/cartSlice';
 import { useToast } from '@/hooks/useToast';
 import { getErrorMessage } from '@/utils/error';
-import type { ICartItem } from '@/types/cart';
+import type { ICartItem, IGuestCartItem } from '@/types/cart';
 
 export default function CartScreen() {
   const { colors, spacing } = useAppTheme();
@@ -38,18 +41,27 @@ export default function CartScreen() {
     data: serverCart,
     isLoading: isServerLoading,
     isFetching,
+    isError: isServerError,
+    refetch,
   } = useGetCartQuery(undefined, { skip: !isAuthenticated });
   const [updateCartItem] = useUpdateCartItemMutation();
   const [removeCartItem] = useRemoveCartItemMutation();
 
-  const items: ICartItem[] = isAuthenticated ? (serverCart?.items ?? []) : guestCart.items;
+  const [clearOpen, setClearOpen] = useState(false);
+
+  const items: (ICartItem | IGuestCartItem)[] = isAuthenticated
+    ? (serverCart?.cart.items ?? [])
+    : guestCart.items;
   const isLoading = isAuthenticated ? isServerLoading || (isFetching && items.length === 0) : false;
 
   const subtotal = isAuthenticated
-    ? serverCart?.subtotal ?? 0
+    ? serverCart?.cart.subtotal ?? 0
     : guestCart.subtotal;
 
-  const handleUpdateQuantity = (item: ICartItem, quantity: number) => {
+  const serviceCharge = Math.round(subtotal * 0.01);
+  const total = subtotal + serviceCharge;
+
+  const handleUpdateQuantity = (item: ICartItem | IGuestCartItem, quantity: number) => {
     if (isAuthenticated) {
       updateCartItem({
         productId: item.product_id,
@@ -61,7 +73,7 @@ export default function CartScreen() {
     }
   };
 
-  const handleRemove = (item: ICartItem) => {
+  const handleRemove = (item: ICartItem | IGuestCartItem) => {
     if (isAuthenticated) {
       removeCartItem(item.product_id).catch((error) =>
         toast.showError(getErrorMessage(error)),
@@ -69,6 +81,23 @@ export default function CartScreen() {
     } else {
       const key = `${item.product_id}|${item.variant_id ?? ''}|${item.size ?? ''}|${item.color ?? ''}`;
       dispatch(removeGuestItem(key));
+    }
+  };
+
+  const handleClearCart = async () => {
+    setClearOpen(false);
+    if (!isAuthenticated) {
+      dispatch(clearGuestCart());
+      toast.showSuccess('Cart cleared');
+      return;
+    }
+    try {
+      await Promise.all(
+        items.map((item) => removeCartItem(item.product_id).unwrap()),
+      );
+      toast.showSuccess('Cart cleared');
+    } catch (error) {
+      toast.showError(getErrorMessage(error));
     }
   };
 
@@ -80,16 +109,39 @@ export default function CartScreen() {
     );
   }
 
+  if (isAuthenticated && isServerError) {
+    return (
+      <Screen>
+        <EmptyState
+          icon={<ShoppingCart size={32} color={colors.textSubtle} />}
+          title="Failed to load cart"
+          description="Check your connection and try again"
+          actionLabel="Try Again"
+          onAction={() => refetch()}
+        />
+      </Screen>
+    );
+  }
+
   return (
     <Screen scroll={false} padded={false}>
       <View style={{ padding: spacing.lg, paddingBottom: 0 }}>
-        <AppText variant="subtitle" weight="bold">
-          My Cart
-        </AppText>
+        <Row style={{ justifyContent: 'space-between' }}>
+          <AppText variant="subtitle" weight="bold">
+            My Cart
+          </AppText>
+          {items.length > 0 ? (
+            <Pressable onPress={() => setClearOpen(true)} hitSlop={8}>
+              <AppText variant="label" weight="semibold" color={colors.danger}>
+                Clear Cart
+              </AppText>
+            </Pressable>
+          ) : null}
+        </Row>
       </View>
       {items.length === 0 ? (
         <EmptyState
-          icon={<Ionicons name="cart-outline" size={32} color={colors.textSubtle} />}
+          icon={<ShoppingCart size={32} color={colors.textSubtle} />}
           title="Your cart is empty"
           description="Browse the marketplace and add items to your cart"
           actionLabel="Start shopping"
@@ -126,7 +178,7 @@ export default function CartScreen() {
                       ) : null}
                       <Row style={{ justifyContent: 'space-between', marginTop: 4 }}>
                         <AppText variant="label" weight="bold" color={colors.primary}>
-                          {formatNGN(unitPrice * item.quantity)}
+                          {formatNaira(unitPrice * item.quantity)}
                         </AppText>
                         <Row style={{ gap: spacing.sm }}>
                           <IconButton
@@ -155,7 +207,7 @@ export default function CartScreen() {
                     </View>
                     <IconButton
                       accessibilityLabel="Remove item"
-                      icon={<Ionicons name="trash-outline" size={18} color={colors.danger} />}
+                      icon={<Trash2 size={18} color={colors.danger} />}
                       onPress={() => handleRemove(item)}
                     />
                   </Row>
@@ -170,7 +222,7 @@ export default function CartScreen() {
                 Subtotal
               </AppText>
               <AppText variant="label" weight="semibold">
-                {formatNGN(subtotal)}
+                {formatNaira(subtotal)}
               </AppText>
             </Row>
             <Row style={{ justifyContent: 'space-between' }}>
@@ -179,6 +231,23 @@ export default function CartScreen() {
               </AppText>
               <AppText variant="label" color={colors.textMuted}>
                 Calculated at checkout
+              </AppText>
+            </Row>
+            <Row style={{ justifyContent: 'space-between' }}>
+              <AppText variant="label" color={colors.textMuted}>
+                Service charge (1%)
+              </AppText>
+              <AppText variant="label" weight="semibold">
+                {formatNaira(serviceCharge)}
+              </AppText>
+            </Row>
+            <Spacer height={4} />
+            <Row style={{ justifyContent: 'space-between' }}>
+              <AppText variant="label" weight="bold">
+                Total
+              </AppText>
+              <AppText variant="label" weight="bold" color={colors.primary}>
+                {formatNaira(total)}
               </AppText>
             </Row>
             <Spacer height={4} />
@@ -192,9 +261,24 @@ export default function CartScreen() {
                 }
               }}
             />
+            <Button
+              title="Continue Shopping"
+              variant="secondary"
+              onPress={() => router.push('/home')}
+            />
           </Card>
         </View>
       )}
+
+      <ConfirmDialog
+        visible={clearOpen}
+        title="Clear your cart?"
+        message="This will remove all items from your cart."
+        confirmText="Clear Cart"
+        destructive
+        onConfirm={handleClearCart}
+        onCancel={() => setClearOpen(false)}
+      />
     </Screen>
   );
 }

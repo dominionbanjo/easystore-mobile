@@ -21,7 +21,11 @@ export function StatsCard({
 }) {
   const { colors, spacing } = useAppTheme();
   const iconPalettes: Record<string, { bg: string; fg: string; border: string }> = {
-    primary: { bg: 'rgba(23,192,110,0.1)', fg: '#17c06e', border: 'rgba(23,192,110,0.2)' },
+    primary: {
+      bg: `${colors.primary}1a`,
+      fg: colors.primary,
+      border: `${colors.primary}33`,
+    },
     blue: { bg: 'rgba(59,130,246,0.1)', fg: '#2563eb', border: 'rgba(59,130,246,0.2)' },
     orange: { bg: 'rgba(249,115,22,0.1)', fg: '#ea580c', border: 'rgba(249,115,22,0.2)' },
     green: { bg: 'rgba(16,185,129,0.1)', fg: '#059669', border: 'rgba(16,185,129,0.2)' },

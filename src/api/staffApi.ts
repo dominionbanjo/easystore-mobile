@@ -4,6 +4,7 @@ import type { PermissionCode } from '@/constants/permissions';
 import type {
   IInviteStaffPayload,
   IStaffMember,
+  IStaffPermissionsResponse,
   IStaffProfile,
   IChangePasswordPayload,
 } from '@/types/staff';
@@ -33,7 +34,7 @@ export const staffApi = apiManager.injectEndpoints({
     }),
     updateStaffMember: build.mutation<
       SuccessResponse,
-      { id: string; body: Partial<IInviteStaffPayload> }
+      { id: string; body: { first_name?: string; last_name?: string } }
     >({
       query: ({ id, body }) => ({ url: `store/staff/${id}`, method: 'PATCH', body }),
       invalidatesTags: ['Staff'],
@@ -65,7 +66,7 @@ export const staffApi = apiManager.injectEndpoints({
       query: (id) => ({ url: `store/staff/${id}`, method: 'DELETE' }),
       invalidatesTags: ['Staff'],
     }),
-    getStaffPermissions: build.query<PermissionCode[], void>({
+    getStaffPermissions: build.query<IStaffPermissionsResponse, void>({
       query: () => 'staff/permissions',
     }),
     getStaffMe: build.query<IStaffProfile, void>({

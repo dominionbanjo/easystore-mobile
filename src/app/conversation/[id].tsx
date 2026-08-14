@@ -1,11 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, TextInput, View } from 'react-native';
+import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, TextInput, View } from 'react-native';
 import { Stack, useLocalSearchParams } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+
+import { MessagesSquare, SendHorizonal } from 'lucide-react-native';
 
 import { useAppTheme } from '@/theme';
 import { AppText, Row } from '@/components/ui/Text';
 import { AppImage } from '@/components/shared/AppImage';
+import { ListSkeleton } from '@/components/ui/Skeleton';
+import { EmptyState } from '@/components/ui/EmptyState';
 import {
   useGetMessagesQuery,
   useSendMessageMutation,
@@ -18,13 +21,13 @@ import { getErrorMessage } from '@/utils/error';
 import type { IMessage } from '@/types/messaging';
 
 export default function ConversationScreen() {
-  const { colors, spacing } = useAppTheme();
+  const { colors, spacing, radius } = useAppTheme();
   const toast = useToast();
   const params = useLocalSearchParams<{ id: string }>();
   const user = useAppSelector((state) => state.auth.user);
   const scrollRef = useRef<ScrollView>(null);
 
-  const { data: initialMessages } = useGetMessagesQuery({ conversationId: params.id });
+  const { data: initialMessagesData, isLoading } = useGetMessagesQuery({ conversationId: params.id });
   const [sendMessage] = useSendMessageMutation();
   const [markRead] = useMarkConversationReadMutation();
   const socket = useSocket();
@@ -33,11 +36,17 @@ export default function ConversationScreen() {
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
 
+  const initialMessages = initialMessagesData?.items;
   const [loadedBatch, setLoadedBatch] = useState<IMessage[] | null>(null);
-  if (initialMessages && loadedBatch !== initialMessages) {
+
+  useEffect(() => {
+    if (!initialMessages || loadedBatch !== null) {
+      return;
+    }
     setLoadedBatch(initialMessages);
     setMessages(initialMessages);
-  }
+  }, [initialMessages, loadedBatch]);
+
   const visibleMessages = messages ?? initialMessages ?? [];
 
   useEffect(() => {
@@ -94,59 +103,76 @@ export default function ConversationScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={90}
       >
-        <ScrollView
-          ref={scrollRef}
-          style={{ flex: 1 }}
-          contentContainerStyle={{ padding: spacing.lg, gap: spacing.sm }}
-          onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: true })}
-        >
-          {visibleMessages.map((message) => {
-            const isMine = message.sender_id === user?.id;
-            return (
-              <View
-                key={message.id}
-                style={{
-                  alignSelf: isMine ? 'flex-end' : 'flex-start',
-                  maxWidth: '80%',
-                  backgroundColor: isMine ? colors.primary : colors.surface,
-                  borderRadius: 16,
-                  borderBottomRightRadius: isMine ? 4 : 16,
-                  borderBottomLeftRadius: isMine ? 16 : 4,
-                  paddingHorizontal: spacing.md,
-                  paddingVertical: spacing.sm,
-                  borderWidth: isMine ? 0 : 1,
-                  borderColor: colors.border,
-                }}
-              >
-                {message.product ? (
-                  <Row style={{ gap: spacing.sm, marginBottom: 4 }}>
-                    <AppImage
-                      uri={message.product.image}
-                      style={{ width: 36, height: 36 }}
-                      fallbackText={message.product.name}
-                    />
-                    <AppText variant="small" weight="semibold" numberOfLines={1}>
-                      {message.product.name}
-                    </AppText>
-                  </Row>
-                ) : null}
-                <AppText variant="label" color={isMine ? colors.primaryForeground : colors.text}>
-                  {message.content}
-                </AppText>
-                <AppText
-                  variant="small"
-                  style={{ marginTop: 2 }}
-                  color={isMine ? colors.primaryForeground : colors.textSubtle}
+        {isLoading && messages === null ? (
+          <View style={{ padding: spacing.lg }}>
+            <ListSkeleton count={3} />
+          </View>
+        ) : visibleMessages.length === 0 ? (
+          <View style={{ flex: 1, justifyContent: 'center' }}>
+            <EmptyState
+              icon={<MessagesSquare size={32} color={colors.textSubtle} />}
+              title="No messages yet"
+              description="Say hello to start the conversation"
+            />
+          </View>
+        ) : (
+          <ScrollView
+            ref={scrollRef}
+            style={{ flex: 1 }}
+            contentContainerStyle={{ padding: spacing.lg, gap: spacing.sm }}
+            onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: true })}
+          >
+            {visibleMessages.map((message) => {
+              const isMine = message.sender_id === user?.id;
+              return (
+                <View
+                  key={message.id}
+                  style={{
+                    alignSelf: isMine ? 'flex-end' : 'flex-start',
+                    maxWidth: '80%',
+                    backgroundColor: isMine ? colors.primary : colors.surface,
+                    borderRadius: radius.xxl,
+                    borderBottomRightRadius: isMine ? 4 : radius.xxl,
+                    borderBottomLeftRadius: isMine ? radius.xxl : 4,
+                    paddingHorizontal: spacing.md,
+                    paddingVertical: spacing.sm,
+                    borderWidth: isMine ? 0 : 1,
+                    borderColor: colors.border,
+                  }}
                 >
-                  {new Date(message.created_at).toLocaleTimeString('en-NG', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })}
-                </AppText>
-              </View>
-            );
-          })}
-        </ScrollView>
+                  {message.product_name ? (
+                    <Row style={{ gap: spacing.sm, marginBottom: 4 }}>
+                      <AppImage
+                        uri={message.product_image ?? undefined}
+                        style={{ width: 36, height: 36 }}
+                        fallbackText={message.product_name}
+                      />
+                      <AppText variant="small" weight="semibold" numberOfLines={1}>
+                        {message.product_name}
+                      </AppText>
+                    </Row>
+                  ) : null}
+                  <AppText variant="label" color={isMine ? colors.primaryForeground : colors.text}>
+                    {message.content}
+                  </AppText>
+                  <AppText
+                    variant="small"
+                    style={{ marginTop: 2 }}
+                    color={isMine ? colors.primaryForeground : colors.textSubtle}
+                  >
+                    {new Date(message.created_at).toLocaleTimeString('en-NG', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </AppText>
+                </View>
+              );
+            })}
+            {isLoading ? (
+              <ActivityIndicator color={colors.primary} style={{ marginVertical: spacing.md }} />
+            ) : null}
+          </ScrollView>
+        )}
         <View
           style={{
             flexDirection: 'row',
@@ -169,7 +195,7 @@ export default function ConversationScreen() {
               minHeight: 44,
               maxHeight: 110,
               backgroundColor: colors.surfaceAlt,
-              borderRadius: 22,
+              borderRadius: radius.full,
               paddingHorizontal: spacing.md,
               paddingVertical: spacing.sm,
               color: colors.text,
@@ -181,17 +207,16 @@ export default function ConversationScreen() {
             style={{
               width: 44,
               height: 44,
-              borderRadius: 22,
+              borderRadius: radius.full,
               backgroundColor: !draft.trim() ? colors.surfaceAlt : colors.primary,
               alignItems: 'center',
               justifyContent: 'center',
               opacity: sending ? 0.5 : 1,
             }}
           >
-            <Ionicons
-              name="send"
+            <SendHorizonal
               size={18}
-              color={!draft.trim() ? colors.textSubtle : '#ffffff'}
+              color={!draft.trim() ? colors.textSubtle : colors.primaryForeground}
             />
           </Pressable>
         </View>

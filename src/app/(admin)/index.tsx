@@ -5,6 +5,7 @@ import { AppText, Spacer } from '@/components/ui/Text';
 import { Card } from '@/components/ui/Card';
 import { StatsGrid } from '@/components/ui/StatsCard';
 import { ListSkeleton } from '@/components/ui/Skeleton';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { formatNGNCompact, formatNGN } from '@/utils/money';
 import {
   useGetOverviewAnalyticsQuery,
@@ -12,12 +13,23 @@ import {
   useGetTopStoresQuery,
 } from '@/api/adminApi';
 
+function pctChange(current: number, previous: number): { pct: string; direction: 'up' | 'down' } | undefined {
+  if (previous <= 0) {
+    return current > 0 ? { pct: '100%', direction: 'up' } : undefined;
+  }
+  const delta = ((current - previous) / previous) * 100;
+  if (Math.abs(delta) < 0.5) {
+    return undefined;
+  }
+  return { pct: `${Math.abs(delta).toFixed(0)}%`, direction: delta >= 0 ? 'up' : 'down' };
+}
+
 export default function AdminOverviewScreen() {
   const { colors, spacing } = useAppTheme();
 
-  const { data: stats, isLoading } = useGetOverviewAnalyticsQuery();
-  const { data: recentSignups } = useGetRecentSignupsQuery({ limit: 5 });
-  const { data: topStores } = useGetTopStoresQuery({ limit: 5 });
+  const { data: stats, isLoading, isError: statsError, refetch: refetchStats } = useGetOverviewAnalyticsQuery();
+  const { data: recentSignups, isError: signupsError, refetch: refetchSignups } = useGetRecentSignupsQuery({ limit: 5 });
+  const { data: topStores, isError: storesError, refetch: refetchStores } = useGetTopStoresQuery({ limit: 5 });
 
   if (isLoading) {
     return (
@@ -27,17 +39,55 @@ export default function AdminOverviewScreen() {
     );
   }
 
+  if (statsError || signupsError || storesError) {
+    return (
+      <View style={{ flex: 1, padding: spacing.lg }}>
+        <EmptyState
+          title="Failed to load"
+          description="Check your connection and try again"
+          actionLabel="Try Again"
+          onAction={() => {
+            refetchStats();
+            refetchSignups();
+            refetchStores();
+          }}
+        />
+      </View>
+    );
+  }
+
+  const revenueTrend = stats ? pctChange(stats.revenue.thisMonth ?? 0, stats.revenue.lastMonth ?? 0) : undefined;
+  const usersTrend = stats ? pctChange(stats.newUsers.thisMonth ?? 0, stats.newUsers.lastMonth ?? 0) : undefined;
+  const ordersTrend = stats ? pctChange(stats.orders.thisMonth ?? 0, stats.orders.lastMonth ?? 0) : undefined;
+
   return (
     <View style={{ flex: 1, padding: spacing.lg, gap: spacing.md }}>
       {stats ? (
         <StatsGrid
           items={[
-            { label: 'Total Revenue', value: formatNGN(stats.total_revenue ?? 0), iconColor: 'primary' },
-            { label: 'Users', value: String(stats.total_users ?? 0), iconColor: 'blue' },
-            { label: 'Vendors', value: String(stats.total_vendors ?? 0), iconColor: 'orange' },
-            { label: 'Orders', value: String(stats.total_orders ?? 0), iconColor: 'green' },
-            { label: 'Pending Orders', value: String(stats.pending_orders ?? 0) },
-            { label: 'Escrow Balance', value: formatNGNCompact(stats.escrow_balance ?? 0) },
+            {
+              label: 'Revenue (Month)',
+              value: formatNGN(stats.revenue.thisMonth ?? 0),
+              iconColor: 'primary',
+              trend: revenueTrend?.pct,
+              trendDirection: revenueTrend?.direction,
+            },
+            { label: 'Users', value: String(stats.totals.users ?? 0), iconColor: 'blue' },
+            { label: 'Vendors', value: String(stats.totals.vendors ?? 0), iconColor: 'orange' },
+            {
+              label: 'Orders (Month)',
+              value: String(stats.orders.thisMonth ?? 0),
+              iconColor: 'green',
+              trend: ordersTrend?.pct,
+              trendDirection: ordersTrend?.direction,
+            },
+            { label: 'Pending Vendors', value: String(stats.pendingVendors ?? 0) },
+            {
+              label: 'New Users (Month)',
+              value: String(stats.newUsers.thisMonth ?? 0),
+              trend: usersTrend?.pct,
+              trendDirection: usersTrend?.direction,
+            },
           ]}
         />
       ) : null}
@@ -49,10 +99,10 @@ export default function AdminOverviewScreen() {
           </AppText>
           {recentSignups.map((signup) => (
             <View key={signup.id} style={{ gap: 2 }}>
-              <AppText variant="small" weight="medium">
+              <AppText variant="small" weight="medium" numberOfLines={1}>
                 {signup.first_name} {signup.last_name}
               </AppText>
-              <AppText variant="small" color={colors.textMuted}>
+              <AppText variant="small" color={colors.textMuted} numberOfLines={1}>
                 {signup.email} · {signup.account_type} ·{' '}
                 {new Date(signup.created_at).toLocaleDateString('en-NG')}
               </AppText>

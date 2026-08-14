@@ -54,8 +54,8 @@ export function ProductForm({ initial, mode }: ProductFormProps) {
     categoryId: initial?.category_id ?? '',
     description: initial?.description ?? '',
     barcode: initial?.barcode ?? '',
-    priceNaira: initial ? String(initial.price / 100) : '',
-    discountPriceNaira: initial?.discount_price ? String(initial.discount_price / 100) : '',
+    priceNaira: initial ? String(initial.price ?? 0) : '',
+    discountPriceNaira: initial?.discount_price ? String(initial.discount_price) : '',
     stock: initial?.stock !== undefined ? String(initial.stock) : '',
     tags: (initial?.tags ?? []).join(', '),
     highlights: initial?.highlights ?? [],
@@ -64,7 +64,11 @@ export function ProductForm({ initial, mode }: ProductFormProps) {
   });
 
   const [image, setImage] = useState<IProductImage | null>(
-    typeof initial?.image === 'string' ? { url: initial.image } : null,
+    initial?.image
+      ? typeof initial.image === 'string'
+        ? { url: initial.image }
+        : initial.image
+      : null,
   );
   const [gallery, setGallery] = useState<IProductImage[]>(initial?.gallery ?? []);
   const [options, setOptions] = useState<IProductOption[]>(initial?.options ?? []);
@@ -72,6 +76,11 @@ export function ProductForm({ initial, mode }: ProductFormProps) {
   const [newOptionName, setNewOptionName] = useState('');
   const [newOptionValues, setNewOptionValues] = useState('');
   const [highlightInput, setHighlightInput] = useState('');
+  const [specRows, setSpecRows] = useState<{ key: string; value: string }[]>(
+    Object.entries(initial?.specs ?? {}).map(([key, value]) => ({ key, value })),
+  );
+
+  const imagesComplete = Boolean(image) && gallery.length >= 2;
 
   const set = <K extends keyof ProductFormValues>(key: K, value: ProductFormValues[K]) => {
     setValues((current) => ({ ...current, [key]: value }));
@@ -99,6 +108,18 @@ export function ProductForm({ initial, mode }: ProductFormProps) {
     }
     setValues((current) => ({ ...current, highlights: [...current.highlights, highlight] }));
     setHighlightInput('');
+  };
+
+  const addSpecRow = () => {
+    setSpecRows((current) => [...current, { key: '', value: '' }]);
+  };
+
+  const updateSpecRow = (index: number, row: { key: string; value: string }) => {
+    setSpecRows((current) => current.map((item, i) => (i === index ? row : item)));
+  };
+
+  const removeSpecRow = (index: number) => {
+    setSpecRows((current) => current.filter((_, i) => i !== index));
   };
 
   const uploadNewImage = async (): Promise<IProductImage | null> => {
@@ -141,11 +162,23 @@ export function ProductForm({ initial, mode }: ProductFormProps) {
       toast.showError('Select a category');
       return;
     }
+    if (!image || gallery.length < 2) {
+      toast.showError('Add a main image and at least 2 gallery images');
+      return;
+    }
     const priceKobo = nairaToKobo(Number(values.priceNaira) || 0);
     if (priceKobo <= 0) {
       toast.showError('Enter a valid price');
       return;
     }
+
+    const specs = specRows.reduce<Record<string, string>>((acc, row) => {
+      const key = row.key.trim();
+      if (key) {
+        acc[key] = row.value.trim();
+      }
+      return acc;
+    }, {});
 
     const payload: ICreateProductPayload = {
       category_id: values.categoryId,
@@ -162,6 +195,7 @@ export function ProductForm({ initial, mode }: ProductFormProps) {
       highlights: values.highlights,
       image: image ?? undefined,
       gallery: gallery.length > 0 ? gallery : undefined,
+      specs: Object.keys(specs).length > 0 ? specs : undefined,
       options: options.length > 0 ? options : undefined,
       variants: variants.length > 0 ? variants : undefined,
       installment_enabled: values.installmentEnabled,
@@ -372,7 +406,39 @@ export function ProductForm({ initial, mode }: ProductFormProps) {
         ) : null}
       </Card>
 
-      {installmentConfig?.enabled ? (
+      <Card style={{ gap: spacing.sm }}>
+        <AppText variant="label" weight="bold">
+          Specifications
+        </AppText>
+        {specRows.map((row, index) => (
+          <Row key={`${row.key}-${index}`} style={{ gap: spacing.sm }}>
+            <View style={{ flex: 1 }}>
+              <AppInput
+                value={row.key}
+                onChangeText={(key) => updateSpecRow(index, { ...row, key })}
+                placeholder="Name (e.g. Material)"
+              />
+            </View>
+            <View style={{ flex: 1 }}>
+              <AppInput
+                value={row.value}
+                onChangeText={(value) => updateSpecRow(index, { ...row, value })}
+                placeholder="Value (e.g. Leather)"
+              />
+            </View>
+            <Button
+              title="✕"
+              variant="ghost"
+              size="sm"
+              fullWidth={false}
+              onPress={() => removeSpecRow(index)}
+            />
+          </Row>
+        ))}
+        <Button title="Add specification" variant="outline" size="sm" fullWidth={false} onPress={addSpecRow} />
+      </Card>
+
+      {(installmentConfig?.presets?.length ?? 0) > 0 ? (
         <Card style={{ gap: spacing.sm }}>
           <Row style={{ justifyContent: 'space-between' }}>
             <AppText variant="label" weight="bold">
@@ -397,10 +463,16 @@ export function ProductForm({ initial, mode }: ProductFormProps) {
       ) : null}
 
       <Spacer height={8} />
+      {!imagesComplete ? (
+        <AppText variant="small" color={colors.danger}>
+          Add a main image and at least 2 gallery images
+        </AppText>
+      ) : null}
       <Button
         title={mode === 'create' ? 'Create Product' : 'Save Changes'}
         onPress={handleSubmit}
         loading={creating || updating}
+        disabled={!imagesComplete}
       />
     </View>
   );

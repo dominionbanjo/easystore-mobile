@@ -6,9 +6,12 @@ import type { IPagination } from '@/types/api';
 
 export interface PaginatedListProps<T> {
   items: T[] | undefined;
-  pagination?: IPagination;
+  /** Only `hasNext` is consumed — partial pagination objects are acceptable. */
+  pagination?: ({ hasNext?: boolean } & Partial<IPagination>) | undefined;
   isLoading: boolean;
   isFetching: boolean;
+  error?: boolean;
+  onRetry?: () => void;
   isLoadingMore?: boolean;
   renderItem: (item: T, index: number) => React.ReactElement | null;
   keyExtractor: (item: T, index: number) => string;
@@ -30,6 +33,8 @@ export function PaginatedList<T>({
   pagination,
   isLoading,
   isFetching,
+  error = false,
+  onRetry,
   isLoadingMore = false,
   renderItem,
   keyExtractor,
@@ -56,6 +61,19 @@ export function PaginatedList<T>({
   }
 
   const isEmpty = !items || items.length === 0;
+
+  if (error && !isFetching) {
+    return (
+      <View style={{ flex: 1, padding: spacing.lg }}>
+        <EmptyState
+          title="Failed to load"
+          description="Check your connection and try again"
+          actionLabel="Try Again"
+          onAction={onRetry}
+        />
+      </View>
+    );
+  }
 
   return (
     <FlatList

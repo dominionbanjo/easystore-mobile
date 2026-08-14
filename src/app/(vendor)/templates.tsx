@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 
 import { useAppTheme } from '@/theme';
@@ -13,19 +13,31 @@ import {
 } from '@/api/storeApi';
 import { useToast } from '@/hooks/useToast';
 import { getErrorMessage } from '@/utils/error';
+import type { IStoreOwnerDetails } from '@/types/store';
 
 const TEMPLATE_PREVIEW_COLORS = ['#17c06e', '#2563eb', '#a855f7', '#f97316', '#10b981', '#e11d48'];
 
+interface IStoreOwnerWithTheme extends IStoreOwnerDetails {
+  theme?: { template?: { id: string; name?: string } | null } | null;
+}
+
 export default function VendorTemplatesScreen() {
-  const { colors, spacing } = useAppTheme();
+  const { colors, radius, spacing } = useAppTheme();
   const toast = useToast();
 
   const { data: templates, isLoading } = useGetStoreTemplatesQuery();
   const { data: store } = useGetMyStoreQuery();
   const [updateTheme] = useUpdateStoreThemeMutation();
   const [saving, setSaving] = useState(false);
+  const [activeTemplateId, setActiveTemplateId] = useState<string | undefined>(undefined);
 
-  const activeTemplateId = store?.theme?.template?.id;
+  useEffect(() => {
+    const storeWithTheme = store as IStoreOwnerWithTheme | undefined;
+    const templateId = storeWithTheme?.theme?.template?.id;
+    if (templateId) {
+      setActiveTemplateId(templateId);
+    }
+  }, [store]);
 
   const handleApply = async (templateId: string) => {
     if (!store) {
@@ -33,7 +45,8 @@ export default function VendorTemplatesScreen() {
     }
     setSaving(true);
     try {
-      await updateTheme({ id: store.id, body: { template_id: templateId } }).unwrap();
+      const result = await updateTheme({ id: store.id, body: { template_id: templateId } }).unwrap();
+      setActiveTemplateId(result.template_id ?? templateId);
       toast.showSuccess('Theme template applied');
     } catch (error) {
       toast.showError(getErrorMessage(error));
@@ -53,7 +66,7 @@ export default function VendorTemplatesScreen() {
   return (
     <View style={{ flex: 1, padding: spacing.lg, gap: spacing.md }}>
       <AppText variant="caption" color={colors.textMuted}>
-        Choose a theme template for your storefront. You can customize colors and fonts after applying.
+        Choose a theme template for your storefront. Preview your storefront after applying.
       </AppText>
       {(templates ?? []).map((template, index) => {
         const isActive = template.id === activeTemplateId;
@@ -65,13 +78,17 @@ export default function VendorTemplatesScreen() {
                 style={{
                   width: 72,
                   height: 72,
-                  borderRadius: 4,
+                  borderRadius: radius.md,
                   backgroundColor: accent,
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}
               >
-                <AppText style={{ fontSize: 10, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 1 }} color="#ffffff">
+                <AppText
+                  style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 1 }}
+                  weight="black"
+                  color="#ffffff"
+                >
                   {template.name.slice(0, 2)}
                 </AppText>
               </View>

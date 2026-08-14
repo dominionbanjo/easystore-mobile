@@ -1,5 +1,4 @@
 import { apiManager } from './client';
-import type { SuccessResponse } from '@/types/api';
 
 export interface ICloudinarySignature {
   signature: string;
@@ -7,6 +6,10 @@ export interface ICloudinarySignature {
   cloudName: string;
   apiKey: string;
   folder: string;
+}
+
+export interface IDeleteCloudinaryAssetResponse {
+  status: 'success';
 }
 
 export const uploadApi = apiManager.injectEndpoints({
@@ -18,7 +21,7 @@ export const uploadApi = apiManager.injectEndpoints({
         return `uploads/cloudinary-signature?${params.toString()}`;
       },
     }),
-    deleteCloudinaryAsset: build.mutation<SuccessResponse, { public_id: string }>({
+    deleteCloudinaryAsset: build.mutation<IDeleteCloudinaryAssetResponse, { public_id: string }>({
       query: (body) => ({ url: 'uploads/cloudinary', method: 'DELETE', body }),
     }),
   }),

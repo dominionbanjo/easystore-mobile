@@ -1,16 +1,16 @@
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import type { ICartItem } from '@/types/cart';
+import type { IGuestCartItem } from '@/types/cart';
 
 export interface CartState {
-  guestItems: ICartItem[];
+  guestItems: IGuestCartItem[];
 }
 
 const initialState: CartState = {
   guestItems: [],
 };
 
-function computeTotals(items: ICartItem[]): {
+function computeTotals(items: IGuestCartItem[]): {
   subtotal: number;
   total: number;
 } {
@@ -21,7 +21,9 @@ function computeTotals(items: ICartItem[]): {
   return { subtotal, total: subtotal };
 }
 
-function itemKey(item: Pick<ICartItem, 'product_id' | 'variant_id' | 'size' | 'color'>): string {
+function itemKey(
+  item: Pick<IGuestCartItem, 'product_id' | 'variant_id' | 'size' | 'color'>,
+): string {
   return `${item.product_id}|${item.variant_id ?? ''}|${item.size ?? ''}|${item.color ?? ''}`;
 }
 
@@ -29,7 +31,7 @@ const cartSlice = createSlice({
   name: 'cart',
   initialState,
   reducers: {
-    addGuestItem(state, action: PayloadAction<ICartItem>) {
+    addGuestItem(state, action: PayloadAction<IGuestCartItem>) {
       const existing = state.guestItems.find(
         (item) => itemKey(item) === itemKey(action.payload),
       );
@@ -56,7 +58,7 @@ const cartSlice = createSlice({
     clearGuestCart(state) {
       state.guestItems = [];
     },
-    replaceGuestItems(state, action: PayloadAction<ICartItem[]>) {
+    replaceGuestItems(state, action: PayloadAction<IGuestCartItem[]>) {
       state.guestItems = action.payload;
     },
   },

@@ -29,36 +29,50 @@ export default function InstallmentsScreen() {
         onEndReached={() => setPage((p) => p + 1)}
         onRefresh={() => setPage(1)}
         keyExtractor={(item) => item.id}
-        renderItem={(plan) => (
-          <Card
-            onPress={() => router.push({ pathname: '/installment/[id]', params: { id: plan.id } })}
-            style={{ marginHorizontal: 16, marginBottom: 12, gap: spacing.sm }}
-          >
-            <Row style={{ justifyContent: 'space-between' }}>
-              <AppText variant="label" weight="bold">
-                {plan.order?.order_items?.[0]?.name ?? `Plan ${plan.id.slice(0, 8)}`}
-              </AppText>
-              <StatusBadge status={plan.status} />
-            </Row>
-            <Row style={{ justifyContent: 'space-between' }}>
-              <AppText variant="small" color={colors.textMuted}>
-                {plan.installments_paid}/{plan.installments_total} paid
-              </AppText>
-              <AppText variant="label" weight="semibold" color={colors.primary}>
-                {formatNGN(plan.paid_kobo)} / {formatNGN(plan.total_kobo)}
-              </AppText>
-            </Row>
-            <View style={{ height: 6, borderRadius: 3, backgroundColor: colors.surfaceAlt, overflow: 'hidden' }}>
-              <View
-                style={{
-                  width: `${plan.total_kobo > 0 ? Math.min(100, (plan.paid_kobo / plan.total_kobo) * 100) : 0}%`,
-                  height: '100%',
-                  backgroundColor: colors.primary,
-                }}
-              />
-            </View>
-          </Card>
-        )}
+        renderItem={(plan) => {
+          const percentPaid =
+            plan.installments_total > 0
+              ? Math.round((plan.installments_paid / plan.installments_total) * 100)
+              : 0;
+          return (
+            <Card
+              onPress={() => router.push({ pathname: '/installment/[id]', params: { id: plan.id } })}
+              style={{ marginHorizontal: spacing.lg, marginBottom: spacing.md, gap: spacing.sm }}
+            >
+              <Row style={{ justifyContent: 'space-between' }}>
+                <AppText variant="label" weight="bold" numberOfLines={1} style={{ flex: 1 }}>
+                  {plan.order?.order_items?.[0]?.name ?? `Plan ${plan.id.slice(0, 8)}`}
+                </AppText>
+                <StatusBadge status={plan.status} />
+              </Row>
+              <Row style={{ justifyContent: 'space-between' }}>
+                <AppText variant="small" color={colors.textMuted}>
+                  {plan.installments_paid}/{plan.installments_total} paid
+                </AppText>
+                <AppText variant="small" weight="semibold" color={colors.primary}>
+                  {percentPaid}% paid
+                </AppText>
+              </Row>
+              <Row style={{ justifyContent: 'space-between' }}>
+                <AppText variant="small" color={colors.textMuted}>
+                  {plan.mode === 'auto' ? 'Auto-Pay' : 'Manual'}
+                </AppText>
+                <AppText variant="label" weight="semibold" color={colors.primary}>
+                  {formatNGN(plan.paid_kobo)} / {formatNGN(plan.total_kobo)}
+                </AppText>
+              </Row>
+              <View style={{ height: 6, borderRadius: 3, backgroundColor: colors.surfaceAlt, overflow: 'hidden' }}>
+                <View
+                  style={{
+                    width: `${plan.total_kobo > 0 ? Math.min(100, (plan.paid_kobo / plan.total_kobo) * 100) : 0}%`,
+                    height: '100%',
+                    backgroundColor: colors.primary,
+                  }}
+                />
+              </View>
+            </Card>
+          );
+        }}
         emptyTitle="No installment plans"
         emptyDescription="Enable installments at checkout on eligible orders"
         ListHeaderComponent={

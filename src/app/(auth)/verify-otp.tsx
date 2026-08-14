@@ -27,17 +27,9 @@ export default function VerifyOtpScreen() {
       return;
     }
     try {
-      const data = await verifyOtp({ email, otp }).unwrap();
-      toast.showSuccess('Email verified!');
-      const home =
-        data.user.account_type === 'vendor'
-          ? '/vendor'
-          : data.user.account_type === 'staff'
-            ? '/staff'
-            : data.user.account_type === 'admin'
-              ? '/admin'
-              : '/home';
-      router.replace(home as never);
+      await verifyOtp({ email, otp }).unwrap();
+      toast.showSuccess('Email verified! Please sign in.');
+      router.replace('/login');
     } catch (error) {
       toast.showError(getErrorMessage(error as never));
     }

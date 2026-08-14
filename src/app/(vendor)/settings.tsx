@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { ScrollView, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Pressable, ScrollView, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { Trash2 } from 'lucide-react-native';
 
 import { useAppTheme } from '@/theme';
 import { AppText, Row, Spacer } from '@/components/ui/Text';
@@ -29,6 +29,11 @@ import { useToast } from '@/hooks/useToast';
 import { getErrorMessage } from '@/utils/error';
 import { useAppDispatch } from '@/hooks';
 import { clearCredentials } from '@/features/authSlice';
+import type { IStoreOwnerDetails } from '@/types/store';
+
+interface IStoreOwnerWithTheme extends IStoreOwnerDetails {
+  theme?: { template?: { id: string } | null } | null;
+}
 
 const NIGERIAN_STATES = [
   'Lagos', 'Abuja', 'Ogun', 'Rivers', 'Kano', 'Enugu', 'Anambra', 'Delta',
@@ -81,7 +86,7 @@ export default function VendorSettingsScreen() {
   const [deletingRate, setDeletingRate] = useState<{ id: string; state: string } | null>(null);
 
   // theme
-  const [selectedTemplate, setSelectedTemplate] = useState<string | undefined>(store?.theme?.template?.id);
+  const [selectedTemplate, setSelectedTemplate] = useState<string | undefined>(undefined);
   const [savingTheme, setSavingTheme] = useState(false);
 
   // switch store
@@ -89,15 +94,19 @@ export default function VendorSettingsScreen() {
   const [switchingStore, setSwitchingStore] = useState(false);
 
   const [loadedStoreId, setLoadedStoreId] = useState<string | null>(null);
-  if (store && loadedStoreId !== store.id) {
+  useEffect(() => {
+    if (!store || loadedStoreId === store.id) {
+      return;
+    }
     setLoadedStoreId(store.id);
     setStoreName(store.store_name);
     setDescription(store.description ?? '');
     setSubdomain(store.subdomain ?? '');
     setEscrowEnabled(store.escrow_enabled ?? false);
     setInstallmentsEnabled(store.installments_enabled ?? false);
-    setSelectedTemplate(store.theme?.template?.id);
-  }
+    const storeWithTheme = store as IStoreOwnerWithTheme;
+    setSelectedTemplate(storeWithTheme.theme?.template?.id ?? undefined);
+  }, [store, loadedStoreId]);
 
   const handleSaveIdentity = async () => {
     if (!store) {
@@ -223,7 +232,6 @@ export default function VendorSettingsScreen() {
       // ignore
     }
     dispatch(clearCredentials());
-    router.replace('/home');
   };
 
   if (isLoading) {
@@ -367,12 +375,9 @@ export default function VendorSettingsScreen() {
                       <AppText variant="small" weight="bold">
                         {formatNGN(rate.fee)}
                       </AppText>
-                      <Ionicons
-                        name="trash-outline"
-                        size={18}
-                        color={colors.danger}
-                        onPress={() => setDeletingRate({ id: rate.id, state: rate.state })}
-                      />
+                      <Pressable onPress={() => setDeletingRate({ id: rate.id, state: rate.state })} hitSlop={8}>
+                        <Trash2 size={18} color={colors.danger} />
+                      </Pressable>
                     </Row>
                   ))
                 ) : (

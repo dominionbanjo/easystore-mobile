@@ -9,6 +9,7 @@ import { StatusBadge } from '@/components/shared/StatusBadge';
 import { AppModal } from '@/components/ui/Modal';
 import { AppInput } from '@/components/ui/Input';
 import { ListSkeleton } from '@/components/ui/Skeleton';
+import { EmptyState } from '@/components/ui/EmptyState';
 import {
   useGetAutomatedNotificationsQuery,
   useCreateAutomatedNotificationMutation,
@@ -22,41 +23,41 @@ export default function AdminNotificationsScreen() {
   const { spacing } = useAppTheme();
   const toast = useToast();
 
-  const { data: notifications, isLoading } = useGetAutomatedNotificationsQuery();
+  const { data: notifications, isLoading, isError, refetch } = useGetAutomatedNotificationsQuery();
   const [create] = useCreateAutomatedNotificationMutation();
   const [update] = useUpdateAutomatedNotificationMutation();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<IAutomatedNotification | null>(null);
-  const [name, setName] = useState('');
+  const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
-  const [frequency, setFrequency] = useState('weekly');
+  const [recurrenceType, setRecurrenceType] = useState('weekly');
   const [saving, setSaving] = useState(false);
 
   const openCreate = () => {
     setEditing(null);
-    setName('');
+    setTitle('');
     setMessage('');
-    setFrequency('weekly');
+    setRecurrenceType('weekly');
     setModalOpen(true);
   };
 
   const openEdit = (notification: IAutomatedNotification) => {
     setEditing(notification);
-    setName(notification.name);
+    setTitle(notification.title);
     setMessage(notification.message);
-    setFrequency(notification.frequency ?? 'weekly');
+    setRecurrenceType(notification.recurrence_type ?? 'weekly');
     setModalOpen(true);
   };
 
   const handleSave = async () => {
-    if (!name.trim() || !message.trim()) {
-      toast.showError('Name and message are required');
+    if (!title.trim() || !message.trim()) {
+      toast.showError('Title and message are required');
       return;
     }
     setSaving(true);
     try {
-      const payload = { name: name.trim(), message: message.trim(), frequency };
+      const payload = { title: title.trim(), message: message.trim(), recurrence_type: recurrenceType };
       if (editing) {
         await update({ id: editing.id, body: payload }).unwrap();
         toast.showSuccess('Notification updated');
@@ -74,7 +75,7 @@ export default function AdminNotificationsScreen() {
 
   const handleToggle = async (notification: IAutomatedNotification) => {
     try {
-      await update({ id: notification.id, body: { enabled: !notification.enabled } }).unwrap();
+      await update({ id: notification.id, body: { is_active: !notification.is_active } }).unwrap();
     } catch (error) {
       toast.showError(getErrorMessage(error));
     }
@@ -88,6 +89,19 @@ export default function AdminNotificationsScreen() {
     );
   }
 
+  if (isError) {
+    return (
+      <View style={{ flex: 1, padding: spacing.lg }}>
+        <EmptyState
+          title="Failed to load"
+          description="Check your connection and try again"
+          actionLabel="Try Again"
+          onAction={refetch}
+        />
+      </View>
+    );
+  }
+
   return (
     <View style={{ flex: 1, padding: spacing.lg, gap: spacing.md }}>
       <Button title="New Automated Notification" onPress={openCreate} size="sm" fullWidth={false} />
@@ -95,21 +109,21 @@ export default function AdminNotificationsScreen() {
         {(notifications ?? []).map((notification) => (
           <Card key={notification.id} style={{ gap: spacing.sm }}>
             <Row style={{ justifyContent: 'space-between' }}>
-              <AppText variant="label" weight="bold" style={{ flex: 1 }}>
-                {notification.name}
+              <AppText variant="label" weight="bold" numberOfLines={2} style={{ flex: 1 }}>
+                {notification.title}
               </AppText>
-              <StatusBadge status={notification.enabled ? 'active' : 'inactive'} />
+              <StatusBadge status={notification.status ?? 'inactive'} />
             </Row>
             <AppText variant="small" color="gray">
               {notification.message}
             </AppText>
             <AppText variant="small" color="gray">
-              Frequency: {notification.frequency ?? '—'}
+              Frequency: {notification.recurrence_type ?? '—'}
             </AppText>
             <Row style={{ gap: 8 }}>
               <Button title="Edit" variant="outline" size="sm" fullWidth={false} onPress={() => openEdit(notification)} />
               <Button
-                title={notification.enabled ? 'Disable' : 'Enable'}
+                title={notification.is_active ? 'Disable' : 'Enable'}
                 variant="ghost"
                 size="sm"
                 fullWidth={false}
@@ -133,7 +147,7 @@ export default function AdminNotificationsScreen() {
         scrollable
       >
         <View style={{ gap: 12 }}>
-          <AppInput label="Name" value={name} onChangeText={setName} placeholder="e.g. Order reminder" />
+          <AppInput label="Title" value={title} onChangeText={setTitle} placeholder="e.g. Order reminder" />
           <AppInput label="Message" value={message} onChangeText={setMessage} multiline numberOfLines={3} />
           <AppText variant="label" weight="medium" color="gray">
             Frequency
@@ -143,10 +157,10 @@ export default function AdminNotificationsScreen() {
               <Button
                 key={option}
                 title={option}
-                variant={frequency === option ? 'primary' : 'outline'}
+                variant={recurrenceType === option ? 'primary' : 'outline'}
                 size="sm"
                 fullWidth={false}
-                onPress={() => setFrequency(option)}
+                onPress={() => setRecurrenceType(option)}
               />
             ))}
           </View>

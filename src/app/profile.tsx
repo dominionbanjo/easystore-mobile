@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 
@@ -9,18 +9,19 @@ import { Card } from '@/components/ui/Card';
 import { AppImage } from '@/components/shared/AppImage';
 import { AppInput } from '@/components/ui/Input';
 import { useGetMeQuery, useUpdateMeMutation } from '@/api/userApi';
-import { pickImage } from '@/utils/upload';
+import { useGetCloudinarySignatureQuery } from '@/api/uploadApi';
+import { pickImage, uploadImage } from '@/utils/upload';
 import { useToast } from '@/hooks/useToast';
 import { getErrorMessage } from '@/utils/error';
-import type { IUser } from '@/types/auth';
 
 export default function ProfileScreen() {
-  const { colors, spacing } = useAppTheme();
+  const { colors, spacing, radius } = useAppTheme();
   const router = useRouter();
   const toast = useToast();
 
   const { data: profile, isLoading } = useGetMeQuery();
   const [updateMe, { isLoading: saving }] = useUpdateMeMutation();
+  const { data: uploadSignature } = useGetCloudinarySignatureQuery({ subfolder: 'avatars' });
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -28,14 +29,17 @@ export default function ProfileScreen() {
   const [avatar, setAvatar] = useState<string | null>(null);
   const [avatarUploading, setAvatarUploading] = useState(false);
 
-  const [loadedProfile, setLoadedProfile] = useState<IUser | null>(null);
-  if (profile && loadedProfile !== profile) {
-    setLoadedProfile(profile);
-    setFirstName(profile.first_name);
-    setLastName(profile.last_name);
-    setPhoneNumber(profile.phone_number ?? '');
-    setAvatar(profile.avatar ?? null);
-  }
+  const user = profile?.user;
+
+  useEffect(() => {
+    if (!user) {
+      return;
+    }
+    setFirstName(user.first_name);
+    setLastName(user.last_name);
+    setPhoneNumber(user.phone_number ?? '');
+    setAvatar(user.avatar ?? null);
+  }, [user]);
 
   const handleSave = async () => {
     try {
@@ -54,22 +58,24 @@ export default function ProfileScreen() {
   };
 
   const handleAvatarChange = async () => {
+    if (!uploadSignature) {
+      toast.showError('Upload service unavailable');
+      return;
+    }
     const asset = await pickImage();
     if (!asset) {
       return;
     }
     setAvatarUploading(true);
     try {
+      const uploaded = await uploadImage(asset.uri, async () => uploadSignature);
       const formData = new FormData();
-      const filename = asset.uri.split('/').pop() ?? 'avatar.jpg';
-      formData.append('avatar', {
-        uri: asset.uri,
-        name: filename,
-        type: 'image/jpeg',
-      } as unknown as Blob);
+      formData.append('avatar', uploaded.url);
       const updated = await updateMe(formData).unwrap();
-      setAvatar(updated.avatar ?? null);
-      toast.showSuccess('Avatar updated');
+      if (updated.success) {
+        setAvatar(uploaded.url);
+        toast.showSuccess('Avatar updated');
+      }
     } catch (error) {
       toast.showError(getErrorMessage(error));
     } finally {
@@ -88,7 +94,7 @@ export default function ProfileScreen() {
             <Card style={{ alignItems: 'center', gap: spacing.md }}>
               <AppImage
                 uri={avatar ?? undefined}
-                style={{ width: 96, height: 96, borderRadius: 48 }}
+                style={{ width: 96, height: 96, borderRadius: radius.full }}
                 fallbackText={`${firstName[0] ?? ''}${lastName[0] ?? ''}`}
               />
               <Button
@@ -110,7 +116,7 @@ export default function ProfileScreen() {
               keyboardType="phone-pad"
             />
             <AppText variant="small" color={colors.textMuted}>
-              Email: {profile?.email}
+              Email: {user?.email}
             </AppText>
             <Spacer height={8} />
             <Button title="Save Changes" onPress={handleSave} loading={saving} />

@@ -1,19 +1,22 @@
 import { apiManager } from './client';
-import type { ICart, IAddToCartPayload, IUpdateCartPayload } from '@/types/cart';
-import type { SuccessResponse } from '@/types/api';
+import type {
+  ICartResponse,
+  IAddToCartPayload,
+  IUpdateCartPayload,
+} from '@/types/cart';
 
 export const cartApi = apiManager.injectEndpoints({
   endpoints: (build) => ({
-    getCart: build.query<ICart, void>({
+    getCart: build.query<ICartResponse, void>({
       query: () => 'cart',
       providesTags: ['Cart'],
     }),
-    addCartItem: build.mutation<SuccessResponse, IAddToCartPayload>({
+    addCartItem: build.mutation<ICartResponse, IAddToCartPayload>({
       query: (body) => ({ url: 'cart/items', method: 'POST', body }),
       invalidatesTags: ['Cart'],
     }),
     updateCartItem: build.mutation<
-      SuccessResponse,
+      ICartResponse,
       { productId: string; body: IUpdateCartPayload }
     >({
       query: ({ productId, body }) => ({
@@ -23,14 +26,14 @@ export const cartApi = apiManager.injectEndpoints({
       }),
       invalidatesTags: ['Cart'],
     }),
-    removeCartItem: build.mutation<SuccessResponse, string>({
+    removeCartItem: build.mutation<ICartResponse, string>({
       query: (productId) => ({
         url: `cart/items/${productId}`,
         method: 'DELETE',
       }),
       invalidatesTags: ['Cart'],
     }),
-    clearCart: build.mutation<SuccessResponse, void>({
+    clearCart: build.mutation<ICartResponse, void>({
       query: () => ({ url: 'cart', method: 'DELETE' }),
       invalidatesTags: ['Cart'],
     }),

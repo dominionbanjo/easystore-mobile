@@ -32,37 +32,66 @@ export interface ISchoolZoneDetail extends ISchoolZone {
   stores_count?: number;
 }
 
+/** Flat member row — store fields are top-level, not nested objects. */
 export interface IZoneMember {
   id: string;
+  store_id: string;
+  user_id: string | null;
+  store_name: string;
+  store_slug: string;
+  store_logo: string | null;
+  store_status: string;
   status: ZoneMemberStatus;
-  store_id?: string;
-  store?: {
-    id: string;
-    store_name: string;
-    slug: string;
-    logo?: string;
-    rating_average?: string;
-  };
-  user?: {
-    id: string;
-    first_name: string;
-    last_name: string;
-    email: string;
-    avatar?: string;
-  };
   department?: string;
   course?: string;
   student_id_number?: string;
+  school_id_image?: string;
+  delivery_fee: number | null;
   rejection_reason?: string;
-  created_at?: string;
+  requested_at?: string;
+  approved_at?: string;
 }
 
 export interface IMyMembership {
   id: string;
-  zone: ISchoolZone;
+  school_zone_id: string;
   status: ZoneMemberStatus;
   department?: string;
   course?: string;
+  student_id_number?: string;
+  delivery_fee: number | null;
+  rejection_reason?: string;
+  requested_at?: string;
+  zone: {
+    id: string;
+    name: string;
+    slug: string;
+    subdomain?: string;
+    logo?: string;
+    cover_image?: string;
+    state?: string;
+    location?: string;
+    status?: SchoolZoneStatus;
+  } | null;
+}
+
+/** Zone stores endpoint returns STORE items with an `address` object. */
+export interface IZoneStore {
+  id: string;
+  store_name: string;
+  slug: string;
+  subdomain?: string;
+  category?: string;
+  description?: string;
+  logo?: string;
+  cover_image?: string;
+  rating_average?: string;
+  address: {
+    city: string | null;
+    state: string | null;
+    country: string | null;
+  };
+  total_products: number;
 }
 
 export interface IZoneApplicationPayload {

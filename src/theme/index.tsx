@@ -41,20 +41,20 @@ export const lightColors: ThemeColors = {
 };
 
 export const darkColors: ThemeColors = {
-  background: '#18181b',
-  surface: '#27272a',
-  surfaceAlt: '#3f3f46',
-  border: 'rgba(255, 255, 255, 0.1)',
+  background: '#0a0a0a',
+  surface: '#171717',
+  surfaceAlt: '#262626',
+  border: '#ffffff1a',
   primary: '#10b981',
   primaryForeground: '#ffffff',
-  primaryMuted: '#0f3d2c',
+  primaryMuted: '#10b98114',
   text: '#fafafa',
   textMuted: '#a1a1aa',
   textSubtle: '#71717a',
-  success: '#34d399',
-  warning: '#fbbf24',
-  danger: '#f87171',
-  info: '#60a5fa',
+  success: '#10b981',
+  warning: '#f59e0b',
+  danger: '#ef4444',
+  info: '#3b82f6',
   overlay: 'rgba(0, 0, 0, 0.6)',
 };
 
@@ -67,11 +67,13 @@ export const spacing = {
   xxl: 32,
 } as const;
 
+/* Web (Tailwind) radius scale: rounded-sm 0.3rem≈5, rounded-md 0.4rem≈6, rounded-lg 0.6rem≈10, rounded-xl 0.8rem≈13, rounded-2xl 1rem≈16, full */
 export const radius = {
-  sm: 4,
+  sm: 5,
   md: 6,
   lg: 10,
-  xl: 14,
+  xl: 13,
+  xxl: 16,
   full: 999,
 } as const;
 

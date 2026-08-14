@@ -1,5 +1,7 @@
-import { useState } from 'react';
-import { View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { TextInput, View } from 'react-native';
+
+import { Search } from 'lucide-react-native';
 
 import { useAppTheme } from '@/theme';
 import { AppText, Row, Spacer } from '@/components/ui/Text';
@@ -22,12 +24,21 @@ import { getErrorMessage } from '@/utils/error';
 import type { ISchoolZone } from '@/types/zone';
 
 export default function SchoolZonesScreen() {
-  const { colors, spacing } = useAppTheme();
+  const { colors, radius, spacing } = useAppTheme();
   const toast = useToast();
 
   const { data: memberships } = useGetMyMembershipsQuery();
   const { data: createdZones } = useGetMyCreatedZonesQuery();
-  const { data: allZones, isLoading, isFetching } = useGetZonesQuery({ limit: 50 });
+  const { data: allZones, isLoading, isFetching, isError, refetch } = useGetZonesQuery({
+    limit: 50,
+  });
+  const [browseSearch, setBrowseSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(browseSearch), 400);
+    return () => clearTimeout(timer);
+  }, [browseSearch]);
 
   const [applyZone, setApplyZone] = useState<ISchoolZone | null>(null);
   const [department, setDepartment] = useState('');
@@ -36,8 +47,8 @@ export default function SchoolZonesScreen() {
   const [leave, { isLoading: leaving }] = useLeaveZoneMutation();
   const [leavingZone, setLeavingZone] = useState<ISchoolZone | null>(null);
 
-  const membershipZoneIds = new Set(memberships?.map((membership) => membership.zone.id) ?? []);
-  const createdZoneIds = new Set(createdZones?.map((zone) => zone.id) ?? []);
+  const membershipZoneIds = new Set(memberships?.items.map((membership) => membership.zone?.id ?? '') ?? []);
+  const createdZoneIds = new Set(createdZones?.items.map((zone) => zone.id) ?? []);
 
   const handleApply = async () => {
     if (!applyZone) {
@@ -73,29 +84,48 @@ export default function SchoolZonesScreen() {
     }
   };
 
+  const query = debouncedSearch.trim().toLowerCase();
   const visibleZones =
-    allZones?.items.filter(
-      (zone) => !membershipZoneIds.has(zone.id) && !createdZoneIds.has(zone.id),
+    (allZones?.items ?? []).filter(
+      (zone) =>
+        !membershipZoneIds.has(zone.id) &&
+        !createdZoneIds.has(zone.id) &&
+        (query
+          ? `${zone.name} ${zone.tagline ?? ''} ${zone.description ?? ''} ${zone.location ?? ''} ${zone.state ?? ''}`
+              .toLowerCase()
+              .includes(query)
+          : true),
     ) ?? [];
+
+  if (isError) {
+    return (
+      <View style={{ padding: spacing.xl, gap: spacing.md, alignItems: 'center' }}>
+        <AppText center color={colors.textMuted}>
+          Couldn&apos;t load school zones
+        </AppText>
+        <Button title="Try Again" onPress={refetch} fullWidth={false} />
+      </View>
+    );
+  }
 
   return (
     <View style={{ flex: 1 }}>
-      {memberships && memberships.length > 0 ? (
+      {memberships && memberships.items.length > 0 ? (
         <View style={{ padding: spacing.lg, paddingBottom: 0, gap: spacing.sm }}>
           <AppText variant="label" weight="bold">
             My Zones
           </AppText>
-          {memberships.map((membership) => (
+          {memberships.items.map((membership) => (
             <Card key={membership.id} style={{ gap: spacing.sm }}>
               <Row style={{ gap: spacing.md }}>
                 <AppImage
-                  uri={membership.zone.logo}
-                  style={{ width: 48, height: 48, borderRadius: 24 }}
-                  fallbackText={membership.zone.name}
+                  uri={membership.zone?.logo}
+                  style={{ width: 48, height: 48, borderRadius: radius.full }}
+                  fallbackText={membership.zone?.name ?? 'Zone'}
                 />
                 <View style={{ flex: 1 }}>
                   <AppText variant="label" weight="semibold">
-                    {membership.zone.name}
+                    {membership.zone?.name}
                   </AppText>
                   <StatusBadge status={membership.status} />
                 </View>
@@ -105,8 +135,8 @@ export default function SchoolZonesScreen() {
                 variant="ghost"
                 size="sm"
                 fullWidth={false}
-                loading={leaving && leavingZone?.id === membership.zone.id}
-                onPress={() => setLeavingZone(membership.zone)}
+                loading={leaving && leavingZone?.id === membership.zone?.id}
+                onPress={() => membership.zone && setLeavingZone(membership.zone)}
               />
             </Card>
           ))}
@@ -125,7 +155,7 @@ export default function SchoolZonesScreen() {
             <Row style={{ gap: spacing.md }}>
               <AppImage
                 uri={zone.logo}
-                style={{ width: 52, height: 52, borderRadius: 26 }}
+                style={{ width: 52, height: 52, borderRadius: radius.full }}
                 fallbackText={zone.name}
               />
               <View style={{ flex: 1, gap: 2 }}>
@@ -152,11 +182,23 @@ export default function SchoolZonesScreen() {
         emptyTitle="No zones available"
         emptyDescription="School zones near you will appear here"
         ListHeaderComponent={
-          <View style={{ padding: spacing.lg, paddingBottom: 0 }}>
+          <View style={{ padding: spacing.lg, paddingBottom: 0, gap: spacing.md }}>
             <AppText variant="label" weight="bold">
               Discover Zones
             </AppText>
-            <Spacer height={8} />
+            <Card padded={false} style={{ paddingHorizontal: spacing.md, paddingVertical: spacing.sm }}>
+              <Row style={{ gap: spacing.sm }}>
+                <Search size={16} color={colors.textSubtle} />
+                <TextInput
+                  value={browseSearch}
+                  onChangeText={setBrowseSearch}
+                  placeholder="Search zones…"
+                  placeholderTextColor={colors.textSubtle}
+                  style={{ flex: 1, fontSize: 14, color: colors.text }}
+                />
+              </Row>
+            </Card>
+            <Spacer height={4} />
           </View>
         }
       />
